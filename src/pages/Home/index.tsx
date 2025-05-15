@@ -16,11 +16,27 @@ const Home: React.FC = () => {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome',
+      isAi: true,
+      content: "Bonjour ! Je suis ravi de vous accueillir. Je suis votre assistant personnel, conçu pour vous aider dans vos tâches quotidiennes. N'hésitez pas à me poser des questions sur n'importe quel sujet !",
+      timestamp: new Date(),
+    }
+  ]);
   const [messageInput, setMessageInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const aiResponses = [
+    "Je comprends parfaitement votre question. Laissez-moi vous expliquer en détail. La réponse implique plusieurs aspects importants qu'il faut considérer. Premièrement, il est essentiel de noter que ce sujet est complexe et nécessite une analyse approfondie. En prenant en compte les différents facteurs, nous pouvons arriver à une compréhension plus complète de la situation.",
+    "D'accord, je vois.",
+    "Voici une réponse concise à votre question.",
+    "Intéressant ! Cette question soulève plusieurs points importants. Permettez-moi de les aborder un par un.",
+    "Je peux vous aider avec ça. La solution est simple et directe.",
+    "Excellente question ! C'est un sujet fascinant qui mérite une exploration approfondie. En effet, de nombreuses recherches ont été menées dans ce domaine, et les résultats sont particulièrement intéressants. Laissez-moi vous expliquer les principales découvertes et leurs implications pratiques."
+  ];
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +64,7 @@ const Home: React.FC = () => {
     if (!messageInput.trim()) return;
 
     setIsLoading(true);
+    const randomDelay = Math.floor(Math.random() * 1000) + 500;
 
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -59,17 +76,19 @@ const Home: React.FC = () => {
     setMessages(prev => [...prev, newMessage]);
     setMessageInput('');
 
-    // Simulate AI response
     setTimeout(() => {
+      const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+      
       const aiResponse: Message = {
         id: `msg-${Date.now()}-ai`,
         isAi: true,
-        content: "Je comprends votre message. Je vais vous aider avec ça.",
+        content: randomResponse,
         timestamp: new Date(),
       };
-      // Add a slight delay before showing AI response for a more natural feel
+      
       setTimeout(() => {
         setMessages(prev => [...prev, aiResponse]);
+        setIsLoading(false);
       }, 300);
       setIsLoading(false);
     }, 1000);
