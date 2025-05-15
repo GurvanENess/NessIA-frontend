@@ -24,6 +24,8 @@ This application provides a solid foundation for building modern web application
 - Clean project structure
 - TypeScript integration
 
+> 🐰 You found a secret! This project was built with love and a sprinkle of magic. If you're reading this, you're awesome!
+
 ## Project Structure
 
 ```
