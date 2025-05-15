@@ -49,7 +49,7 @@ const Home: React.FC = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [newMessage, ...prev]);
+    setMessages(prev => [...prev, newMessage]);
     setMessageInput('');
 
     // Simulate AI response
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       };
       // Add a slight delay before showing AI response for a more natural feel
       setTimeout(() => {
-        setMessages(prev => [aiResponse, ...prev]);
+        setMessages(prev => [...prev, aiResponse]);
       }, 300);
       setIsLoading(false);
     }, 1000);
@@ -153,7 +153,7 @@ const Home: React.FC = () => {
       <div className="flex-1 pt-16 pb-24">
         <div className="max-w-3xl mx-auto px-4">
           {/* Messages */}
-          <div className="space-y-6 py-6">
+          <div className="flex flex-col space-y-6 py-6">
             {messages.map((message, index) => (
               <div
                 key={message.id}
