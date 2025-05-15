@@ -52,7 +52,7 @@ const Login: React.FC = () => {
       <img
         src="/assets/green_star.svg"
         alt=""
-        className="absolute translate-x-[-50%] translate-y-[-50%] top-0 w-48 h-48 md:w-40 md:h-40"
+        className="absolute translate-x-[-50%] translate-y-[-50%] top-0 w-48 h-48 md:w-60 md:h-60"
         aria-hidden="true"
       />
       <img
@@ -68,21 +68,21 @@ const Login: React.FC = () => {
         aria-hidden="true"
       />
 
-      <div className="flex-1 flex flex-col md:container md:mx-auto md:px-4 md:py-8 md:items-center md:min-h-screen">
+      <div className="flex-1 flex flex-col md:container md:mx-auto md:px-4 md:py-8 md:items-center md:min-h-screen md:justify-center">
         <div className="flex-1 flex flex-col md:flex-none md:max-w-md md:w-full">
           {/* Logo and Welcome text */}
-          <div className="px-8 pt-36 pb-14 md:mt-0 md:mb-12">
-            <div className="flex gap-2 mb-1">
+          <div className="px-8 pt-36 pb-14 md:py-12 ">
+            <div className="flex gap-2 md:gap-3 mb-1">
               <img
                 src="/assets/nessia_logo.svg"
                 alt="Nessia"
-                className="w-10"
+                className="w-10 self-start mt-2 md:w-14"
               />
               <div className="flex flex-col mb-1 justify-between">
-                <h1 className="text-white text-3xl tracking-wide font-coolvetica !font-coolvetica">
+                <h1 className="text-white text-3xl tracking-wide font-coolvetica !font-coolvetica sm:text-6xl md:text-6xl lg:text-7xl">
                   Bonjour !
                 </h1>
-                <p className="text-gray-300 text-md font-sans">
+                <p className="text-gray-300 text-md font-sans font-light md:mt-2 md:text-lg">
                   Bienvenue sur Nessia
                 </p>
               </div>
