@@ -158,7 +158,9 @@ const Home: React.FC = () => {
               <div
                 key={message.id}
                 ref={index === messages.length - 5 ? ref : undefined}
-                className={`rounded-lg shadow-sm p-4 message-animation ${
+                className={`rounded-lg shadow-sm p-4 ${
+                  message.isAi ? 'message-animation-ai' : 'message-animation-user'
+                } ${
                   message.isAi ? 'bg-white' : 'bg-[#7C3AED] text-white ml-12'
                 }`}
               >
