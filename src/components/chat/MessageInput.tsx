@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import { Send, Paperclip, Smile, Image } from 'lucide-react';
-import { addMessage } from '../../store/chatSlice';
+import { useChat } from '../../contexts/ChatContext';
 
 const MessageInput: React.FC = () => {
-  const dispatch = useDispatch();
+  const { dispatch } = useChat();
   const [message, setMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,7 +24,7 @@ const MessageInput: React.FC = () => {
       reactions: [],
     };
 
-    dispatch(addMessage(newMessage));
+    dispatch({ type: 'ADD_MESSAGE', payload: newMessage });
     setMessage('');
   };
 
