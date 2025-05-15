@@ -68,3 +68,5 @@ const ChatLayout: React.FC = () => {
     </div>
   );
 };
+
+export default ChatLayout
