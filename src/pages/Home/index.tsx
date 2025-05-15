@@ -20,9 +20,16 @@ const Home: React.FC = () => {
   const [messageInput, setMessageInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
-  const [ref, inView] = useInView({
-    threshold: 0,
-  });
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const mockMessages: Message[] = [
@@ -66,8 +73,6 @@ const Home: React.FC = () => {
       }, 300);
       setIsLoading(false);
     }, 1000);
-
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -153,11 +158,10 @@ const Home: React.FC = () => {
       <div className="flex-1 pt-16 pb-24">
         <div className="max-w-3xl mx-auto px-4">
           {/* Messages */}
-          <div className="flex flex-col space-y-6 py-6">
+          <div className="flex flex-col space-y-6 py-6" ref={messagesContainerRef}>
             {messages.map((message, index) => (
               <div
                 key={message.id}
-                ref={index === messages.length - 5 ? ref : undefined}
                 className={`rounded-lg shadow-sm p-4 message-animation ${
                   message.isAi ? 'bg-white' : 'bg-[#7C3AED] text-white ml-12'
                 }`}
