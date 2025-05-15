@@ -57,10 +57,13 @@ const Home: React.FC = () => {
       const aiResponse: Message = {
         id: `msg-${Date.now()}-ai`,
         isAi: true,
-        content: "Je comprends votre message. Permettez-moi d'y réfléchir...",
+        content: "Je comprends votre message. Je vais vous aider avec ça.",
         timestamp: new Date(),
       };
-      setMessages(prev => [aiResponse, ...prev]);
+      // Add a slight delay before showing AI response for a more natural feel
+      setTimeout(() => {
+        setMessages(prev => [aiResponse, ...prev]);
+      }, 300);
       setIsLoading(false);
     }, 1000);
 
@@ -155,7 +158,7 @@ const Home: React.FC = () => {
               <div
                 key={message.id}
                 ref={index === messages.length - 5 ? ref : undefined}
-                className={`rounded-lg shadow-sm p-4 ${
+                className={`rounded-lg shadow-sm p-4 message-animation ${
                   message.isAi ? 'bg-white' : 'bg-[#7C3AED] text-white ml-12'
                 }`}
               >
