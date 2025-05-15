@@ -3,7 +3,8 @@ import { useInView } from 'react-intersection-observer';
 import { useAuth } from '../../contexts/AuthContext';
 import { Send, Image, Smile, Bot } from 'lucide-react';
 import { format } from 'date-fns';
-import fr from 'date-fns/locale/fr';
+import fr from 'date-fns/locale/fr'; 
+import { useCallback } from 'react';
 
 interface Message {
   id: string;
@@ -18,9 +19,16 @@ const Home: React.FC = () => {
   const [messageInput, setMessageInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [ref, inView] = useInView({
     threshold: 0,
   });
+
+  const scrollToBottom = useCallback(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, []);
 
   useEffect(() => {
     const mockMessages: Message[] = [
@@ -47,7 +55,7 @@ const Home: React.FC = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [newMessage, ...prev]);
+    setMessages(prev => [...prev, newMessage]);
     setMessageInput('');
 
     // Simulate AI response
@@ -59,10 +67,12 @@ const Home: React.FC = () => {
         timestamp: new Date(),
       };
       setMessages(prev => [aiResponse, ...prev]);
+      setMessages(prev => [...prev, aiResponse]);
       setIsLoading(false);
+      scrollToBottom();
     }, 1000);
 
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollToBottom();
   };
 
   return (
@@ -79,14 +89,18 @@ const Home: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 pt-16 pb-24">
+      <div className="flex-1 pt-16 pb-24 flex flex-col">
         <div className="max-w-3xl mx-auto px-4">
           {/* Messages */}
-          <div className="space-y-6 py-6">
+          <div 
+            ref={containerRef}
+            className="space-y-6 py-6 flex flex-col-reverse overflow-y-auto"
+            style={{ height: 'calc(100vh - 9rem)' }}
+          >
             {messages.map((message, index) => (
               <div
                 key={message.id}
-                ref={index === messages.length - 5 ? ref : undefined}
+                ref={index === messages.length - 1 ? messageEndRef : undefined}
                 className={`rounded-lg shadow-sm p-4 ${
                   message.isAi ? 'bg-white' : 'bg-[#7C3AED] text-white ml-12'
                 }`}
@@ -113,7 +127,6 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ))}
-            <div ref={messageEndRef} />
           </div>
         </div>
       </div>
