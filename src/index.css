@@ -1,3 +1,14 @@
+@import "./styles/fonts.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ensure font loading */
+:root {
+  font-family: sans-serif;
+}
+
+.font-coolvetica {
+  font-family: "Coolvetica", sans-serif !important;
+}
