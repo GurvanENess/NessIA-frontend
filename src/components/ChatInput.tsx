@@ -134,3 +134,5 @@ const ChatInput: React.FC = () => {
     </div>
   );
 };
+
+export default ChatInput

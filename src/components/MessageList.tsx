@@ -88,3 +88,5 @@ const MessageList: React.FC = () => {
     </div>
   );
 };
+
+export default MessageList

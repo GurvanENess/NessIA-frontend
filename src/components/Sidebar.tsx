@@ -137,3 +137,5 @@ const Sidebar: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
     </aside>
   );
 };
+
+export default Sidebar
