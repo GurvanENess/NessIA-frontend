@@ -117,16 +117,16 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Message Input */}
-      <div className="fixed bottom-0 left-0 right-0 pb-6 px-4">
-        <form onSubmit={handleSendMessage} className="md:max-w-2xl md:mx-auto">
-          <div className="relative bg-white rounded-2xl shadow-lg border border-gray-200 md:mx-auto md:w-[600px]">
+      <div className="fixed bottom-0 left-0 right-0 pb-6">
+        <form onSubmit={handleSendMessage} className="max-w-2xl mx-auto">
+          <div className="relative mx-4 md:mx-auto bg-white rounded-2xl shadow-lg border border-gray-200">
             <input
               type="text"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               placeholder="Posez votre question..."
               disabled={isLoading}
-              className="w-full pl-4 pr-32 py-4 rounded-2xl bg-transparent focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2 md:text-base"
+              className="w-full pl-4 pr-32 py-4 rounded-2xl bg-transparent focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
               <button
