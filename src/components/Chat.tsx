@@ -117,34 +117,34 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Message Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-        <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto p-4">
-          <div className="relative">
+      <div className="fixed bottom-0 left-0 right-0 pb-6">
+        <form onSubmit={handleSendMessage} className="max-w-2xl mx-auto">
+          <div className="relative mx-4 md:mx-auto bg-white rounded-2xl shadow-lg border border-gray-200">
             <input
               type="text"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
               placeholder="Posez votre question..."
               disabled={isLoading}
-              className="w-full pl-4 pr-32 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent"
+              className="w-full pl-4 pr-32 py-4 rounded-2xl bg-transparent focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:ring-offset-2"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
               <button
                 type="button"
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="p-2 hover:bg-gray-50 rounded-full transition-colors"
               >
                 <Image className="w-5 h-5 text-gray-500" />
               </button>
               <button
                 type="button"
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="p-2 hover:bg-gray-50 rounded-full transition-colors"
               >
                 <Smile className="w-5 h-5 text-gray-500" />
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#7C3AED] text-white p-2 rounded-full hover:bg-[#6D28D9] transition-colors"
+                className="bg-[#7C3AED] text-white p-2 rounded-full hover:bg-[#6D28D9] transition-colors shadow-sm"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
