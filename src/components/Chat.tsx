@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
+import Message from "./Message";
 
 interface Message {
   id: string;
   isAi: boolean;
   content: string;
   timestamp: Date;
+  showActions?: boolean;
 }
 
 const aiResponses = [
@@ -98,12 +100,20 @@ const Chat: React.FC = () => {
         isAi: true,
         content: randomResponse,
         timestamp: new Date(),
+        showActions: false,
       };
 
+      setMessages((prev) => [...prev, aiResponse]);
+
+      // Show actions after 1 second
       setTimeout(() => {
-        setMessages((prev) => [...prev, aiResponse]);
-        setIsLoading(false);
-      }, 300);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
+          )
+        );
+      }, 1000);
+
       setIsLoading(false);
     }, 1000);
   };
@@ -122,7 +132,7 @@ const Chat: React.FC = () => {
                   className="max-w-[150%] w-[150%] top-1/2 left-1/2 overflow-hidden absolute translate-x-[-50%] translate-y-[-50%] opacity-70 transform transition-opacity duration-1000 [filter:hue-rotate(235deg)_saturate(150%)]"
                 />
                 <div className="absolute inset-0 flex flex-col w-full items-center justify-center text-center p-4 sm:p-6 md:p-8">
-                  <h2 className="text-3xl sm:text-2xl md:text-3xl font-coolvetica text-black mb-2">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-coolvetica text-black mb-2">
                     Prêt à créer des posts qui captivent ?
                   </h2>
                   <p className="font-coolvetica w-[60%] text-centerleading-5 text-md sm:text-base md:text-lg text-black">
@@ -139,43 +149,18 @@ const Chat: React.FC = () => {
             ref={messagesContainerRef}
           >
             {messages.map((message) => (
-              <div
+              <Message
                 key={message.id}
-                className={`rounded-lg shadow-sm p-4 message-animation ${
-                  message.isAi ? "bg-white" : "bg-[#7C3AED] text-white ml-12"
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  {message.isAi && (
-                    <div className="w-10 h-10 rounded-full bg-[#7C3AED] flex items-center justify-center">
-                      <Bot className="w-6 h-6 text-white" />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">
-                        {message.isAi ? "Assistant" : "Vous"}
-                      </h3>
-                      <span
-                        className={`text-sm ${
-                          message.isAi ? "text-gray-500" : "text-white/80"
-                        }`}
-                      >
-                        {format(message.timestamp, "d MMM 'à' HH:mm", {
-                          locale: fr,
-                        })}
-                      </span>
-                    </div>
-                    <p
-                      className={`mt-2 ${
-                        message.isAi ? "text-gray-700" : "text-white/90"
-                      }`}
-                    >
-                      {message.content}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                {...message}
+                onValidate={() => {
+                  // Handle validation
+                  console.log("Message validated:", message.id);
+                }}
+                onCancel={() => {
+                  // Handle cancellation
+                  console.log("Message cancelled:", message.id);
+                }}
+              />
             ))}
             <div ref={messageEndRef} />
           </div>
