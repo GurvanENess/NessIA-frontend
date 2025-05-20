@@ -9,30 +9,35 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
-import Message from "./Message";
-
-interface Message {
-  id: string;
-  isAi: boolean;
-  content: string;
-  timestamp: Date;
-  showActions?: boolean;
-}
+import { Message } from "../types/message";
+import MessageComponent from "./Message";
 
 const aiResponses = [
-  "Je comprends parfaitement votre question. Laissez-moi vous expliquer en détail. La réponse implique plusieurs aspects importants qu'il faut considérer. Premièrement, il est essentiel de noter que ce sujet est complexe et nécessite une analyse approfondie. En prenant en compte les différents facteurs, nous pouvons arriver à une compréhension plus complète de la situation.",
-  "D'accord, je vois.",
-  "Voici une réponse concise à votre question.",
-  "Intéressant ! Cette question soulève plusieurs points importants. Permettez-moi de les aborder un par un.",
-  "Je peux vous aider avec ça. La solution est simple et directe.",
-  "Excellente question ! C'est un sujet fascinant qui mérite une exploration approfondie. En effet, de nombreuses recherches ont été menées dans ce domaine, et les résultats sont particulièrement intéressants. Laissez-moi vous expliquer les principales découvertes et leurs implications pratiques.",
+  "D'après votre demande, voici une suggestion de post Instagram qui pourrait bien fonctionner. Le texte serait court et percutant, avec 2-3 émojis stratégiquement placés. Nous pourrions utiliser un style minimaliste qui correspond bien à votre marque.",
+  "Pour Facebook, je suggère un post plus détaillé qui raconte une histoire. Le format texte plus long de Facebook nous permet d'établir une meilleure connexion avec votre audience. Que pensez-vous de cette approche ?",
+  "Sur TikTok, nous pourrions créer une vidéo courte et dynamique qui suit les tendances actuelles. Je propose d'utiliser une musique populaire du moment et d'ajouter des transitions énergiques.",
+  "Voici une idée de carrousel Instagram qui présenterait vos produits sous différents angles. Chaque slide aurait un appel à l'action spécifique.",
+  "Pour maximiser l'engagement sur Facebook, nous pourrions créer un post qui pose une question à votre communauté. Les gens aiment partager leur opinion !",
+  "Je propose un concept de vidéo TikTok qui utilise le format 'avant/après'. C'est un format qui génère beaucoup d'engagement sur la plateforme.",
 ];
+
+const previewResponses = {
+  instagram:
+    "📱 Aperçu du post Instagram :\n\n✨ [Photo principale]\nCaption : \"La vie est faite de petits moments de bonheur ☀️\nDouble tap si vous êtes d'accord! 💫\"\nHashtags suggérés : #lifestyle #motivation #inspiration\n\nCe post simple mais efficace devrait générer un bon taux d'engagement. Les émojis sélectionnés rendent le message plus chaleureux et accessible.",
+  facebook:
+    "📘 Aperçu du post Facebook :\n\nTexte : \"Aujourd'hui, nous voulons partager avec vous une histoire inspirante...\n[Photo évocatrice]\n\nQu'en pensez-vous ? Partagez votre expérience dans les commentaires 💭\"\n\nCe format plus long permet de créer une véritable connexion avec votre audience.",
+  tiktok:
+    "📱 Aperçu de la vidéo TikTok :\n\nDurée : 15 secondes\nMusique : [Dernière tendance TikTok]\nStoryboard :\n1. Intro accrocheuse (2s)\n2. Démonstration principale (10s)\n3. Call-to-action final (3s)\n\nEffets suggérés : transitions dynamiques, texte qui apparaît en rythme",
+} as const;
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [currentPlatform, setCurrentPlatform] = useState<
+    "instagram" | "facebook" | "tiktok" | null
+  >(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -71,15 +76,122 @@ const Chat: React.FC = () => {
     }
   };
 
+  const handleValidate = () => {
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return;
+
+    // Remove validation buttons from the last message
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === lastMessage.id ? { ...msg, showActions: false } : msg
+      )
+    );
+
+    // If it's a cancel message, start a new cycle
+    if (
+      lastMessage.content ===
+      "Très bien. Voulez-vous continuer la création de posts ?"
+    ) {
+      const randomResponse =
+        aiResponses[Math.floor(Math.random() * aiResponses.length)];
+      const newAiMessage: Message = {
+        id: `msg-${Date.now()}-ai`,
+        isAi: true,
+        content: randomResponse,
+        timestamp: new Date(),
+        showActions: false,
+      };
+
+      setTimeout(() => {
+        setMessages((prev) => [...prev, newAiMessage]);
+
+        // Show actions after 1 second
+        setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === newAiMessage.id ? { ...msg, showActions: true } : msg
+            )
+          );
+        }, 1000);
+      }, 300);
+      return;
+    }
+
+    // Handle normal validation for platform previews
+    if (!currentPlatform) return;
+
+    const previewMessage: Message = {
+      id: `msg-${Date.now()}-preview`,
+      isAi: true,
+      content: previewResponses[currentPlatform],
+      timestamp: new Date(),
+      showActions: false,
+    };
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, previewMessage]);
+    }, 300);
+  };
+
+  const handleCancel = () => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage) {
+      // Remove validation buttons from the last message
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === lastMessage.id ? { ...msg, showActions: false } : msg
+        )
+      );
+    }
+
+    const cancelMessage: Message = {
+      id: `msg-${Date.now()}-cancel`,
+      isAi: true,
+      content: "Très bien. Voulez-vous continuer la création de posts ?",
+      timestamp: new Date(),
+      showActions: false,
+    };
+
+    // Add a small delay before showing the cancel message
+    setTimeout(() => {
+      setMessages((prev) => [...prev, cancelMessage]);
+      // Show actions after a short delay
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === cancelMessage.id ? { ...msg, showActions: true } : msg
+          )
+        );
+      }, 1000);
+    }, 300);
+  };
+
   const handleSendMessage = async (
     e: React.FormEvent | React.KeyboardEvent
   ) => {
     e.preventDefault();
     if (!messageInput.trim() || isLoading) return;
 
+    // Remove validation buttons from the last message if it exists
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === lastMessage.id ? { ...msg, showActions: false } : msg
+        )
+      );
+    }
+
     setShowWelcome(false);
     setIsLoading(true);
-    const randomDelay = Math.floor(Math.random() * 1000) + 500;
+
+    // Determine the platform based on the message content
+    let platform: "instagram" | "facebook" | "tiktok" | null = null;
+    const lowerMessage = messageInput.toLowerCase();
+    if (lowerMessage.includes("instagram")) platform = "instagram";
+    else if (lowerMessage.includes("facebook")) platform = "facebook";
+    else if (lowerMessage.includes("tiktok")) platform = "tiktok";
+    setCurrentPlatform(platform);
 
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -149,17 +261,11 @@ const Chat: React.FC = () => {
             ref={messagesContainerRef}
           >
             {messages.map((message) => (
-              <Message
+              <MessageComponent
                 key={message.id}
                 {...message}
-                onValidate={() => {
-                  // Handle validation
-                  console.log("Message validated:", message.id);
-                }}
-                onCancel={() => {
-                  // Handle cancellation
-                  console.log("Message cancelled:", message.id);
-                }}
+                onValidate={handleValidate}
+                onCancel={handleCancel}
               />
             ))}
             <div ref={messageEndRef} />

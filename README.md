@@ -11,7 +11,7 @@ A production-ready React application built with modern tools and best practices,
 - **Tailwind CSS** - Utility-first CSS framework for rapid UI development
 - **Lucide React** - Beautiful, customizable icons
 - **ESLint** - Code linting for maintaining code quality
-- **Context API** - State management for authentication (we'll try to replace that with Redux)
+- **Context API** - State management for authentication (we'll try to replace that with Redux, small change from local)
 
 ## Project Overview
 
