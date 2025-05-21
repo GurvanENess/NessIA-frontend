@@ -1,32 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
+import { FormDataType, FormErrorsType } from "../../types/types";
 
 // TODO: Améliorer l'UI, faire les TODOS présents dedans lol.
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<FormDataType>({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    username: "",
+  });
+  const [errors, setErrors] = useState<FormErrorsType>({});
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-    username?: string;
-  }>({});
+  const { email, password, confirmPassword, username } = formData;
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   // A exporter dans un dossier api/validation
   const validateForm = (): boolean => {
-    const newErrors: {
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-      username?: string;
-    } = {};
+    const newErrors: FormErrorsType = {};
 
     if (!username) {
       newErrors.username = "Le nom d'utilisateur est requis";
@@ -63,9 +64,14 @@ const Register: React.FC = () => {
 
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate("/login");
+      const { success, data } = await signup(formData);
+      if (success) {
+        navigate("/login");
+      } else {
+        setErrors({
+          email: "Une erreur est survenue lors de l'inscription",
+        });
+      }
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({
@@ -136,8 +142,9 @@ const Register: React.FC = () => {
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={formData.username}
+                        name="username"
+                        onChange={handleFormChange}
                         placeholder="Nom d'utilisateur"
                         className={`text-sm w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors bg-white ${
                           errors.username
@@ -158,8 +165,9 @@ const Register: React.FC = () => {
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
                         placeholder="Email"
                         className={`text-sm w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors bg-white ${
                           errors.email
@@ -180,8 +188,9 @@ const Register: React.FC = () => {
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleFormChange}
                         placeholder="Mot de passe"
                         className={`text-sm w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors bg-white ${
                           errors.password
@@ -202,8 +211,9 @@ const Register: React.FC = () => {
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleFormChange}
                         placeholder="Confirmer le mot de passe"
                         className={`text-sm w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors bg-white ${
                           errors.confirmPassword
@@ -268,7 +278,7 @@ const Register: React.FC = () => {
                 <p className="text-center text-sm text-gray-500 mt-4">
                   Vous avez déjà un compte ?{" "}
                   <a
-                    href="#"
+                    href="/login"
                     className="text-[#7C3AED] font-coolvetica hover:text-[#6D28D9] transition-colors"
                   >
                     Se connecter

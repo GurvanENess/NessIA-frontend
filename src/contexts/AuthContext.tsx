@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../api/supabase";
+import { FormDataType } from "../types/types";
 
 interface User {
   id: string;
@@ -13,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  signup: (username: string, email: string, password: string) => Promise<void>;
+  signup: (formData: FormDataType) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -60,46 +61,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // A refacto: le signup ne devrait pas être dans le module d'authentification
-  const signup = async (username: string, email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: username,
+  const signup = async ({
+    email,
+    password,
+    username,
+  }: FormDataType): Promise<any> => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: username,
+          },
         },
-      },
-    });
+      });
+
+      if (error) {
+        console.error("Signup error:", error.message);
+        throw new Error(error.message || "Signup failed. Please try again.");
+      }
+
+      return { success: true, data };
+    } catch (err) {
+      // Tu peux loguer l'erreur ou l'envoyer à un outil comme Sentry
+      console.error("Unexpected signup error:", err);
+      throw err instanceof Error
+        ? err
+        : new Error("An unknown error occurred during signup.");
+    }
   };
 
   const login = async (email: string, password: string) => {
     // For demo purposes, simulate a successful login
     // In a real app, you would make an API call here
-    setIsLoading(true);
     try {
-      // Simulating API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock user for demo
-      const mockUser = {
-        id: "1",
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        name: email.split("@")[0],
-      };
+        password,
+      });
 
-      setUser(mockUser);
-      localStorage.setItem("user", JSON.stringify(mockUser));
+      if (error) {
+        console.error("Login error:", error.message);
+        throw new Error(error.message || "Login failed. Please try again.");
+      }
+
+      console.log(data.user.user_metadata);
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email!,
+          name:
+            data.user.user_metadata.display_name ||
+            data.user.email!.split("@")[0],
+        });
+      }
     } catch (error) {
-      console.error("Login failed:", error);
-      throw new Error("Login failed. Please check your credentials.");
-    } finally {
-      setIsLoading(false);
+      console.error("Login error:", error);
+      throw new Error("Login failed. Please try again.");
     }
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+    try {
+      const { error } = supabase.auth.signOut();
+      if (error) {
+        console.error("Logout error:", error.message);
+        throw new Error(error.message || "Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw new Error("Logout failed. Please try again.");
+    }
   };
 
   const value = {
