@@ -1,23 +1,19 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import LoadingScreen from "../components/LoadingScreen";
 
 interface ProtectedRouteProps {
   redirectPath?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  redirectPath = '/login' 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  redirectPath = "/login",
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    // You could render a loading spinner here
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return isAuthenticated ? <Outlet /> : <Navigate to={redirectPath} replace />;
