@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Bell, X, Settings, HelpCircle, LogOut, Info } from "lucide-react";
 import Chat from "../../components/Chat";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Home: React.FC = () => {
+  const { isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(false);
 
@@ -25,7 +27,12 @@ const Home: React.FC = () => {
             <button className="p-2 hover:bg-[#E7E9F2] rounded-full">
               <Info className="w-5 text-[#1A201B]" />
             </button>
-            <button className="p-2 hover:bg-[#E7E9F2] rounded-full relative">
+            <button
+              className="p-2 hover:bg-[#E7E9F2] rounded-full relative"
+              onClick={() => {
+                setHasNotifications(!hasNotifications);
+              }}
+            >
               <Bell className="w-5 text-[#1A201B]" />
               {hasNotifications && (
                 <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
@@ -80,12 +87,17 @@ const Home: React.FC = () => {
                   <span>Aide</span>
                 </button>
               </li>
-              <li>
-                <button className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-[#E7E9F2] rounded-lg">
-                  <LogOut className="w-5 h-5" />
-                  <span>Déconnexion</span>
-                </button>
-              </li>
+              {isAuthenticated && (
+                <li>
+                  <button
+                    onClick={logout}
+                    className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-[#E7E9F2] rounded-lg"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Déconnexion</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </nav>
         </div>
