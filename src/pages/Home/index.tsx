@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Bell, X, Settings, HelpCircle, LogOut, Info } from "lucide-react";
-import Chat from "../../components/Chat";
+import Chat from "./components/ChatAI";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Home: React.FC = () => {

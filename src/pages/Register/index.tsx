@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
-import { FormDataType, FormErrorsType } from "../../types/types";
+import { FormDataType, FormErrorsType } from "../../types/FormTypes";
 
 // TODO: Améliorer l'UI, faire les TODOS présents dedans lol.
 

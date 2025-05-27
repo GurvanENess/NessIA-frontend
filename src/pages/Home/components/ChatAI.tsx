@@ -1,35 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Send,
-  Image,
-  Bot,
-  Instagram,
-  Facebook,
-  MessageCircle,
-} from "lucide-react";
+import { Send, Image, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
-import Message from "./Message";
-
-interface Message {
-  id: string;
-  isAi: boolean;
-  content: string;
-  timestamp: Date;
-  showActions?: boolean;
-}
-
-const aiResponses = [
-  "Je comprends parfaitement votre question. Laissez-moi vous expliquer en détail. La réponse implique plusieurs aspects importants qu'il faut considérer. Premièrement, il est essentiel de noter que ce sujet est complexe et nécessite une analyse approfondie. En prenant en compte les différents facteurs, nous pouvons arriver à une compréhension plus complète de la situation.",
-  "D'accord, je vois.",
-  "Voici une réponse concise à votre question.",
-  "Intéressant ! Cette question soulève plusieurs points importants. Permettez-moi de les aborder un par un.",
-  "Je peux vous aider avec ça. La solution est simple et directe.",
-  "Excellente question ! C'est un sujet fascinant qui mérite une exploration approfondie. En effet, de nombreuses recherches ont été menées dans ce domaine, et les résultats sont particulièrement intéressants. Laissez-moi vous expliquer les principales découvertes et leurs implications pratiques.",
-];
+import { Message as MessageType } from "../../../types/ChatTypes";
+import { Action } from "../../../types/mockAITypes";
+import { mockAiClient } from "../../../api/mockAi";
+import Message from "./ChatMessage";
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
@@ -79,9 +58,8 @@ const Chat: React.FC = () => {
 
     setShowWelcome(false);
     setIsLoading(true);
-    const randomDelay = Math.floor(Math.random() * 1000) + 500;
 
-    const newMessage: Message = {
+    const newMessage: MessageType = {
       id: `msg-${Date.now()}`,
       isAi: false,
       content: messageInput,
@@ -91,31 +69,60 @@ const Chat: React.FC = () => {
     setMessages((prev) => [...prev, newMessage]);
     setMessageInput("");
 
+    const response = await mockAiClient.getResponse({
+      message: newMessage.content,
+    });
+
+    const aiResponse: MessageType = {
+      id: `msg-${Date.now()}-ai`,
+      isAi: true,
+      content: response.message,
+      timestamp: new Date(),
+      showActions: false,
+      actions: response.availableActions,
+    };
+
+    setMessages((prev) => [...prev, aiResponse]);
+
+    // Show actions after 1 second
     setTimeout(() => {
-      const randomResponse =
-        aiResponses[Math.floor(Math.random() * aiResponses.length)];
-
-      const aiResponse: Message = {
-        id: `msg-${Date.now()}-ai`,
-        isAi: true,
-        content: randomResponse,
-        timestamp: new Date(),
-        showActions: false,
-      };
-
-      setMessages((prev) => [...prev, aiResponse]);
-
-      // Show actions after 1 second
-      setTimeout(() => {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
-          )
-        );
-      }, 1000);
-
-      setIsLoading(false);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
+        )
+      );
     }, 1000);
+
+    setIsLoading(false);
+  };
+
+  const handleAction = async (action: Action) => {
+    const response = await mockAiClient.getResponse({
+      message: action.label,
+      sessionId: "17",
+    });
+
+    const aiResponse: MessageType = {
+      id: `msg-${Date.now()}-ai`,
+      isAi: true,
+      content: response.message,
+      timestamp: new Date(),
+      showActions: false,
+      actions: response.availableActions,
+    };
+
+    setMessages((prev) => [...prev, aiResponse]);
+
+    // Show actions after 1 second
+    setTimeout(() => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
+        )
+      );
+    }, 1000);
+
+    setIsLoading(false);
   };
 
   return (
@@ -151,15 +158,8 @@ const Chat: React.FC = () => {
             {messages.map((message) => (
               <Message
                 key={message.id}
+                handleAction={handleAction}
                 {...message}
-                onValidate={() => {
-                  // Handle validation
-                  console.log("Message validated:", message.id);
-                }}
-                onCancel={() => {
-                  // Handle cancellation
-                  console.log("Message cancelled:", message.id);
-                }}
               />
             ))}
             <div ref={messageEndRef} />

@@ -2,24 +2,18 @@ import React from "react";
 import { Bot } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
+import { Message as MessageType } from "../../../types/ChatTypes";
+import { Action } from "../../../types/mockAITypes";
+import { mockAiClient } from "../../../api/mockAi";
 
-interface MessageProps {
-  id: string;
-  isAi: boolean;
-  content: string;
-  timestamp: Date;
-  showActions?: boolean;
-  onValidate?: () => void;
-  onCancel?: () => void;
-}
-
-const Message: React.FC<MessageProps> = ({
+const Message: React.FC<MessageType> = ({
+  id,
   isAi,
   content,
   timestamp,
   showActions,
-  onValidate,
-  onCancel,
+  actions = [],
+  handleAction,
 }) => {
   return (
     <div>
@@ -31,7 +25,11 @@ const Message: React.FC<MessageProps> = ({
         <div className="flex items-start space-x-3">
           {isAi && (
             <div className="w-10 h-10 rounded-full bg-[#7C3AED] flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
+              <img
+                src="./assets/nessia_logo.svg"
+                alt="nessia logo"
+                className="invert brightness-0 w-7" // Ajout des classes pour rendre l'image blanche
+              />
             </div>
           )}
           <div className="flex-1">
@@ -53,26 +51,29 @@ const Message: React.FC<MessageProps> = ({
           </div>
         </div>
       </div>
-      {isAi && (
+      {isAi && actions.length > 0 && (
         <div
-          className={`flex space-x-2 mt-3 ml-[52px] transition-all duration-500 ease-in-out transform ${
+          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all duration-500 ease-in-out transform ${
             showActions
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4 pointer-events-none"
           }`}
         >
-          <button
-            className="px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors shadow-sm text-sm font-medium"
-            onClick={onValidate}
-          >
-            Valider
-          </button>
-          <button
-            className="px-4 py-2 bg-white text-[#1A201B] border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-sm font-medium"
-            onClick={onCancel}
-          >
-            Annuler
-          </button>
+          {actions.map((action, index) => (
+            <button
+              key={index}
+              className={`px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium ${
+                action.type === "primary"
+                  ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
+                  : "bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={() => {
+                handleAction && handleAction(action);
+              }}
+            >
+              {action.label}
+            </button>
+          ))}
         </div>
       )}
     </div>
