@@ -4,6 +4,7 @@ import { Message as MessageType } from "../../../types/ChatTypes";
 import { Action } from "../../../types/mockAITypes";
 import { mockAiClient } from "../../../api/mockAi";
 import Message from "./ChatMessage";
+import { sessionId } from "../../../utils/utils";
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -72,7 +73,10 @@ const Chat: React.FC = () => {
     }
 
     try {
-      const response = await mockAiClient.getResponse({ message: text });
+      const response = await mockAiClient.getResponse({
+        message: text,
+        sessionId,
+      });
       const aiResponse: MessageType = {
         id: crypto.randomUUID(),
         isAi: true,
@@ -117,7 +121,7 @@ const Chat: React.FC = () => {
   return (
     <>
       {/* Messages */}
-      <div className="flex-1 pt-16 md:pb-32 overflow-hidden">
+      <div className="flex-1 pt-16 pb-28 md:pb-36 overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
           {showWelcome && messages.length === 0 && (
             <div className="flex justify-center items-center min-h-[60vh]">

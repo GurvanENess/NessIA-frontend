@@ -2,6 +2,8 @@ import React from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../types/ChatTypes";
+import Markdown from "react-markdown";
+import markdownConfig from "../../../utils/markdownConfig";
 
 const Message: React.FC<MessageType> = ({
   isAi,
@@ -41,9 +43,13 @@ const Message: React.FC<MessageType> = ({
                 })}
               </span>
             </div>
-            <p className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}>
-              {content}
-            </p>
+            <div className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}>
+              {isAi ? (
+                <Markdown {...markdownConfig}>{content}</Markdown>
+              ) : (
+                content
+              )}
+            </div>
           </div>
         </div>
       </div>
