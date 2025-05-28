@@ -49,8 +49,14 @@ const Chat: React.FC = () => {
     }
   };
 
+
+  const hideAllActions = () => {
+    setMessages((prev) => prev.map((msg) => ({ ...msg, showActions: false })));
+  };
+
   const sendMessage = async (text: string, addUserMessage = true) => {
     if (isLoading) return;
+    hideAllActions();
     setShowWelcome(false);
     setIsLoading(true);
     setError(null);
@@ -100,7 +106,6 @@ const Chat: React.FC = () => {
   ) => {
     e.preventDefault();
     if (!messageInput.trim()) return;
-
     const text = messageInput;
     setMessageInput("");
     await sendMessage(text, true);
