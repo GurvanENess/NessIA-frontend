@@ -49,10 +49,10 @@ const Message: React.FC<MessageType> = ({
       </div>
       {isAi && actions.length > 0 && (
         <div
-          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all duration-500 ease-in-out transform ${
+          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all relative duration-500 ease-in-out transform ${
             showActions
               ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-4 pointer-events-none"
+              : "opacity-0 -translate-y-4 pointer-events-none hidden"
           }`}
         >
           {actions.map((action, index) => (

@@ -49,7 +49,6 @@ const Chat: React.FC = () => {
     }
   };
 
-
   const hideAllActions = () => {
     setMessages((prev) => prev.map((msg) => ({ ...msg, showActions: false })));
   };
@@ -118,7 +117,7 @@ const Chat: React.FC = () => {
   return (
     <>
       {/* Messages */}
-      <div className="flex-1 pt-16 pb-24 overflow-hidden">
+      <div className="flex-1 pt-16 md:pb-32 overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
           {showWelcome && messages.length === 0 && (
             <div className="flex justify-center items-center min-h-[60vh]">
@@ -164,57 +163,57 @@ const Chat: React.FC = () => {
           className="sm:max-w-full md:max-w-2xl mx-auto"
         >
           {/* Quick Actions Carousel */}
-          <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
-            <div className="flex space-x-2 w-max">
-              <button
-                type="button"
-                onClick={() => {
-                  setMessageInput("Créer un post Instagram");
-                  textareaRef.current?.focus();
-                }}
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <Instagram className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post Instagram
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMessageInput("Créer un post Facebook");
-                  textareaRef.current?.focus();
-                }}
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <Facebook className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post Facebook
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMessageInput("Créer un post TikTok");
-                  textareaRef.current?.focus();
-                }}
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <MessageCircle className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post TikTok
-                </span>
-              </button>
+          {showWelcome && (
+            <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
+              <div className="flex space-x-2 w-max">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMessageInput("Créer un post Instagram");
+                    textareaRef.current?.focus();
+                  }}
+                  className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
+                >
+                  <Instagram className="w-5 h-5 text-[#1A201B]" />
+                  <span className="text-sm text-[#1A201B]">
+                    Créer un post Instagram
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMessageInput("Créer un post Facebook");
+                    textareaRef.current?.focus();
+                  }}
+                  className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
+                >
+                  <Facebook className="w-5 h-5 text-[#1A201B]" />
+                  <span className="text-sm text-[#1A201B]">
+                    Créer un post Facebook
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMessageInput("Créer un post TikTok");
+                    textareaRef.current?.focus();
+                  }}
+                  className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
+                >
+                  <MessageCircle className="w-5 h-5 text-[#1A201B]" />
+                  <span className="text-sm text-[#1A201B]">
+                    Créer un post TikTok
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600 px-4 mb-2">{error}</p>
           )}
+
+          {/* Error and Loading States */}
+
+          {error && <p className="text-sm text-red-600 px-4 mb-2">{error}</p>}
           {isLoading && (
-            <p className="text-sm text-gray-500 px-4 mb-2">
-              NessIA rédige...
-            </p>
+            <p className="text-sm text-gray-500 px-4 mb-2">NessIA rédige...</p>
           )}
 
           <div className="relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors shadow-sm">
