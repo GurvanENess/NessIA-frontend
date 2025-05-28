@@ -15,9 +15,11 @@ const Chat: React.FC = () => {
     handleAction,
   } = useChat();
 
+  const isFirstMessage = messages.length === 0;
+
   return (
     <>
-      <div className="flex-1 pt-16 pb-24 overflow-hidden">
+      <div className="flex-1 pt-16 md:pb-36 pb-28 overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
           {messages.length === 0 && (
             <div className="flex justify-center items-center min-h-[60vh]">
@@ -54,7 +56,7 @@ const Chat: React.FC = () => {
         isLoading={isLoading}
         error={error}
       >
-        <QuickActions onSelect={setMessageInput} />
+        {isFirstMessage && <QuickActions onSelect={setMessageInput} />}
       </ChatInput>
     </>
   );
