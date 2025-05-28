@@ -1,13 +1,9 @@
 import React from "react";
-import { Bot } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../types/ChatTypes";
-import { Action } from "../../../types/mockAITypes";
-import { mockAiClient } from "../../../api/mockAi";
 
 const Message: React.FC<MessageType> = ({
-  id,
   isAi,
   content,
   timestamp,
@@ -67,9 +63,7 @@ const Message: React.FC<MessageType> = ({
                   ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
                   : "bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
               }`}
-              onClick={() => {
-                handleAction && handleAction(action);
-              }}
+              onClick={() => handleAction?.(action)}
             >
               {action.label}
             </button>
