@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Image, Instagram, Facebook, MessageCircle } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../types/ChatTypes";
 import { Action } from "../../../types/mockAITypes";
 import { mockAiClient } from "../../../api/mockAi";
@@ -12,6 +10,7 @@ const Chat: React.FC = () => {
   const [messageInput, setMessageInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -50,79 +49,70 @@ const Chat: React.FC = () => {
     }
   };
 
+  const hideAllActions = () => {
+    setMessages((prev) => prev.map((msg) => ({ ...msg, showActions: false })));
+  };
+
+  const sendMessage = async (text: string, addUserMessage = true) => {
+    if (isLoading) return;
+    hideAllActions();
+    setShowWelcome(false);
+    setIsLoading(true);
+    setError(null);
+
+    let userMessage: MessageType | null = null;
+    if (addUserMessage) {
+      userMessage = {
+        id: crypto.randomUUID(),
+        isAi: false,
+        content: text,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, userMessage!]);
+    }
+
+    try {
+      const response = await mockAiClient.getResponse({ message: text });
+      const aiResponse: MessageType = {
+        id: crypto.randomUUID(),
+        isAi: true,
+        content: response.message,
+        timestamp: new Date(),
+        showActions: false,
+        actions: response.availableActions,
+      };
+
+      setMessages((prev) => [...prev, aiResponse]);
+
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
+          )
+        );
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
+      textareaRef.current?.focus();
+    }
+  };
+
   const handleSendMessage = async (
     e: React.FormEvent | React.KeyboardEvent
   ) => {
     e.preventDefault();
-    if (!messageInput.trim() || isLoading) return;
+    if (!messageInput.trim()) return;
 
-    setShowWelcome(false);
-    setIsLoading(true);
-
-    const newMessage: MessageType = {
-      id: `msg-${Date.now()}`,
-      isAi: false,
-      content: messageInput,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    const text = messageInput;
     setMessageInput("");
-
-    const response = await mockAiClient.getResponse({
-      message: newMessage.content,
-    });
-
-    const aiResponse: MessageType = {
-      id: `msg-${Date.now()}-ai`,
-      isAi: true,
-      content: response.message,
-      timestamp: new Date(),
-      showActions: false,
-      actions: response.availableActions,
-    };
-
-    setMessages((prev) => [...prev, aiResponse]);
-
-    // Show actions after 1 second
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
-        )
-      );
-    }, 1000);
-
-    setIsLoading(false);
+    await sendMessage(text, true);
   };
 
   const handleAction = async (action: Action) => {
-    const response = await mockAiClient.getResponse({
-      message: action.label,
-      sessionId: "17",
-    });
-
-    const aiResponse: MessageType = {
-      id: `msg-${Date.now()}-ai`,
-      isAi: true,
-      content: response.message,
-      timestamp: new Date(),
-      showActions: false,
-      actions: response.availableActions,
-    };
-
-    setMessages((prev) => [...prev, aiResponse]);
-
-    // Show actions after 1 second
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
-        )
-      );
-    }, 1000);
-
-    setIsLoading(false);
+    await sendMessage(action.label, false);
   };
 
   return (
@@ -178,6 +168,10 @@ const Chat: React.FC = () => {
             <div className="flex space-x-2 w-max">
               <button
                 type="button"
+                onClick={() => {
+                  setMessageInput("Créer un post Instagram");
+                  textareaRef.current?.focus();
+                }}
                 className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
               >
                 <Instagram className="w-5 h-5 text-[#1A201B]" />
@@ -187,6 +181,10 @@ const Chat: React.FC = () => {
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  setMessageInput("Créer un post Facebook");
+                  textareaRef.current?.focus();
+                }}
                 className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
               >
                 <Facebook className="w-5 h-5 text-[#1A201B]" />
@@ -196,6 +194,10 @@ const Chat: React.FC = () => {
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  setMessageInput("Créer un post TikTok");
+                  textareaRef.current?.focus();
+                }}
                 className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
               >
                 <MessageCircle className="w-5 h-5 text-[#1A201B]" />
@@ -205,6 +207,15 @@ const Chat: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {error && (
+            <p className="text-sm text-red-600 px-4 mb-2">{error}</p>
+          )}
+          {isLoading && (
+            <p className="text-sm text-gray-500 px-4 mb-2">
+              NessIA rédige...
+            </p>
+          )}
 
           <div className="relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors shadow-sm">
             <textarea
