@@ -1,13 +1,11 @@
 import React from "react";
-import { Bot } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../types/ChatTypes";
-import { Action } from "../../../types/mockAITypes";
-import { mockAiClient } from "../../../api/mockAi";
+import Markdown from "react-markdown";
+import markdownConfig from "../../../utils/markdownConfig";
 
 const Message: React.FC<MessageType> = ({
-  id,
   isAi,
   content,
   timestamp,
@@ -45,18 +43,22 @@ const Message: React.FC<MessageType> = ({
                 })}
               </span>
             </div>
-            <p className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}>
-              {content}
-            </p>
+            <div className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}>
+              {isAi ? (
+                <Markdown {...markdownConfig}>{content}</Markdown>
+              ) : (
+                content
+              )}
+            </div>
           </div>
         </div>
       </div>
       {isAi && actions.length > 0 && (
         <div
-          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all duration-500 ease-in-out transform ${
+          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all relative duration-500 ease-in-out transform ${
             showActions
               ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-4 pointer-events-none"
+              : "opacity-0 -translate-y-4 pointer-events-none hidden"
           }`}
         >
           {actions.map((action, index) => (
@@ -67,9 +69,7 @@ const Message: React.FC<MessageType> = ({
                   ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
                   : "bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
               }`}
-              onClick={() => {
-                handleAction && handleAction(action);
-              }}
+              onClick={() => handleAction?.(action)}
             >
               {action.label}
             </button>

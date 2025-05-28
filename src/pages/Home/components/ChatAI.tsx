@@ -1,136 +1,27 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Send, Image, Instagram, Facebook, MessageCircle } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale/fr";
-import { Message as MessageType } from "../../../types/ChatTypes";
-import { Action } from "../../../types/mockAITypes";
-import { mockAiClient } from "../../../api/mockAi";
-import Message from "./ChatMessage";
+import React from "react";
+import MessageList from "./MessageList";
+import ChatInput from "./ChatInput";
+import QuickActions from "./QuickActions";
+import useChat from "../../../hooks/useChat";
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const [messageInput, setMessageInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
-  const messageEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    messages,
+    messageInput,
+    setMessageInput,
+    isLoading,
+    error,
+    handleSendMessage,
+    handleAction,
+  } = useChat();
 
-  const adjustTextareaHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      const newHeight = Math.min(textarea.scrollHeight, 200); // Max height of 200px
-      textarea.style.height = `${newHeight}px`;
-    }
-  };
-
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [messageInput]);
-
-  const scrollToBottom = () => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      if (e.ctrlKey) {
-        // Ctrl+Enter: insert new line
-        setMessageInput((prev) => prev + "\n");
-      } else {
-        // Enter: send message
-        e.preventDefault();
-        handleSendMessage(e);
-      }
-    }
-  };
-
-  const handleSendMessage = async (
-    e: React.FormEvent | React.KeyboardEvent
-  ) => {
-    e.preventDefault();
-    if (!messageInput.trim() || isLoading) return;
-
-    setShowWelcome(false);
-    setIsLoading(true);
-
-    const newMessage: MessageType = {
-      id: `msg-${Date.now()}`,
-      isAi: false,
-      content: messageInput,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setMessageInput("");
-
-    const response = await mockAiClient.getResponse({
-      message: newMessage.content,
-    });
-
-    const aiResponse: MessageType = {
-      id: `msg-${Date.now()}-ai`,
-      isAi: true,
-      content: response.message,
-      timestamp: new Date(),
-      showActions: false,
-      actions: response.availableActions,
-    };
-
-    setMessages((prev) => [...prev, aiResponse]);
-
-    // Show actions after 1 second
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
-        )
-      );
-    }, 1000);
-
-    setIsLoading(false);
-  };
-
-  const handleAction = async (action: Action) => {
-    const response = await mockAiClient.getResponse({
-      message: action.label,
-      sessionId: "17",
-    });
-
-    const aiResponse: MessageType = {
-      id: `msg-${Date.now()}-ai`,
-      isAi: true,
-      content: response.message,
-      timestamp: new Date(),
-      showActions: false,
-      actions: response.availableActions,
-    };
-
-    setMessages((prev) => [...prev, aiResponse]);
-
-    // Show actions after 1 second
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiResponse.id ? { ...msg, showActions: true } : msg
-        )
-      );
-    }, 1000);
-
-    setIsLoading(false);
-  };
+  const isFirstMessage = messages.length === 0;
 
   return (
     <>
-      {/* Messages */}
-      <div className="flex-1 pt-16 pb-24 overflow-hidden">
+      <div className="flex-1 pt-16 md:pb-36 pb-28 overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
-          {showWelcome && messages.length === 0 && (
+          {messages.length === 0 && (
             <div className="flex justify-center items-center min-h-[60vh]">
               <div className="relative w-full">
                 <img
@@ -150,96 +41,23 @@ const Chat: React.FC = () => {
             </div>
           )}
           <div
-            className={`flex flex-col space-y-6 py-6 transition-opacity duration-500 ${
-              showWelcome ? "opacity-0" : "opacity-100"
+            className={`transition-opacity duration-500 ${
+              messages.length === 0 ? "opacity-0" : "opacity-100"
             }`}
-            ref={messagesContainerRef}
           >
-            {messages.map((message) => (
-              <Message
-                key={message.id}
-                handleAction={handleAction}
-                {...message}
-              />
-            ))}
-            <div ref={messageEndRef} />
+            <MessageList messages={messages} handleAction={handleAction} />
           </div>
         </div>
       </div>
-
-      {/* Message Input */}
-      <div className="fixed bottom-0 left-0 right-0 md:pb-8">
-        <form
-          onSubmit={handleSendMessage}
-          className="sm:max-w-full md:max-w-2xl mx-auto"
-        >
-          {/* Quick Actions Carousel */}
-          <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
-            <div className="flex space-x-2 w-max">
-              <button
-                type="button"
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <Instagram className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post Instagram
-                </span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <Facebook className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post Facebook
-                </span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
-              >
-                <MessageCircle className="w-5 h-5 text-[#1A201B]" />
-                <span className="text-sm text-[#1A201B]">
-                  Créer un post TikTok
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors shadow-sm">
-            <textarea
-              ref={textareaRef}
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Discuter avec NessIA"
-              rows={1}
-              disabled={isLoading}
-              className="resize-none w-full px-4 pt-4 pb-2 rounded-2xl bg-transparent focus:outline-none max-h-[200px] overflow-y-auto whitespace-pre-wrap"
-              style={{ minHeight: "56px" }}
-            />
-            <div className="flex items-center justify-between px-4 pb-3">
-              <button
-                type="button"
-                className="hover:bg-gray-50 rounded-lg p-2 transition-colors"
-              >
-                <Image className="w-7 h-7 text-[#1A201B]" />
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="bg-[#7C3AED] text-white p-[5px] rounded-md hover:bg-[#6D28D9] transition-colors shadow-sm"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+      <ChatInput
+        value={messageInput}
+        onChange={setMessageInput}
+        onSend={handleSendMessage}
+        isLoading={isLoading}
+        error={error}
+      >
+        {isFirstMessage && <QuickActions onSelect={setMessageInput} />}
+      </ChatInput>
     </>
   );
 };
