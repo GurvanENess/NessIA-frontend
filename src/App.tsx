@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import PublicRoute from "./routes/PublicRoute";
+import AppLayout from "./components/layouts/AppLayout";
+import PostEditor from "./pages/PostEditor";
 
 const App: React.FC = () => {
   return (
@@ -25,7 +27,10 @@ const App: React.FC = () => {
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Home />} />
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/post/new" element={<PostEditor />} />
+              </Route>
               {/* Add more protected routes here */}
             </Route>
 
