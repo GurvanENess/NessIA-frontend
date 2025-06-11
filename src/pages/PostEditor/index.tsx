@@ -1,24 +1,30 @@
-import { Pen, Image, Hash, Pencil } from "lucide-react";
-import React, { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import PostForm from "./PostForm";
+import PostPreview from "./PostPreview";
+
+interface PostData {
+  image: string | null;
+  caption: string;
+  hashtags: string;
+}
 
 const PostEditor: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [postData, setPostData] = useState<PostData>({
+    image: null,
+    caption: "Embrace summer vibes with our new collection! ☀️",
+    hashtags: "#summer #fashion #newcollection",
+  });
 
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
+  const handleSave = () => {
+    // TODO: Implement save functionality
+    console.log("Saving post:", postData);
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handlePublish = () => {
+    // TODO: Implement publish functionality
+    console.log("Publishing post:", postData);
   };
 
   return (
@@ -31,79 +37,78 @@ const PostEditor: React.FC = () => {
     >
       <div className="p-5">
         <div className="flex border-b mb-5">
-          <button className="pb-2 px-5 text-base cursor-pointer text-gray-600 relative">
+          <motion.button
+            onClick={() => setIsPreviewMode(true)}
+            className={`pb-2 px-5 text-base cursor-pointer relative ${
+              isPreviewMode ? "text-purple-700 font-semibold" : "text-gray-600"
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             Aperçu
-          </button>
-          <button className="pb-2 px-5 text-base cursor-pointer text-purple-700 font-semibold relative after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-700">
-            Modifier
-          </button>
-        </div>
-
-        <div className="rounded-lg p-0 ">
-          <div className="flex items-center mb-4">
-            <Image className="w-5 h-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Image</h3>
-          </div>
-          <div className="border-2 bg-white border-gray-200 rounded-lg min-h-[200px] flex justify-center items-center relative overflow-hidden p-6">
-            <div className="max-w-[400px] w-full h-full flex items-center justify-center">
-              <img
-                src={selectedImage || "/assets/default.jpg "}
-                alt={selectedImage ? "Uploaded content" : "Placeholder"}
-                className="max-w-full max-h-[400px] w-auto h-auto object-contain"
+            {isPreviewMode && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-purple-700"
+                initial={false}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <button
-              onClick={handleImageClick}
-              className="absolute top-3 right-3 w-8 h-8 p-[7px] flex justify-center items-center cursor-pointer rounded-full shadow-lg bg-white hover:bg-gray-50 transition-colors"
-            >
-              <Pen className="w-full h-full text-gray-600" />
-            </button>
-          </div>
+            )}
+          </motion.button>
+          <motion.button
+            onClick={() => setIsPreviewMode(false)}
+            className={`pb-2 px-5 text-base cursor-pointer relative ${
+              !isPreviewMode ? "text-purple-700 font-semibold" : "text-gray-600"
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Modifier
+            {!isPreviewMode && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-purple-700"
+                initial={false}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            )}
+          </motion.button>
         </div>
 
-        <div className="rounded-lg py-5">
-          <div className="flex items-center mb-4">
-            <Pencil className="w-5 h-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Légende</h3>
-          </div>
-          <textarea
-            className="w-full p-2 border-2 border-gray-200 rounded-md text-base box-border resize-y min-h-[100px] bg-white"
-            placeholder="Embrace summer vibes with our new collection! ☀️"
-            rows={4}
-            defaultValue="Embrace summer vibes with our new collection! ☀️"
-          ></textarea>
-        </div>
-
-        <div className="rounded-lg py-0 mb-5">
-          <div className="flex items-center mb-4">
-            <Hash className="w-5 h-5 text-gray-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">Hashtags</h3>
-          </div>
-          <input
-            type="text"
-            className="w-full p-2 border-2 border-gray-200 rounded-md text-base box-border mb-1 bg-white"
-            placeholder="#summer #fashion #newcollection"
-            defaultValue="#summer #fashion #newcollection"
-          />
-          <p className="text-xs text-gray-500">
-            Séparez les hashtags par des espaces
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isPreviewMode ? "preview" : "form"}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+          >
+            {isPreviewMode ? (
+              <PostPreview postData={postData} />
+            ) : (
+              <PostForm postData={postData} setPostData={setPostData} />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
+
       <div className="border-t p-5 flex gap-3 justify-end border-gray-200">
-        <button className="px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50">
+        <motion.button
+          onClick={handleSave}
+          className="px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
           Sauvegarder
-        </button>
-        <button className="px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium bg-[#7C3AED] text-white hover:bg-[#6D28D9]">
+        </motion.button>
+        <motion.button
+          onClick={handlePublish}
+          className="px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
           Publier
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
