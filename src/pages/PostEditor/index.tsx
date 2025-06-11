@@ -2,20 +2,14 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostForm from "./PostForm";
 import PostPreview from "./PostPreview";
-
-interface PostData {
-  image: string | null;
-  caption: string;
-  hashtags: string;
-}
+import { PostData } from "../../types/PostTypes";
 
 const PostEditor: React.FC = () => {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [postData, setPostData] = useState<PostData>({
     image: null,
-    caption:
-      "That is so cool of a post, and you should read it for sure. It might be the best post you have ever read.",
-    hashtags: "#thisisacoolpost #youwouldntbelieveright #thatswhatyouget",
+    caption: "Embrace summer vibes with our new collection! ☀️",
+    hashtags: "#summer #fashion #newcollection",
   });
 
   const handleSave = () => {
@@ -34,7 +28,7 @@ const PostEditor: React.FC = () => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="flex flex-col min-h-screen font-commissioner max-w-[1024px] mx-auto"
+      className="flex flex-col h-screen font-commissioner max-w-[1024px] mx-auto"
     >
       <div className="p-5">
         <div className="flex border-b mb-5">

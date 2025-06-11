@@ -1,11 +1,6 @@
 import React from "react";
 import InstagramPost from "../../components/InstagramPost";
-
-interface PostData {
-  image: string | null;
-  caption: string;
-  hashtags: string;
-}
+import { PostData } from "../../types/PostTypes";
 
 interface PostPreviewProps {
   postData: PostData;

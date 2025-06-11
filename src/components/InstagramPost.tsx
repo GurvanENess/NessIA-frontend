@@ -1,16 +1,6 @@
 import React from "react";
 import { Heart, MessageCircle, Send, Bookmark } from "lucide-react";
-
-interface InstagramPostProps {
-  image: string | null;
-  caption: string;
-  hashtags: string;
-  username?: string;
-  profileImage?: string;
-  likes?: number;
-  comments?: number;
-  timestamp?: string;
-}
+import { InstagramPostProps } from "../types/PostTypes";
 
 const InstagramPost: React.FC<InstagramPostProps> = ({
   image,
@@ -76,7 +66,7 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
         </div>
 
         {/* Hashtags */}
-        <div className="text-sm text-blue-900">
+        <div className="text-sm text-blue-900 flex flex-wrap">
           {hashtags.split(" ").map((tag, index) => (
             <span key={index} className="mr-1">
               {tag}
