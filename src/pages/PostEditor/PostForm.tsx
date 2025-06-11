@@ -1,11 +1,6 @@
 import { Pen, Image, Hash, Pencil } from "lucide-react";
 import React, { useRef } from "react";
-
-interface PostData {
-  image: string | null;
-  caption: string;
-  hashtags: string;
-}
+import { PostData } from "../../types/PostTypes";
 
 interface PostFormProps {
   postData: PostData;
@@ -47,7 +42,7 @@ const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {
           <Image className="w-5 h-5 text-gray-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-800">Image</h3>
         </div>
-        <div className="border-2 bg-white border-gray-200 rounded-lg min-h-[200px] flex justify-center items-center relative overflow-hidden  focus-within:border-purple-700 focus-within:ring-1 focus-within:ring-purple-700 transition-colors">
+        <div className="border-2 bg-white border-gray-200 rounded-lg min-h-[200px] flex justify-center items-center relative overflow-hidden focus-within:border-purple-700 focus-within:ring-1 focus-within:ring-purple-700 transition-colors">
           <div className="max-w-[400px] w-full h-full flex items-center justify-center">
             <img
               src={postData.image || "/assets/default.jpg"}
