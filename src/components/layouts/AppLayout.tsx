@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { AnimatePresence } from "framer-motion";
 
 const Home: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -18,9 +19,9 @@ const Home: React.FC = () => {
   const [hasNotifications, setHasNotifications] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#E7E9F2]">
+    <div className="min-h-screen bg-[#E7E9F2] flex flex-col">
       {/* Mobile Header */}
-      <div className="flex items-center justify-between px-4 h-16">
+      <div className="flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsMenuOpen(true)}
@@ -48,7 +49,13 @@ const Home: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="bottom-0 mx-4 border-t border-[rgb(0,0,0,.4)]"></div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-auto">
+        <AnimatePresence mode="wait">
+          <Outlet />
+        </AnimatePresence>
+      </div>
 
       {/* Burger Menu */}
       <div
@@ -137,7 +144,6 @@ const Home: React.FC = () => {
           </nav>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 };
