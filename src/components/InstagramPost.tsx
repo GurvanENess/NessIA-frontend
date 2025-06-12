@@ -8,12 +8,15 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
   hashtags,
   username = "nessia",
   profileImage = "/assets/nessia_logo.svg",
-  likes = 0,
-  comments = 0,
+  likes = 56,
+  comments = 16,
   timestamp = "Just now",
+  className,
 }) => {
   return (
-    <div className="max-w-[470px] mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div
+      className={`max-w-[470px] mx-auto bg-white rounded-lg shadow-lg overflow-hidden ${className}`}
+    >
       {/* Instagram Post Header */}
       <div className="flex items-center p-3 border-b">
         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">

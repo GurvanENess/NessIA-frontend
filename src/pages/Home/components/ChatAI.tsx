@@ -2,18 +2,84 @@ import React from "react";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
-import useChat from "../../../hooks/useChat";
+import { useNavigate } from "react-router-dom";
+import { useApp } from "../../../contexts/AppContext";
+import { Action } from "../../../types/mockAITypes";
+import { mockAiClient } from "../../../api/mockAi";
 
 const Chat: React.FC = () => {
-  const {
-    messages,
-    messageInput,
-    setMessageInput,
-    isLoading,
-    error,
-    handleSendMessage,
-    handleAction,
-  } = useChat();
+  const { state, dispatch } = useApp();
+  const navigate = useNavigate();
+  const { messages, messageInput, isLoading, error } = state.chat;
+
+  const handleSendMessage = async (
+    e?: React.FormEvent | React.KeyboardEvent,
+    messageToSend?: string
+  ) => {
+    if (isLoading) return;
+
+    e && e.preventDefault();
+
+    const message = messageToSend || messageInput.trim();
+    if (!message) return;
+
+    dispatch({ type: "HIDE_ALL_ACTIONS" });
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
+
+    const userMessage = {
+      id: crypto.randomUUID(),
+      isAi: false,
+      content: message,
+      timestamp: new Date(),
+    };
+
+    dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+    messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
+
+    try {
+      const response = await mockAiClient.getResponse({
+        message: message,
+      });
+
+      const aiResponse = {
+        id: crypto.randomUUID(),
+        isAi: true,
+        content: response.message,
+        timestamp: new Date(),
+        showActions: false,
+        actions: response.availableActions,
+        postData: response.post,
+      };
+
+      dispatch({ type: "ADD_MESSAGE", payload: aiResponse });
+
+      // Show actions after a delay
+      setTimeout(() => {
+        dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
+      }, 1000);
+    } catch (err) {
+      dispatch({
+        type: "SET_ERROR",
+        payload: "Une erreur est survenue. Veuillez réessayer.",
+      });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
+
+  const handleAction = async (action: Action) => {
+    if (action.label === "Utiliser ce post") {
+      const { postData } = messages[messages.length - 1];
+      if (postData) {
+        console.log("On arrime les données mon capitaine");
+        dispatch({ type: "UPDATE_POST_DATA", payload: postData });
+        navigate("/post/new");
+      }
+    } else {
+      await handleSendMessage(undefined, action.request.message);
+    }
+  };
 
   const isFirstMessage = messages.length === 0;
 
@@ -51,12 +117,20 @@ const Chat: React.FC = () => {
       </div>
       <ChatInput
         value={messageInput}
-        onChange={setMessageInput}
+        onChange={(value) =>
+          dispatch({ type: "SET_MESSAGE_INPUT", payload: value })
+        }
         onSend={handleSendMessage}
         isLoading={isLoading}
         error={error}
       >
-        {isFirstMessage && <QuickActions onSelect={setMessageInput} />}
+        {isFirstMessage && (
+          <QuickActions
+            onSelect={(text) =>
+              dispatch({ type: "SET_MESSAGE_INPUT", payload: text })
+            }
+          />
+        )}
       </ChatInput>
     </>
   );

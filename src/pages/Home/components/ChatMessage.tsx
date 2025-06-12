@@ -4,6 +4,7 @@ import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../types/ChatTypes";
 import Markdown from "react-markdown";
 import markdownConfig from "../../../utils/markdownConfig";
+import InstagramPost from "../../../components/InstagramPost";
 
 const Message: React.FC<MessageType> = ({
   isAi,
@@ -12,6 +13,7 @@ const Message: React.FC<MessageType> = ({
   showActions,
   actions = [],
   handleAction,
+  postData,
 }) => {
   return (
     <div>
@@ -26,7 +28,7 @@ const Message: React.FC<MessageType> = ({
               <img
                 src="./assets/nessia_logo.svg"
                 alt="nessia logo"
-                className="invert brightness-0 w-7" // Ajout des classes pour rendre l'image blanche
+                className="invert brightness-0 w-7"
               />
             </div>
           )}
@@ -53,6 +55,14 @@ const Message: React.FC<MessageType> = ({
           </div>
         </div>
       </div>
+
+      {postData && (
+        <div className="pt-5 pb-3 scale-100">
+          {" "}
+          <InstagramPost {...postData} />
+        </div>
+      )}
+
       {isAi && actions.length > 0 && (
         <div
           className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all relative duration-500 ease-in-out transform ${

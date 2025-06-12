@@ -1,10 +1,10 @@
 import { Pen, Image, Hash, Pencil } from "lucide-react";
 import React, { useRef } from "react";
-import { PostData } from "../../types/PostTypes";
+import { BasePostData } from "../../types/BaseTypes";
 
 interface PostFormProps {
-  postData: PostData;
-  setPostData: React.Dispatch<React.SetStateAction<PostData>>;
+  postData: BasePostData;
+  setPostData: (data: Partial<BasePostData>) => void;
 }
 
 const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {
@@ -19,7 +19,7 @@ const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPostData((prev) => ({ ...prev, image: reader.result as string }));
+        setPostData({ image: reader.result as string });
       };
       reader.readAsDataURL(file);
     }
@@ -28,11 +28,11 @@ const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {
   const handleCaptionChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    setPostData((prev) => ({ ...prev, caption: event.target.value }));
+    setPostData({ caption: event.target.value });
   };
 
   const handleHashtagsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPostData((prev) => ({ ...prev, hashtags: event.target.value }));
+    setPostData({ hashtags: event.target.value });
   };
 
   return (
@@ -66,7 +66,7 @@ const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {
         </div>
       </div>
 
-      <div className="rounded-lg py-5">
+      <div className="rounded-lg p-0">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-800">Légende</h3>
