@@ -1,3 +1,5 @@
+import { BasePostData } from "./BaseTypes";
+
 export interface AIRequest {
   message: string;
   sessionId?: string;
@@ -6,6 +8,7 @@ export interface AIRequest {
 export interface AIResponse {
   message: string;
   availableActions: Action[];
+  post?: BasePostData;
 }
 
 export interface Action {

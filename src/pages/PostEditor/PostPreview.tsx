@@ -1,9 +1,9 @@
 import React from "react";
 import InstagramPost from "../../components/InstagramPost";
-import { PostData } from "../../types/PostTypes";
+import { BasePostData } from "../../types/BaseTypes";
 
 interface PostPreviewProps {
-  postData: PostData;
+  postData: BasePostData;
 }
 
 const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {

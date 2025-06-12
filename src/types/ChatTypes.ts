@@ -1,4 +1,5 @@
 import { Action } from "./mockAITypes";
+import { BasePostData } from "./BaseTypes";
 
 export interface Message {
   id: string;
@@ -8,4 +9,5 @@ export interface Message {
   showActions?: boolean;
   actions?: Action[];
   handleAction?: (action: Action) => void;
+  postData?: BasePostData;
 }
