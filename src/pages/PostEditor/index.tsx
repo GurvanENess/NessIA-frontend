@@ -42,7 +42,7 @@ const PostEditor: React.FC = () => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="flex flex-col h-screen font-commissioner max-w-[1024px] mx-auto"
+      className="flex flex-col font-commissioner max-w-[1024px] mx-auto"
     >
       <div className="p-5">
         <div className="flex border-b mb-5">
