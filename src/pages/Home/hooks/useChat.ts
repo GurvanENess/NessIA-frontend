@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Message as MessageType } from "../shared/entities/ChatTypes";
-import { Action } from "../shared/entities/mockAITypes";
-import { mockAiClient } from "../shared/services/mockAi";
+import { Message as MessageType } from "../../../shared/entities/ChatTypes";
+import { Action } from "../entities/mockAITypes";
+import { mockAiClient } from "../services/mockAi";
 import { FormEvent, KeyboardEvent } from "react";
 
 export const useChat = () => {

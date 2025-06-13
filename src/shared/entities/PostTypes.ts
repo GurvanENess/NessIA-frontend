@@ -1,8 +1,10 @@
-import { BasePostData } from "./BaseTypes";
+export interface PostData {
+  image: string;
+  caption: string;
+  hashtags: string;
+}
 
-export interface PostData extends BasePostData {}
-
-export interface InstagramPostProps extends BasePostData {
+export interface InstagramPostProps extends PostData {
   username?: string;
   profileImage?: string;
   likes?: number;

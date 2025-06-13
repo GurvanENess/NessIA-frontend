@@ -4,8 +4,8 @@ import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../../shared/contexts/AppContext";
-import { Action } from "../../../shared/entities/mockAITypes";
-import { mockAiClient } from "../../../shared/services/mockAi";
+import { Action } from "../entities/mockAITypes";
+import { mockAiClient } from "../services/mockAi";
 
 const Chat: React.FC = () => {
   const { state, dispatch } = useApp();
