@@ -1,6 +1,6 @@
 import React from "react";
-import InstagramPost from "../../components/InstagramPost";
-import { BasePostData } from "../../types/BaseTypes";
+import InstagramPost from "../../shared/components/InstagramPost";
+import { BasePostData } from "../../shared/entities/PostType";
 
 interface PostPreviewProps {
   postData: BasePostData;

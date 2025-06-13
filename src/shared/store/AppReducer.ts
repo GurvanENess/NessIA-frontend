@@ -1,10 +1,10 @@
-import { BasePostData } from "../types/BaseTypes";
-import { Message } from "../types/ChatTypes";
+import { PostData } from "../entities/PostTypes";
+import { Message } from "../entities/ChatTypes";
 
 // Types
 export interface PostState {
   isPreviewMode: boolean;
-  postData: BasePostData;
+  postData: PostData;
   isSaving: boolean;
   isPublishing: boolean;
   error: string | null;
@@ -25,7 +25,7 @@ export interface AppState {
 // Action Types
 export type PostAction =
   | { type: "SET_PREVIEW_MODE"; payload: boolean }
-  | { type: "UPDATE_POST_DATA"; payload: Partial<BasePostData> }
+  | { type: "UPDATE_POST_DATA"; payload: Partial<PostData> }
   | { type: "SAVE_POST_START" }
   | { type: "SAVE_POST_SUCCESS" }
   | { type: "SAVE_POST_ERROR"; payload: string }

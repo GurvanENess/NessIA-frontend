@@ -1,37 +1,57 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../shared/contexts/AuthContext";
-import { useLoginStore } from "../store/store";
+import { useRegisterStore } from "../store/store";
 import validateForm from "../validator";
-import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setErrors, setLoading, errors, isLoading } = useLoginStore();
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const { setErrors, setLoading, errors, isLoading } = useRegisterStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setLoading(true);
 
-    const errors = validateForm({ email, password });
+    const validationErrors = validateForm({
+      email,
+      password,
+      confirmPassword,
+      username,
+    });
 
-    if (errors) {
-      setErrors(errors);
+    if (validationErrors) {
+      setErrors(validationErrors);
+      setLoading(false);
       return;
     }
 
     try {
-      await login(email, password);
-      navigate("/");
+      const { success } = await signup({
+        email,
+        password,
+        confirmPassword,
+        username,
+      });
+
+      if (success) {
+        navigate("/login");
+      } else {
+        setErrors({
+          email: "Une erreur est survenue lors de l'inscription",
+        });
+      }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Registration error:", error);
       setErrors({
-        password: "Email ou mot de passe incorrect",
+        email: "Une erreur est survenue lors de l'inscription",
       });
     } finally {
       setLoading(false);
@@ -72,21 +92,25 @@ const LoginPage: React.FC = () => {
               />
               <div className="flex flex-col mb-1 justify-between">
                 <h1 className="text-white text-3xl tracking-wide font-coolvetica !font-coolvetica sm:text-6xl md:text-6xl lg:text-7xl">
-                  Bonjour !
+                  Bienvenue !
                 </h1>
                 <p className="text-gray-300 text-md font-sans font-light md:mt-2 md:text-lg">
-                  Bienvenue sur Nessia
+                  Créez votre compte Nessia
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Login Form */}
-          <LoginForm
+          {/* Register Form */}
+          <RegisterForm
             email={email}
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            username={username}
+            setUsername={setUsername}
             handleSubmit={handleSubmit}
             errors={errors}
             isLoading={isLoading}
@@ -97,4 +121,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

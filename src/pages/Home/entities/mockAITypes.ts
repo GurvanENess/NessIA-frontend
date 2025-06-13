@@ -1,4 +1,4 @@
-import { BasePostData } from "./BaseTypes";
+import { PostData } from "../../../shared/entities/PostTypes";
 
 export interface AIRequest {
   message: string;
@@ -8,7 +8,7 @@ export interface AIRequest {
 export interface AIResponse {
   message: string;
   availableActions: Action[];
-  post?: BasePostData;
+  post?: PostData;
 }
 
 export interface Action {

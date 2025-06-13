@@ -2,7 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostForm from "./PostForm";
 import PostPreview from "./PostPreview";
-import { useApp } from "../../contexts/AppContext";
+import { useApp } from "../../shared/contexts/AppContext";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
