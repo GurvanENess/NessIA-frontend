@@ -1,84 +1,47 @@
-# Modern React Application
+# Documentation du projet
 
-A production-ready React application built with modern tools and best practices, featuring authentication, protected routes, and a clean component architecture.
+Ce dépôt contient l'interface web de NessIA, réalisée avec des outils modernes autour de React et TypeScript.
 
-## Technologies Used
+## Technologies principales
 
-- **React 18** - A JavaScript library for building user interfaces
-- **TypeScript** - Static type checking for enhanced development experience
-- **Vite** - Next-generation frontend tooling for faster development
-- **React Router** - Client-side routing for single-page applications
-- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
-- **Lucide React** - Beautiful, customizable icons
-- **ESLint** - Code linting for maintaining code quality
-- **Context API** - State management for authentication
+- **React 18** et **TypeScript** pour la structure de l'application et le typage.
+- **Vite** pour le bundling et le serveur de développement.
+- **React Router v6** pour la navigation côté client.
+- **Tailwind CSS** pour le style via des classes utilitaires.
+- **Supabase** pour l'authentification et la persistance des données.
+- **Axios** pour les requêtes HTTP.
+- **Framer Motion** pour les animations.
+- **Lucide React** pour les icônes.
+- **date-fns** pour la manipulation des dates.
+- **ESLint** afin d'assurer la cohérence du code.
 
-## Project Overview
+## Organisation du code
 
-This application provides a solid foundation for building modern web applications with React. It includes:
+- `src/components` : composants réutilisables et mises en page.
+- `src/pages` : pages correspondant aux routes de l'application.
+- `src/contexts` : contextes React et logique de gestion d'état via `useReducer`.
+- `src/hooks` : hooks personnalisés, notamment la logique de chat IA.
+- `src/api` : clients d'API (Supabase et serveur IA fictif).
+- `src/utils` : fonctions utilitaires et configuration du rendu Markdown.
 
-- Authentication system with protected routes
-- Responsive layouts optimized for all devices
-- Reusable UI components
-- Form validation
-- Clean project structure
-- TypeScript integration
+Les fichiers TypeScript permettent un typage strict, tandis que Tailwind assure un design responsive. Les animations sont gérées via Framer Motion et l'authentification s'appuie sur Supabase.
 
-> 🐰 You found a secret! Hey ! Listen ! This project was built with love and a sprinkle of magic. If you're reading this, you're awesome!
+## Méthodologies de travail
 
-## Project Structure
+- Utilisation de **Git** pour le versionnement et la collaboration.
+- Structure basée sur des composants fonctionnels et des hooks.
+- Linting avec ESLint pour maintenir une base de code homogène.
+- Préparation d'un dossier `tests` pour accueillir des tests unitaires (encore peu implémentés).
+- Découpage clair en répertoires (`components`, `pages`, `contexts`, etc.) pour isoler les responsabilités.
 
-```
-src/
-├── components/       # Reusable UI components
-│   ├── Button.tsx
-│   ├── InputField.tsx
-│   └── Navbar.tsx
-├── contexts/        # React Context providers
-│   └── AuthContext.tsx
-├── lib/            # Utility functions and helpers
-│   ├── ProtectedRoute.tsx
-│   └── utils.ts
-├── pages/          # Application pages
-│   ├── Home/
-│   └── Login/
-└── App.tsx         # Main application component
-```
+## Défauts potentiels
 
-## Features
+Le projet étant en développement, certaines limites sont visibles :
 
-- **Authentication Flow**: Complete login system with protected routes
-- **Responsive Design**: Mobile-first approach using Tailwind CSS
-- **Type Safety**: Full TypeScript integration for better development experience
-- **Component Library**: Reusable UI components with consistent styling
-- **Form Handling**: Built-in form validation and error handling
-- **Navigation**: Clean URL routing with React Router
-- **Code Quality**: ESLint configuration for maintaining code standards
+- Redondances de logique entre certains composants et contextes.
+- Couplage fort de certaines pages avec les contextes globaux.
+- Flux de données parfois difficiles à suivre ou incohérents.
+- Peu ou pas de tests automatisés, ce qui complique la validation des régressions.
+- Quelques `TODO` et fonctionnalités incomplètes (sauvegarde et publication des posts, par exemple).
 
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Development
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint for code quality
-
-## Best Practices
-
-- Component-based architecture for better maintainability
-- TypeScript for type safety and better developer experience
-- Consistent code style with ESLint
-- Responsive design with Tailwind CSS utility classes
-- Protected routes for secure authentication
-- Reusable components for consistent UI
+Ces points devront être améliorés pour obtenir une base de code plus robuste et maintenable.

@@ -8,7 +8,7 @@ import {
 import { AuthProvider } from "./contexts/AuthContext";
 import { AppProvider } from "./contexts/AppContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import Login from "./pages/Login";
+import Login from "./pages/Login/components/LoginPage";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import PublicRoute from "./routes/PublicRoute";
