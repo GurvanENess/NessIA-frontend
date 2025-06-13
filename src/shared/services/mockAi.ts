@@ -1,4 +1,8 @@
-import { AIRequest, AIRequestFunction, AIResponse } from "../types/mockAITypes";
+import {
+  AIRequest,
+  AIRequestFunction,
+  AIResponse,
+} from "../entities/mockAITypes";
 import axios from "axios";
 const n8nUrl = import.meta.env.VITE_N8N_URL;
 

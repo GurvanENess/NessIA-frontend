@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import Message from "./ChatMessage";
-import { Message as MessageType } from "../../../types/ChatTypes";
-import { Action } from "../../../types/mockAITypes";
+import { Message as MessageType } from "../../../shared/entities/ChatTypes";
+import { Action } from "../../../shared/entities/mockAITypes";
 
 // TODO : Mettre les types des messages dans le fichier src/types/ChatTypes.ts
 

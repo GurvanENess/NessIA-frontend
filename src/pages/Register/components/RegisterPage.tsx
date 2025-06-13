@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../shared/contexts/AuthContext";
 import { useRegisterStore } from "../store/store";
 import validateForm from "../validator";
 import RegisterForm from "./RegisterForm";
@@ -20,11 +20,11 @@ const RegisterPage: React.FC = () => {
 
     setLoading(true);
 
-    const validationErrors = validateForm({ 
-      email, 
-      password, 
-      confirmPassword, 
-      username 
+    const validationErrors = validateForm({
+      email,
+      password,
+      confirmPassword,
+      username,
     });
 
     if (validationErrors) {
@@ -34,13 +34,13 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      const { success } = await signup({ 
-        email, 
-        password, 
-        confirmPassword, 
-        username 
+      const { success } = await signup({
+        email,
+        password,
+        confirmPassword,
+        username,
       });
-      
+
       if (success) {
         navigate("/login");
       } else {

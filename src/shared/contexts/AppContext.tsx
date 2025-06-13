@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
-import { appReducer, initialState, AppState, AppAction } from "./AppReducer";
+import {
+  appReducer,
+  initialState,
+  AppState,
+  AppAction,
+} from "../store/AppReducer";
 
 // Context
 interface AppContextType {

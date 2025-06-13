@@ -1,6 +1,6 @@
 import React from "react";
 import { Heart, MessageCircle, Send, Bookmark } from "lucide-react";
-import { InstagramPostProps } from "../types/PostTypes";
+import { InstagramPostProps } from "../entities/PostTypes";
 
 const InstagramPost: React.FC<InstagramPostProps> = ({
   image,

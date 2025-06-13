@@ -1,6 +1,6 @@
 import { Pen, Image, Hash, Pencil } from "lucide-react";
 import React, { useRef } from "react";
-import { BasePostData } from "../../types/BaseTypes";
+import { BasePostData } from "../../shared/entities/BaseTypes";
 
 interface PostFormProps {
   postData: BasePostData;

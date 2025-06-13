@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Message as MessageType } from "../types/ChatTypes";
-import { Action } from "../types/mockAITypes";
-import { mockAiClient } from "../api/mockAi";
+import { Message as MessageType } from "../shared/entities/ChatTypes";
+import { Action } from "../shared/entities/mockAITypes";
+import { mockAiClient } from "../shared/services/mockAi";
 import { FormEvent, KeyboardEvent } from "react";
 
 export const useChat = () => {
@@ -56,9 +56,7 @@ export const useChat = () => {
     }
   };
 
-  const handleSendMessage = async (
-    e: FormEvent | KeyboardEvent
-  ) => {
+  const handleSendMessage = async (e: FormEvent | KeyboardEvent) => {
     e.preventDefault();
     if (!messageInput.trim()) return;
     const text = messageInput;

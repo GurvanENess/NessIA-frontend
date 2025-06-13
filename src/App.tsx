@@ -5,14 +5,14 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { AppProvider } from "./contexts/AppContext";
+import { AuthProvider } from "./shared/contexts/AuthContext";
+import { AppProvider } from "./shared/contexts/AppContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import Login from "./pages/Login/components/LoginPage";
+import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import PublicRoute from "./routes/PublicRoute";
-import AppLayout from "./components/layouts/AppLayout";
+import AppLayout from "./shared/components/layouts/AppLayout";
 import PostEditor from "./pages/PostEditor";
 
 const App: React.FC = () => {

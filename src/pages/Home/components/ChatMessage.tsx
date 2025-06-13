@@ -1,10 +1,10 @@
 import React from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
-import { Message as MessageType } from "../../../types/ChatTypes";
+import { Message as MessageType } from "../../../shared/entities/ChatTypes";
 import Markdown from "react-markdown";
-import markdownConfig from "../../../utils/markdownConfig";
-import InstagramPost from "../../../components/InstagramPost";
+import markdownConfig from "../../../shared/utils/markdownConfig";
+import InstagramPost from "../../../shared/components/InstagramPost";
 
 const Message: React.FC<MessageType> = ({
   isAi,

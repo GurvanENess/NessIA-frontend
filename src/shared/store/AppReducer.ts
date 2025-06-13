@@ -1,5 +1,5 @@
-import { BasePostData } from "../types/BaseTypes";
-import { Message } from "../types/ChatTypes";
+import { BasePostData } from "../entities/BaseTypes";
+import { Message } from "../entities/ChatTypes";
 
 // Types
 export interface PostState {

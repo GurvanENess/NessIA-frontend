@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../api/supabase";
-import { FormDataType } from "../types/FormTypes";
+import { supabase } from "../services/supabase";
+import { FormDataType } from "../entities/FormTypes";
 
 interface User {
   id: string;
