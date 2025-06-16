@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import PublicRoute from "./routes/PublicRoute";
 import AppLayout from "./shared/components/layouts/AppLayout";
 import PostEditor from "./pages/PostEditor";
+import PostsDisplay from "./pages/Posts";
 
 const App: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ const App: React.FC = () => {
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Home />} />
+                  <Route path="/posts" element={<PostsDisplay />} />
                   <Route path="/post/new" element={<PostEditor />} />
                 </Route>
                 {/* Add more protected routes here */}
