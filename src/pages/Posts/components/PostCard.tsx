@@ -10,13 +10,15 @@ interface PostCardProps {
   onEdit?: (post: Post) => void;
   onDelete?: (postId: string) => void;
   onViewChat?: (chatId: string) => void;
+  onPostClick?: (postId: string) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ 
   post, 
   onEdit, 
   onDelete, 
-  onViewChat 
+  onViewChat,
+  onPostClick
 }) => {
   const [showActions, setShowActions] = React.useState(false);
 
@@ -81,7 +83,8 @@ const PostCard: React.FC<PostCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      onClick={() => onPostClick?.(post.id)}
     >
       {/* Post Image */}
       {post.imageUrl && (
@@ -105,6 +108,10 @@ const PostCard: React.FC<PostCardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowActions(!showActions)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowActions(!showActions);
+              }}
               className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               aria-label="Actions du post"
             >
@@ -120,6 +127,7 @@ const PostCard: React.FC<PostCardProps> = ({
               >
                 <button
                   onClick={() => {
+                  e.stopPropagation();
                     onEdit?.(post);
                     setShowActions(false);
                   }}
@@ -130,16 +138,18 @@ const PostCard: React.FC<PostCardProps> = ({
                 </button>
                 <button
                   onClick={() => {
+                  e.stopPropagation();
                     onViewChat?.(post.associatedChatId);
                     setShowActions(false);
                   }}
-                  className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  className="w-full px-3 py-2 text-left text-sm text-white bg-purple-700 hover:bg-purple-800 flex items-center gap-2"
                 >
                   <Eye className="w-4 h-4" />
                   Voir le chat
                 </button>
                 <button
                   onClick={() => {
+                  e.stopPropagation();
                     onDelete?.(post.id);
                     setShowActions(false);
                   }}
@@ -181,10 +191,16 @@ const PostCard: React.FC<PostCardProps> = ({
               }
             </span>
           </div>
-          <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewChat?.(post.associatedChatId);
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-700 text-white hover:bg-purple-800 transition-colors text-xs"
+          >
             <MessageSquare className="w-3 h-3" />
             <span>Chat associé</span>
-          </div>
+          </button>
         </div>
       </div>
     </motion.div>

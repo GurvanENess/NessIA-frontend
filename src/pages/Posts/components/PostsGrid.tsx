@@ -11,6 +11,7 @@ interface PostsGridProps {
   onEdit: (post: Post) => void;
   onDelete: (postId: string) => void;
   onViewChat: (chatId: string) => void;
+  onPostClick: (postId: string) => void;
 }
 
 const PostsGrid: React.FC<PostsGridProps> = ({
@@ -19,7 +20,8 @@ const PostsGrid: React.FC<PostsGridProps> = ({
   error,
   onEdit,
   onDelete,
-  onViewChat
+  onViewChat,
+  onPostClick
 }) => {
   if (isLoading) {
     return (
@@ -89,6 +91,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({
               onEdit={onEdit}
               onDelete={onDelete}
               onViewChat={onViewChat}
+              onPostClick={onPostClick}
             />
           </motion.div>
         ))}

@@ -85,6 +85,9 @@ const PostsDisplay: React.FC = () => {
     navigate(`/chats/${chatId}`);
   };
 
+  const handlePostClick = (postId: string) => {
+    navigate(`/posts/${postId}`);
+  };
   const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
     setSort(newSortBy, newSortOrder);
   };
@@ -115,6 +118,7 @@ const PostsDisplay: React.FC = () => {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onViewChat={handleViewChat}
+          onPostClick={handlePostClick}
         />
       </div>
     </motion.div>
