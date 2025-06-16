@@ -8,6 +8,8 @@ import {
   Info,
   FilePenLine,
   MessageSquareText,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -89,6 +91,28 @@ const Home: React.FC = () => {
           </div>
           <nav className="p-4">
             <ul className="space-y-2">
+              <li>
+                <Link to="/posts">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
+                  >
+                    <FileText className="w-5 h-5" />
+                    <span>Posts</span>
+                  </button>
+                </Link>
+              </li>
+              <li>
+                <Link to="/chats">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>Chats</span>
+                  </button>
+                </Link>
+              </li>
               <li>
                 <button
                   onClick={() => setIsMenuOpen(false)}
