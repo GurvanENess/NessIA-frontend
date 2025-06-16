@@ -3,12 +3,15 @@ import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../shared/contexts/AuthContext";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { Action } from "../entities/mockAITypes";
 import { mockAiClient } from "../services/mockAi";
 
 const Chat: React.FC = () => {
   const { state, dispatch } = useApp();
+  const { user } = useAuth();
+  console.log("User in Chat:", user);
   const navigate = useNavigate();
   const { messages, messageInput, isLoading, error } = state.chat;
 

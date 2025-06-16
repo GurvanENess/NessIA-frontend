@@ -4,7 +4,7 @@ import {
   AIResponse,
 } from "../entities/mockAITypes";
 import axios from "axios";
-const n8nUrl = import.meta.env.VITE_N8N_URL;
+const n8nUrl = import.meta.env.VITE_N8N_URL_PROD;
 
 class MockAIClient {
   getResponse: AIRequestFunction = async (
