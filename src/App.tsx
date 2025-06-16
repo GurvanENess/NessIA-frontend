@@ -15,6 +15,7 @@ import PublicRoute from "./routes/PublicRoute";
 import AppLayout from "./shared/components/layouts/AppLayout";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
+import ChatsDisplay from "./pages/Chats";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,8 @@ const App: React.FC = () => {
                   <Route path="/" element={<Home />} />
                   <Route path="/posts" element={<PostsDisplay />} />
                   <Route path="/posts/:postId" element={<div>Post Detail Page - Coming Soon</div>} />
+                  <Route path="/chats" element={<ChatsDisplay />} />
+                  <Route path="/chats/:chatId" element={<div>Chat Detail Page - Coming Soon</div>} />
                   <Route path="/post/new" element={<PostEditor />} />
                 </Route>
                 {/* Add more protected routes here */}
