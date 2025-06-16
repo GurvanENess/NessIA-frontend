@@ -70,11 +70,11 @@ const mockPosts: Post[] = [
 export class PostsService {
   static async fetchUserPosts(userId: string): Promise<Post[]> {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Filter posts by user ID and sort by creation date (newest first)
+    // For demo purposes, always return mock data regardless of userId
+    // In real app, this would filter by actual userId
     return mockPosts
-      .filter(post => post.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 

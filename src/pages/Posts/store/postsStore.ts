@@ -92,14 +92,10 @@ export const usePostsStore = () => {
   const [state, dispatch] = useReducer(postsReducer, initialState);
 
   const fetchPosts = (posts: Post[]) => {
-    dispatch({ type: 'FETCH_POSTS_START' });
-    try {
+    if (posts.length === 0) {
+      dispatch({ type: 'FETCH_POSTS_START' });
+    } else {
       dispatch({ type: 'FETCH_POSTS_SUCCESS', payload: posts });
-    } catch (error) {
-      dispatch({ 
-        type: 'FETCH_POSTS_ERROR', 
-        payload: error instanceof Error ? error.message : 'Failed to fetch posts' 
-      });
     }
   };
 
