@@ -107,7 +107,6 @@ const PostCard: React.FC<PostCardProps> = ({
           </h3>
           <div className="relative">
             <button
-              onClick={() => setShowActions(!showActions)}
               onClick={(e) => {
                 e.stopPropagation();
                 setShowActions(!showActions);
@@ -126,8 +125,8 @@ const PostCard: React.FC<PostCardProps> = ({
                 className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-[120px]"
               >
                 <button
-                  onClick={() => {
-                  e.stopPropagation();
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onEdit?.(post);
                     setShowActions(false);
                   }}
@@ -137,8 +136,8 @@ const PostCard: React.FC<PostCardProps> = ({
                   Modifier
                 </button>
                 <button
-                  onClick={() => {
-                  e.stopPropagation();
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onViewChat?.(post.associatedChatId);
                     setShowActions(false);
                   }}
@@ -148,8 +147,8 @@ const PostCard: React.FC<PostCardProps> = ({
                   Voir le chat
                 </button>
                 <button
-                  onClick={() => {
-                  e.stopPropagation();
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onDelete?.(post.id);
                     setShowActions(false);
                   }}
