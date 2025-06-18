@@ -16,6 +16,7 @@ const Chat: React.FC = () => {
   const handleSendMessage = async (
     e?: React.FormEvent | React.KeyboardEvent,
     messageToSend?: string
+    hideUserMessage?: boolean
   ) => {
     if (isLoading) return;
 
@@ -28,14 +29,18 @@ const Chat: React.FC = () => {
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
-    const userMessage = {
-      id: crypto.randomUUID(),
-      isAi: false,
-      content: message,
-      timestamp: new Date(),
-    };
+    // Only show user message if not hidden (for quick actions and response actions)
+    if (!hideUserMessage) {
+      const userMessage = {
+        id: crypto.randomUUID(),
+        isAi: false,
+        content: message,
+        timestamp: new Date(),
+      };
 
-    dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+      dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+    }
+    
     messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
 
     try {
@@ -78,11 +83,11 @@ const Chat: React.FC = () => {
   };
 
   const handleAction = async (label: string) => {
-    await handleSendMessage(undefined, label);
+    await handleSendMessage(undefined, label, true);
   };
 
   const handleQuickAction = async (text: string) => {
-    await handleSendMessage(undefined, text);
+    await handleSendMessage(undefined, text, true);
   };
 
   const isFirstMessage = messages.length === 0;
