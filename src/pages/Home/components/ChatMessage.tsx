@@ -59,7 +59,7 @@ const Message: React.FC<MessageType> = ({
        // <div className="pt-5 pb-3 scale-100">
           {/* InstagramPost {...postData} /> */}
        // </div>
-      )}
+      // )}
 
       {isAi && action?.responses && (
         <div
