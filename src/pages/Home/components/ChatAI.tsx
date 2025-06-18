@@ -81,6 +81,10 @@ const Chat: React.FC = () => {
     await handleSendMessage(undefined, label);
   };
 
+  const handleQuickAction = async (text: string) => {
+    await handleSendMessage(undefined, text);
+  };
+
   const isFirstMessage = messages.length === 0;
 
   return (
@@ -126,9 +130,7 @@ const Chat: React.FC = () => {
       >
         {isFirstMessage && (
           <QuickActions
-            onSelect={(text) =>
-              dispatch({ type: "SET_MESSAGE_INPUT", payload: text })
-            }
+            onSelect={handleQuickAction}
           />
         )}
       </ChatInput>
