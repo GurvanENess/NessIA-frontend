@@ -11,7 +11,7 @@ const Chat: React.FC = () => {
   const { state, dispatch } = useApp();
   const { user } = useAuth();
   const { sessionId } = useApp().state.chat;
-  const { messages, messageInput, isLoading, error } = state.chat;
+  const { messages, messageInput, isLoading, error, showQuickActions } = state.chat;
 
   const handleSendMessage = async (
     e?: React.FormEvent | React.KeyboardEvent,
@@ -87,6 +87,7 @@ const Chat: React.FC = () => {
   };
 
   const handleQuickAction = async (text: string) => {
+    dispatch({ type: "HIDE_QUICK_ACTIONS" });
     await handleSendMessage(undefined, text, true);
   };
 
@@ -133,7 +134,7 @@ const Chat: React.FC = () => {
         isLoading={isLoading}
         error={error}
       >
-        {isFirstMessage && (
+        {isFirstMessage && showQuickActions && (
           <QuickActions
             onSelect={handleQuickAction}
           />

@@ -16,6 +16,7 @@ interface ChatState {
   messageInput: string;
   isLoading: boolean;
   error: string | null;
+  showQuickActions: boolean;
 }
 
 export interface AppState {
@@ -43,7 +44,9 @@ export type ChatAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "HIDE_ALL_ACTIONS" }
-  | { type: "SHOW_ACTIONS"; payload: string };
+  | { type: "SHOW_ACTIONS"; payload: string }
+  | { type: "HIDE_QUICK_ACTIONS" }
+  | { type: "SHOW_QUICK_ACTIONS" };
 
 export type AppAction = PostAction | ChatAction;
 
@@ -66,6 +69,7 @@ export const initialState: AppState = {
     messageInput: "",
     isLoading: false,
     error: null,
+    showQuickActions: true,
   },
 };
 
@@ -236,6 +240,24 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
           messages: state.chat.messages.map((msg) =>
             msg.id === action.payload ? { ...msg, showActions: true } : msg
           ),
+        },
+      };
+
+    case "HIDE_QUICK_ACTIONS":
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          showQuickActions: false,
+        },
+      };
+
+    case "SHOW_QUICK_ACTIONS":
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          showQuickActions: true,
         },
       };
 
