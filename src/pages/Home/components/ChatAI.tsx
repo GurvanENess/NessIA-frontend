@@ -15,7 +15,7 @@ const Chat: React.FC = () => {
 
   const handleSendMessage = async (
     e?: React.FormEvent | React.KeyboardEvent,
-    messageToSend?: string
+    messageToSend?: string,
     hideUserMessage?: boolean
   ) => {
     if (isLoading) return;
