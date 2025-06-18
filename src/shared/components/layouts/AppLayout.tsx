@@ -14,7 +14,6 @@ import {
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { AnimatePresence } from "framer-motion";
-import Footer from "./Footer";
 
 const Home: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -58,7 +57,6 @@ const Home: React.FC = () => {
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
-        <Footer />
       </div>
 
       {/* Burger Menu */}
