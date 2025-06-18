@@ -4,14 +4,13 @@ import { fr } from "date-fns/locale/fr";
 import { Message as MessageType } from "../../../shared/entities/ChatTypes";
 import Markdown from "react-markdown";
 import markdownConfig from "../../../shared/utils/markdownConfig";
-import InstagramPost from "../../../shared/components/InstagramPost";
 
 const Message: React.FC<MessageType> = ({
   isAi,
   content,
   timestamp,
   showActions,
-  actions = [],
+  action,
   handleAction,
   postData,
 }) => {
@@ -58,12 +57,11 @@ const Message: React.FC<MessageType> = ({
 
       {postData && (
         <div className="pt-5 pb-3 scale-100">
-          {" "}
-          <InstagramPost {...postData} />
+          {/* InstagramPost {...postData} /> */}
         </div>
       )}
 
-      {isAi && actions.length > 0 && (
+      {isAi && action?.responses && (
         <div
           className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all relative duration-500 ease-in-out transform ${
             showActions
@@ -71,17 +69,17 @@ const Message: React.FC<MessageType> = ({
               : "opacity-0 -translate-y-4 pointer-events-none hidden"
           }`}
         >
-          {actions.map((action, index) => (
+          {action.responses.map((response, index) => (
             <button
               key={index}
               className={`px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium ${
-                action.type === "primary"
+                action.type === "confirm"
                   ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
                   : "bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
               }`}
-              onClick={() => handleAction?.(action)}
+              onClick={() => handleAction?.(response)}
             >
-              {action.label}
+              {response}
             </button>
           ))}
         </div>

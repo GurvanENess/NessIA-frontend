@@ -13,7 +13,7 @@ Ce projet suit une architecture modulaire orientée pages. Chaque page de `src/p
 
 - **`entities/`** : définit les types et modèles de domaine utilisés par la page.
 - **`services/`** : contient la logique métier et les appels aux API propres à la page.
-- **`store/`** : gère l'état local de la page, souvent à l'aide d'un reducer React.
+- **`store/`** : gère l'état local de la page, souvent à l'aide d'un reducer React la plupart du temps.
 - **`components/`** : regroupe les composants React liés à l'interface de cette page.
 
 Respecter l'isolation des responsabilités est primordial. La logique UI, la logique métier et le typage doivent rester distincts afin de garder un code maintenable.

@@ -1,10 +1,10 @@
 import { Pen, Image, Hash, Pencil } from "lucide-react";
 import React, { useRef } from "react";
-import { BasePostData } from "../../shared/entities/PostType";
+import { PostData } from "../../shared/entities/PostTypes";
 
 interface PostFormProps {
-  postData: BasePostData;
-  setPostData: (data: Partial<BasePostData>) => void;
+  postData: PostData;
+  setPostData: (data: Partial<PostData>) => void;
 }
 
 const PostForm: React.FC<PostFormProps> = ({ postData, setPostData }) => {

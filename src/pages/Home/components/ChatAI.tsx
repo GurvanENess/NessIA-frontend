@@ -2,17 +2,15 @@ import React from "react";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../shared/contexts/AuthContext";
 import { useApp } from "../../../shared/contexts/AppContext";
-import { Action } from "../entities/mockAITypes";
-import { mockAiClient } from "../services/mockAi";
+import { AiClient } from "../services/AIClient";
+import { useAuth } from "../../../shared/contexts/AuthContext";
+import { Action } from "../entities/AITypes";
 
 const Chat: React.FC = () => {
   const { state, dispatch } = useApp();
   const { user } = useAuth();
-  console.log("User in Chat:", user);
-  const navigate = useNavigate();
+  const { sessionId } = useApp().state.chat;
   const { messages, messageInput, isLoading, error } = state.chat;
 
   const handleSendMessage = async (
@@ -41,9 +39,16 @@ const Chat: React.FC = () => {
     messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
 
     try {
-      const response = await mockAiClient.getResponse({
+      const response = await AiClient.getResponse({
         message: message,
+        sessionId: sessionId,
+        userToken: user?.token,
+        companyId: "1",
       });
+
+      if (!sessionId) {
+        dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
+      }
 
       const aiResponse = {
         id: crypto.randomUUID(),
@@ -51,7 +56,7 @@ const Chat: React.FC = () => {
         content: response.message,
         timestamp: new Date(),
         showActions: false,
-        actions: response.availableActions,
+        action: response.action,
         postData: response.post,
       };
 
@@ -62,6 +67,7 @@ const Chat: React.FC = () => {
         dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
       }, 1000);
     } catch (err) {
+      console.error("Error fetching AI response:", err);
       dispatch({
         type: "SET_ERROR",
         payload: "Une erreur est survenue. Veuillez réessayer.",
@@ -71,17 +77,8 @@ const Chat: React.FC = () => {
     }
   };
 
-  const handleAction = async (action: Action) => {
-    if (action.label === "Utiliser ce post") {
-      const { postData } = messages[messages.length - 1];
-      if (postData) {
-        console.log("On arrime les données mon capitaine");
-        dispatch({ type: "UPDATE_POST_DATA", payload: postData });
-        navigate("/post/new");
-      }
-    } else {
-      await handleSendMessage(undefined, action.request.message);
-    }
+  const handleAction = async (label: string) => {
+    await handleSendMessage(undefined, label);
   };
 
   const isFirstMessage = messages.length === 0;

@@ -11,6 +11,7 @@ export interface PostState {
 }
 
 interface ChatState {
+  sessionId?: string;
   messages: Message[];
   messageInput: string;
   isLoading: boolean;
@@ -24,6 +25,8 @@ export interface AppState {
 
 // Action Types
 export type PostAction =
+  | { type: "SET_CHAT_SESSION_ID"; payload: string }
+  | { type: "CLEAR_CHAT_SESSION_ID" }
   | { type: "SET_PREVIEW_MODE"; payload: boolean }
   | { type: "UPDATE_POST_DATA"; payload: Partial<PostData> }
   | { type: "SAVE_POST_START" }
@@ -58,6 +61,7 @@ export const initialState: AppState = {
     error: null,
   },
   chat: {
+    sessionId: "",
     messages: [],
     messageInput: "",
     isLoading: false,
@@ -69,6 +73,22 @@ export const initialState: AppState = {
 export const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     // Post Actions
+    case "SET_CHAT_SESSION_ID":
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          sessionId: action.payload,
+        },
+      };
+    case "CLEAR_CHAT_SESSION_ID":
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          sessionId: "",
+        },
+      };
     case "SET_PREVIEW_MODE":
       return {
         ...state,

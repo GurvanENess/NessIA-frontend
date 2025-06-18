@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  token?: string;
 }
 
 interface AuthContextType {
@@ -44,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           name:
             session.user.user_metadata.name ||
             session.user.email!.split("@")[0],
+          token: session.access_token,
         });
       } else {
         setUser(null);
@@ -75,12 +77,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       password,
     });
 
+    console.log("Login data:", data);
     if (error) throw error;
 
     if (data.user) {
       setUser({
         id: data.user.id,
         email: data.user.email!,
+        token: data.session?.access_token,
         name:
           data.user.user_metadata.display_name ||
           data.user.email!.split("@")[0],
