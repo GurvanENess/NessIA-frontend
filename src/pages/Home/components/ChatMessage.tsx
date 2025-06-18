@@ -57,7 +57,7 @@ const Message: React.FC<MessageType> = ({
 
       {// postData && (
        // <div className="pt-5 pb-3 scale-100">
-          {/* InstagramPost {...postData} /> */}
+          /* InstagramPost {...postData} /> */
        // </div>
       // )
       }
