@@ -8,30 +8,15 @@ class AIClient {
   ): Promise<AIResponse> => {
     const { sessionId, userToken } = request;
 
-    // Build headers dynamically, only including defined values
-    const headers: Record<string, string> = {
-      "Content-Type": "multipart/form-data",
-    };
-
-    // Only add Authorization header if VITE_N8N_AUTH is defined
-    if (import.meta.env.VITE_N8N_AUTH) {
-      headers.Authorization = import.meta.env.VITE_N8N_AUTH;
-    }
-
-    // Only add User-Auth header if userToken is defined
-    if (userToken) {
-      headers["User-Auth"] = userToken;
-    }
-
-    // Only add session header if sessionId is defined
-    if (sessionId) {
-      headers["x-user-session"] = sessionId;
-    }
-
     const options = {
       method: "POST",
       url: n8nUrl,
-      headers,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: import.meta.env.VITE_N8N_AUTH,
+        "User-Auth": userToken,
+        "x-user-session": sessionId,
+      },
       data: request,
     };
 
