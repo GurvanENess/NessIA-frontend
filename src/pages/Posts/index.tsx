@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { usePostsStore } from './store/postsStore';
-import { PostsService } from './services/postsService';
-import { Post } from './entities/PostTypes';
-import PostsHeader from './components/PostsHeader';
-import PostsGrid from './components/PostsGrid';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../shared/contexts/AuthContext";
+import { usePostsStore } from "./store/postsStore";
+import { PostsService } from "./services/postsService";
+import { Post } from "./entities/PostTypes";
+import PostsHeader from "./components/PostsHeader";
+import PostsGrid from "./components/PostsGrid";
+import { db } from "../../shared/services/db";
 
 const PostsDisplay: React.FC = () => {
   const navigate = useNavigate();
@@ -20,10 +21,10 @@ const PostsDisplay: React.FC = () => {
     fetchPosts,
     setSort,
     deletePost,
-    updatePostStatus
+    updatePostStatus,
   } = usePostsStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
   // Load posts on component mount
@@ -32,12 +33,13 @@ const PostsDisplay: React.FC = () => {
       if (user?.id) {
         fetchPosts([]); // Start loading state
         try {
-          const userPosts = await PostsService.fetchUserPosts(user.id);
+          const userPosts = await db.getAllPosts();
+          throw new Error("Mock error for demo purposes"); // Simulate an error for demo
           fetchPosts(userPosts);
         } catch (err) {
-          console.error('Failed to load posts:', err);
+          console.error("Failed to load posts:", err);
           // Even if there's an error, we can still show mock data for demo
-          const mockPosts = await PostsService.fetchUserPosts('user-123');
+          const mockPosts = await PostsService.fetchUserPosts("user-123");
           fetchPosts(mockPosts);
         }
       }
@@ -51,18 +53,19 @@ const PostsDisplay: React.FC = () => {
     if (!searchQuery.trim()) {
       setFilteredPosts(posts);
     } else {
-      const filtered = posts.filter(post =>
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.platform.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.status.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = posts.filter(
+        (post) =>
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.platform.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.status.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredPosts(filtered);
     }
   }, [posts, searchQuery]);
 
   const handleCreateNew = () => {
-    navigate('/post/new');
+    navigate("/post/new");
   };
 
   const handleEdit = (post: Post) => {
@@ -71,12 +74,14 @@ const PostsDisplay: React.FC = () => {
   };
 
   const handleDelete = async (postId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
+    if (
+      window.confirm("Êtes-vous sûr de vouloir supprimer cette publication ?")
+    ) {
       try {
         await PostsService.deletePost(postId);
         deletePost(postId);
       } catch (err) {
-        console.error('Failed to delete post:', err);
+        console.error("Failed to delete post:", err);
       }
     }
   };
@@ -88,7 +93,10 @@ const PostsDisplay: React.FC = () => {
   const handlePostClick = (postId: string) => {
     navigate(`/posts/${postId}`);
   };
-  const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
+  const handleSortChange = (
+    newSortBy: typeof sortBy,
+    newSortOrder: typeof sortOrder
+  ) => {
     setSort(newSortBy, newSortOrder);
   };
 
@@ -97,7 +105,7 @@ const PostsDisplay: React.FC = () => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className="min-h-screen bg-[#E7E9F2] p-4 md:p-6"
     >
       <div className="max-w-7xl mx-auto">

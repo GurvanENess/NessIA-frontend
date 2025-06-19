@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../services/supabase";
-import { FormDataType } from "../entities/FormTypes";
+import { supabaseClient } from "../services/supabase";
+
+interface FormDataType {
+  email: string;
+  password: string;
+  username?: string;
+}
 
 interface User {
   id: string;
@@ -37,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setUser({
           id: session.user.id,
@@ -59,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const signup = async ({ email, password, username }: FormDataType) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
@@ -72,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
@@ -93,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
     setUser(null);
   };
