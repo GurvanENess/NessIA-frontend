@@ -1,5 +1,5 @@
-export type PostStatus = 'draft' | 'published' | 'scheduled';
-export type PostPlatform = 'instagram' | 'facebook' | 'tiktok' | 'twitter';
+export type PostStatus = "draft" | "published" | "scheduled";
+export type PostPlatform = "instagram" | "facebook" | "tiktok" | "twitter";
 
 export interface Post {
   id: string;
@@ -7,12 +7,13 @@ export interface Post {
   description: string;
   status: PostStatus;
   platform: PostPlatform;
-  associatedChatId: string;
+  associatedChatId?: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   scheduledAt?: Date;
   publishedAt?: Date;
   imageUrl?: string;
+  hashtags?: string[];
   userId: string;
 }
 
@@ -20,6 +21,6 @@ export interface PostsState {
   posts: Post[];
   isLoading: boolean;
   error: string | null;
-  sortBy: 'date' | 'status' | 'platform';
-  sortOrder: 'asc' | 'desc';
+  sortBy: "date" | "status" | "platform";
+  sortOrder: "asc" | "desc";
 }

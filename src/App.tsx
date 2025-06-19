@@ -34,9 +34,12 @@ const App: React.FC = () => {
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/posts" element={<PostsDisplay />} />
-                  <Route path="/posts/:postId" element={<div>Post Detail Page - Coming Soon</div>} />
+                  <Route path="/posts/:postId" element={<PostEditor />} />
                   <Route path="/chats" element={<ChatsDisplay />} />
-                  <Route path="/chats/:chatId" element={<div>Chat Detail Page - Coming Soon</div>} />
+                  <Route
+                    path="/chats/:chatId"
+                    element={<div>Chat Detail Page - Coming Soon</div>}
+                  />
                   <Route path="/post/new" element={<PostEditor />} />
                 </Route>
                 {/* Add more protected routes here */}
