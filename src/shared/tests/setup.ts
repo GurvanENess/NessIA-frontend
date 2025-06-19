@@ -1,14 +1,29 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Configuration Jest
+beforeAll(() => {
+  console.log('🧪 Setting up Jest tests for Supabase...');
+});
+
+afterAll(() => {
+  console.log('✅ Jest tests completed');
+});
+
 // Configuration de test pour Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL_PROD || 'http://localhost:54321';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_PROD || 'test-key';
+const supabaseUrl = process.env.VITE_SUPABASE_URL_PROD || 'http://localhost:54321';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY_PROD || 'test-key';
 
 // Client Supabase pour les tests
 export const testSupabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Utilitaires de test
 export const testUtils = {
+  // Générer un email de test unique
+  generateTestEmail: () => `test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`,
+  
+  // Générer un ID utilisateur de test
+  generateTestUserId: () => `test-user-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+
   // Nettoyer les données de test
   async cleanupTestData(userId: string) {
     try {
@@ -26,15 +41,15 @@ export const testUtils = {
         .eq('user_id', userId)
         .like('title', 'TEST_%');
 
-      console.log('Test data cleaned up successfully');
+      console.log(`✅ Test data cleaned up for user: ${userId}`);
     } catch (error) {
-      console.error('Error cleaning up test data:', error);
+      console.error('❌ Error cleaning up test data:', error);
     }
   },
 
   // Créer un utilisateur de test
   async createTestUser() {
-    const testEmail = `test-${Date.now()}@example.com`;
+    const testEmail = this.generateTestEmail();
     const testPassword = 'testpassword123';
 
     try {
@@ -49,7 +64,7 @@ export const testUtils = {
       if (error) throw error;
       return { user: data.user, email: testEmail, password: testPassword };
     } catch (error) {
-      console.error('Error creating test user:', error);
+      console.error('❌ Error creating test user:', error);
       throw error;
     }
   },
@@ -65,7 +80,7 @@ export const testUtils = {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error logging in test user:', error);
+      console.error('❌ Error logging in test user:', error);
       throw error;
     }
   },
@@ -75,9 +90,12 @@ export const testUtils = {
     try {
       await testSupabase.auth.signOut();
     } catch (error) {
-      console.error('Error logging out test user:', error);
+      console.error('❌ Error logging out test user:', error);
     }
-  }
+  },
+
+  // Attendre un délai
+  delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 };
 
 // Types pour les tests
