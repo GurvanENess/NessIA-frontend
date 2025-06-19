@@ -1,75 +1,6 @@
-import { Post, PostStatus, PostPlatform } from '../entities/PostTypes';
-import { supabaseClient } from '../../../shared/services/supabase';
+import { Post } from '../entities/PostTypes';
 
-// Interface representing the raw data structure returned by Supabase
-interface RawSupabasePostData {
-  id: string;
-  title: string;
-  content_text: string;
-  created_at: string;
-  status: string;
-  platform: {
-    name: string;
-  };
-  updated_at?: string;
-  scheduled_at?: string;
-  published_at?: string;
-  image_url?: string;
-  user_id?: string;
-  associated_chat_id?: string;
-}
-
-// Mapping function to convert Supabase data to Post entity
-const mapSupabasePostToPostEntity = (rawPost: RawSupabasePostData): Post => {
-  // Map platform name to PostPlatform enum
-  const mapPlatformName = (platformName: string): PostPlatform => {
-    const normalizedName = platformName.toLowerCase();
-    switch (normalizedName) {
-      case 'instagram':
-        return 'instagram';
-      case 'facebook':
-        return 'facebook';
-      case 'tiktok':
-        return 'tiktok';
-      case 'twitter':
-        return 'twitter';
-      default:
-        return 'instagram'; // Default fallback
-    }
-  };
-
-  // Map status string to PostStatus enum
-  const mapStatus = (status: string): PostStatus => {
-    const normalizedStatus = status.toLowerCase();
-    switch (normalizedStatus) {
-      case 'published':
-        return 'published';
-      case 'scheduled':
-        return 'scheduled';
-      case 'draft':
-        return 'draft';
-      default:
-        return 'draft'; // Default fallback
-    }
-  };
-
-  return {
-    id: rawPost.id,
-    title: rawPost.title,
-    description: rawPost.content_text,
-    status: mapStatus(rawPost.status),
-    platform: mapPlatformName(rawPost.platform.name),
-    associatedChatId: rawPost.associated_chat_id,
-    createdAt: new Date(rawPost.created_at),
-    updatedAt: rawPost.updated_at ? new Date(rawPost.updated_at) : undefined,
-    scheduledAt: rawPost.scheduled_at ? new Date(rawPost.scheduled_at) : undefined,
-    publishedAt: rawPost.published_at ? new Date(rawPost.published_at) : undefined,
-    imageUrl: rawPost.image_url,
-    userId: rawPost.user_id || 'unknown'
-  };
-};
-
-// Mock data for demonstration (keeping as fallback)
+// Mock data for demonstration
 const mockPosts: Post[] = [
   {
     id: '1',
@@ -138,87 +69,24 @@ const mockPosts: Post[] = [
 
 export class PostsService {
   static async fetchUserPosts(userId: string): Promise<Post[]> {
-    try {
-      // Fetch posts from Supabase
-      const { data, error } = await supabaseClient
-        .from('post')
-        .select(`
-          id,
-          title,
-          content_text,
-          created_at,
-          status,
-          updated_at,
-          scheduled_at,
-          published_at,
-          image_url,
-          user_id,
-          associated_chat_id,
-          platform(
-            name
-          )
-        `)
-        .eq('company_id', 1)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.log('No posts found in Supabase, returning mock data');
-        return mockPosts;
-      }
-
-      // Map the raw Supabase data to Post entities
-      const mappedPosts = data.map(mapSupabasePostToPostEntity);
-      return mappedPosts;
-
-    } catch (error) {
-      console.error('Error fetching posts from Supabase:', error);
-      // Fallback to mock data in case of error
-      console.log('Falling back to mock data');
-      return mockPosts;
-    }
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // For demo purposes, always return mock data regardless of userId
+    // In real app, this would filter by actual userId
+    return mockPosts
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   static async deletePost(postId: string): Promise<void> {
-    try {
-      const { error } = await supabaseClient
-        .from('post')
-        .delete()
-        .eq('id', postId);
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      // Simulate API call for demo
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log(`Post ${postId} deleted (mock)`);
-    }
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log(`Post ${postId} deleted`);
   }
 
   static async updatePostStatus(postId: string, status: Post['status']): Promise<void> {
-    try {
-      const { error } = await supabaseClient
-        .from('post')
-        .update({ 
-          status: status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', postId);
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error updating post status:', error);
-      // Simulate API call for demo
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log(`Post ${postId} status updated to ${status} (mock)`);
-    }
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log(`Post ${postId} status updated to ${status}`);
   }
 }
