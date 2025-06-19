@@ -99,6 +99,10 @@ export const usePostsStore = () => {
     }
   };
 
+  const setPostsError = (error: string) => {
+    dispatch({ type: 'FETCH_POSTS_ERROR', payload: error });
+  };
+
   const setSort = (sortBy: PostsState['sortBy'], sortOrder: PostsState['sortOrder']) => {
     dispatch({ type: 'SET_SORT', payload: { sortBy, sortOrder } });
   };
@@ -114,6 +118,7 @@ export const usePostsStore = () => {
   return {
     ...state,
     fetchPosts,
+    setPostsError,
     setSort,
     deletePost,
     updatePostStatus
