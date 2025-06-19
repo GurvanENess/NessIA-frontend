@@ -13,6 +13,7 @@ export interface Post {
   scheduledAt?: Date;
   publishedAt?: Date;
   imageUrl?: string;
+  hashtags?: string[];
   userId: string;
 }
 

@@ -1,12 +1,39 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostForm from "./PostForm";
 import PostPreview from "./PostPreview";
 import { useApp } from "../../shared/contexts/AppContext";
+import { useParams } from "react-router-dom";
+import { db } from "../../shared/services/db";
+import { getContent, getHashtags } from "./utils/utils";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
+  const { postId } = useParams<{ postId: string }>();
   const { isPreviewMode, postData, isSaving, isPublishing, error } = state.post;
+
+  if (postId) {
+    useEffect(() => {
+      // Fetch post data by ID when postId is available
+      const fetchPostData = async () => {
+        try {
+          const data = await db.getPostById(postId);
+          console.log(data);
+          dispatch({
+            type: "UPDATE_POST_DATA",
+            payload: {
+              image: "",
+              caption: getContent(data.content_text || ""),
+              hashtags: getHashtags(data.content_text || ""),
+            },
+          });
+        } catch (err) {
+          console.error("Treated later:", err);
+        }
+      };
+      fetchPostData();
+    }, [postId]);
+  }
 
   const handleSave = async () => {
     dispatch({ type: "SAVE_POST_START" });

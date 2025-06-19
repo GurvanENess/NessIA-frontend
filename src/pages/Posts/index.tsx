@@ -7,7 +7,6 @@ import { PostsService } from "./services/postsService";
 import { Post } from "./entities/PostTypes";
 import PostsHeader from "./components/PostsHeader";
 import PostsGrid from "./components/PostsGrid";
-import { db } from "../../shared/services/db";
 
 const PostsDisplay: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +20,6 @@ const PostsDisplay: React.FC = () => {
     fetchPosts,
     setSort,
     deletePost,
-    updatePostStatus,
   } = usePostsStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,14 +31,11 @@ const PostsDisplay: React.FC = () => {
       if (user?.id) {
         fetchPosts([]); // Start loading state
         try {
-          const userPosts = await db.getAllPosts();
-          throw new Error("Mock error for demo purposes"); // Simulate an error for demo
+          const userPosts = await PostsService.fetchUserPosts();
+          console.log(userPosts);
           fetchPosts(userPosts);
         } catch (err) {
           console.error("Failed to load posts:", err);
-          // Even if there's an error, we can still show mock data for demo
-          const mockPosts = await PostsService.fetchUserPosts("user-123");
-          fetchPosts(mockPosts);
         }
       }
     };
@@ -78,7 +73,6 @@ const PostsDisplay: React.FC = () => {
       window.confirm("Êtes-vous sûr de vouloir supprimer cette publication ?")
     ) {
       try {
-        await PostsService.deletePost(postId);
         deletePost(postId);
       } catch (err) {
         console.error("Failed to delete post:", err);
