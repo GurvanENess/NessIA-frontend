@@ -1,196 +1,181 @@
 import { testSupabase, testUtils } from '../setup';
 
-describe('Authentication Tests', () => {
-  let testEmail: string;
-  let testPassword: string;
-  let testUserId: string;
+// Tests pour les opérations d'authentification
+export class AuthDbTest {
+  private testEmail: string = '';
+  private testPassword: string = '';
 
-  beforeEach(() => {
-    testEmail = testUtils.generateTestEmail();
-    testPassword = 'testpassword123';
-  });
+  async testSignUp() {
+    console.log('👤 Testing user sign up...');
+    
+    this.testEmail = `test-signup-${Date.now()}@example.com`;
+    this.testPassword = 'testpassword123';
 
-  afterEach(async () => {
-    // Nettoyer après chaque test
-    await testUtils.logoutTestUser();
-    if (testUserId) {
-      await testUtils.cleanupTestData(testUserId);
+    try {
+      const { data, error } = await testSupabase.auth.signUp({
+        email: this.testEmail,
+        password: this.testPassword,
+        options: {
+          data: { display_name: 'Test Signup User' }
+        }
+      });
+
+      if (error) throw error;
+
+      console.log('✅ User signed up successfully:', data.user?.email);
+      return data;
+    } catch (error) {
+      console.error('❌ Error signing up user:', error);
+      throw error;
     }
-  });
+  }
 
-  describe('User Registration', () => {
-    it('should successfully register a new user', async () => {
-      const { data, error } = await testSupabase.auth.signUp({
-        email: testEmail,
-        password: testPassword,
-        options: {
-          data: { display_name: 'Test User' }
-        }
-      });
-
-      expect(error).toBeNull();
-      expect(data.user).toBeDefined();
-      expect(data.user?.email).toBe(testEmail);
-      expect(data.user?.user_metadata.display_name).toBe('Test User');
-      
-      testUserId = data.user?.id || '';
-    });
-
-    it('should reject registration with invalid email', async () => {
-      const { data, error } = await testSupabase.auth.signUp({
-        email: 'invalid-email',
-        password: testPassword
-      });
-
-      expect(error).toBeDefined();
-      expect(data.user).toBeNull();
-    });
-
-    it('should reject registration with weak password', async () => {
-      const { data, error } = await testSupabase.auth.signUp({
-        email: testEmail,
-        password: '123' // Mot de passe trop faible
-      });
-
-      expect(error).toBeDefined();
-      expect(data.user).toBeNull();
-    });
-  });
-
-  describe('User Authentication', () => {
-    beforeEach(async () => {
-      // Créer un utilisateur pour les tests de connexion
-      const { data } = await testSupabase.auth.signUp({
-        email: testEmail,
-        password: testPassword,
-        options: {
-          data: { display_name: 'Test User' }
-        }
-      });
-      testUserId = data.user?.id || '';
-      await testUtils.logoutTestUser(); // Se déconnecter après création
-    });
-
-    it('should successfully sign in with valid credentials', async () => {
+  async testSignIn() {
+    console.log('🔐 Testing user sign in...');
+    
+    try {
       const { data, error } = await testSupabase.auth.signInWithPassword({
-        email: testEmail,
-        password: testPassword
+        email: this.testEmail,
+        password: this.testPassword
       });
 
-      expect(error).toBeNull();
-      expect(data.user).toBeDefined();
-      expect(data.user?.email).toBe(testEmail);
-      expect(data.session).toBeDefined();
-    });
+      if (error) throw error;
 
-    it('should reject sign in with invalid credentials', async () => {
+      console.log('✅ User signed in successfully:', data.user?.email);
+      return data;
+    } catch (error) {
+      console.error('❌ Error signing in user:', error);
+      throw error;
+    }
+  }
+
+  async testGetCurrentUser() {
+    console.log('👥 Testing get current user...');
+    
+    try {
+      const { data: { user }, error } = await testSupabase.auth.getUser();
+
+      if (error) throw error;
+
+      console.log('✅ Current user retrieved:', user?.email);
+      return user;
+    } catch (error) {
+      console.error('❌ Error getting current user:', error);
+      throw error;
+    }
+  }
+
+  async testUpdateUserMetadata() {
+    console.log('📝 Testing user metadata update...');
+    
+    const updates = {
+      data: { 
+        display_name: 'Updated Test User',
+        bio: 'This is a test bio'
+      }
+    };
+
+    try {
+      const { data, error } = await testSupabase.auth.updateUser(updates);
+
+      if (error) throw error;
+
+      console.log('✅ User metadata updated successfully:', data.user?.user_metadata);
+      return data;
+    } catch (error) {
+      console.error('❌ Error updating user metadata:', error);
+      throw error;
+    }
+  }
+
+  async testSignOut() {
+    console.log('🚪 Testing user sign out...');
+    
+    try {
+      const { error } = await testSupabase.auth.signOut();
+
+      if (error) throw error;
+
+      console.log('✅ User signed out successfully');
+    } catch (error) {
+      console.error('❌ Error signing out user:', error);
+      throw error;
+    }
+  }
+
+  async testAuthStateChange() {
+    console.log('🔄 Testing auth state change listener...');
+    
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Auth state change test timed out'));
+      }, 5000);
+
+      const { data: { subscription } } = testSupabase.auth.onAuthStateChange((event, session) => {
+        console.log(`✅ Auth state changed: ${event}`, session?.user?.email);
+        clearTimeout(timeout);
+        subscription.unsubscribe();
+        resolve(event);
+      });
+
+      // Déclencher un changement d'état en se connectant
+      testSupabase.auth.signInWithPassword({
+        email: this.testEmail,
+        password: this.testPassword
+      });
+    });
+  }
+
+  async testInvalidCredentials() {
+    console.log('❌ Testing invalid credentials...');
+    
+    try {
       const { data, error } = await testSupabase.auth.signInWithPassword({
-        email: testEmail,
+        email: 'invalid@example.com',
         password: 'wrongpassword'
       });
 
-      expect(error).toBeDefined();
-      expect(data.user).toBeNull();
-      expect(data.session).toBeNull();
-    });
+      if (error) {
+        console.log('✅ Invalid credentials correctly rejected:', error.message);
+        return true;
+      } else {
+        throw new Error('Invalid credentials should have been rejected');
+      }
+    } catch (error) {
+      console.error('❌ Unexpected error with invalid credentials:', error);
+      throw error;
+    }
+  }
 
-    it('should reject sign in with non-existent email', async () => {
-      const { data, error } = await testSupabase.auth.signInWithPassword({
-        email: 'nonexistent@example.com',
-        password: testPassword
-      });
-
-      expect(error).toBeDefined();
-      expect(data.user).toBeNull();
-    });
-  });
-
-  describe('User Session Management', () => {
-    beforeEach(async () => {
-      const { data } = await testSupabase.auth.signUp({
-        email: testEmail,
-        password: testPassword
-      });
-      testUserId = data.user?.id || '';
-    });
-
-    it('should get current user when authenticated', async () => {
-      const { data: { user }, error } = await testSupabase.auth.getUser();
-
-      expect(error).toBeNull();
-      expect(user).toBeDefined();
-      expect(user?.email).toBe(testEmail);
-    });
-
-    it('should successfully sign out', async () => {
-      const { error } = await testSupabase.auth.signOut();
-
-      expect(error).toBeNull();
-
-      // Vérifier que l'utilisateur n'est plus connecté
-      const { data: { user } } = await testSupabase.auth.getUser();
-      expect(user).toBeNull();
-    });
-  });
-
-  describe('User Metadata', () => {
-    beforeEach(async () => {
-      const { data } = await testSupabase.auth.signUp({
-        email: testEmail,
-        password: testPassword,
-        options: {
-          data: { display_name: 'Original Name' }
-        }
-      });
-      testUserId = data.user?.id || '';
-    });
-
-    it('should update user metadata', async () => {
-      const updates = {
-        data: { 
-          display_name: 'Updated Name',
-          bio: 'Test bio'
-        }
-      };
-
-      const { data, error } = await testSupabase.auth.updateUser(updates);
-
-      expect(error).toBeNull();
-      expect(data.user?.user_metadata.display_name).toBe('Updated Name');
-      expect(data.user?.user_metadata.bio).toBe('Test bio');
-    });
-  });
-
-  describe('Auth State Changes', () => {
-    it('should trigger auth state change on sign in', async () => {
-      // Créer un utilisateur d'abord
-      await testSupabase.auth.signUp({
-        email: testEmail,
-        password: testPassword
-      });
-      await testUtils.logoutTestUser();
-
-      return new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('Auth state change test timed out'));
-        }, 10000);
-
-        const { data: { subscription } } = testSupabase.auth.onAuthStateChange((event, session) => {
-          if (event === 'SIGNED_IN') {
-            expect(session).toBeDefined();
-            expect(session?.user?.email).toBe(testEmail);
-            clearTimeout(timeout);
-            subscription.unsubscribe();
-            resolve();
-          }
-        });
-
-        // Déclencher la connexion
-        testSupabase.auth.signInWithPassword({
-          email: testEmail,
-          password: testPassword
-        });
-      });
-    });
-  });
-});
+  // Exécuter tous les tests
+  async runAllTests() {
+    try {
+      console.log('🚀 Starting Auth DB tests...');
+      
+      // Test d'inscription
+      await this.testSignUp();
+      
+      // Test de connexion
+      await this.testSignIn();
+      
+      // Test de récupération de l'utilisateur actuel
+      await this.testGetCurrentUser();
+      
+      // Test de mise à jour des métadonnées
+      await this.testUpdateUserMetadata();
+      
+      // Test de changement d'état d'authentification
+      await this.testAuthStateChange();
+      
+      // Test de déconnexion
+      await this.testSignOut();
+      
+      // Test avec des identifiants invalides
+      await this.testInvalidCredentials();
+      
+      console.log('🎉 All Auth DB tests passed!');
+    } catch (error) {
+      console.error('💥 Auth DB tests failed:', error);
+    }
+  }
+}

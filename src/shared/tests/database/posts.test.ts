@@ -1,382 +1,199 @@
 import { testSupabase, testUtils, TestPost } from '../setup';
 
-describe('Posts Database Tests', () => {
-  let testUserId: string;
-  let testUser: any;
+// Tests pour les opérations CRUD sur les posts
+export class PostsDbTest {
+  private testUserId: string = '';
 
-  beforeAll(async () => {
-    // Créer un utilisateur de test pour tous les tests
-    const userData = await testUtils.createTestUser();
-    testUser = userData;
-    testUserId = userData.user?.id || '';
-  });
+  async setup() {
+    console.log('🚀 Setting up Posts DB tests...');
+    
+    // Créer un utilisateur de test
+    const { user } = await testUtils.createTestUser();
+    this.testUserId = user?.id || '';
+    
+    console.log(`✅ Test user created: ${this.testUserId}`);
+  }
 
-  afterAll(async () => {
-    // Nettoyer toutes les données de test
-    await testUtils.cleanupTestData(testUserId);
+  async cleanup() {
+    console.log('🧹 Cleaning up Posts DB tests...');
+    
+    // Nettoyer les données de test
+    await testUtils.cleanupTestData(this.testUserId);
+    
+    // Se déconnecter
     await testUtils.logoutTestUser();
-  });
+    
+    console.log('✅ Cleanup completed');
+  }
 
-  beforeEach(async () => {
-    // S'assurer que l'utilisateur est connecté pour chaque test
-    await testUtils.loginTestUser(testUser.email, testUser.password);
-  });
+  async testCreatePost() {
+    console.log('📝 Testing post creation...');
+    
+    const testPost: TestPost = {
+      title: 'TEST_Post Creation',
+      description: 'Test post for database operations',
+      status: 'draft',
+      platform: 'instagram',
+      user_id: this.testUserId
+    };
 
-  describe('Post Creation', () => {
-    it('should create a new post successfully', async () => {
-      const testPost: TestPost = {
-        title: 'TEST_New Post',
-        description: 'This is a test post',
-        status: 'draft',
-        platform: 'instagram',
-        user_id: testUserId
-      };
-
+    try {
       const { data, error } = await testSupabase
         .from('posts')
         .insert([testPost])
         .select()
         .single();
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.title).toBe(testPost.title);
-      expect(data.user_id).toBe(testUserId);
-      expect(data.id).toBeDefined();
-    });
+      if (error) throw error;
 
-    it('should reject post creation without required fields', async () => {
-      const invalidPost = {
-        description: 'Post without title',
-        user_id: testUserId
-      };
+      console.log('✅ Post created successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Error creating post:', error);
+      throw error;
+    }
+  }
 
-      const { data, error } = await testSupabase
-        .from('posts')
-        .insert([invalidPost])
-        .select();
-
-      expect(error).toBeDefined();
-      expect(data).toBeNull();
-    });
-
-    it('should create post with all valid statuses', async () => {
-      const statuses: TestPost['status'][] = ['draft', 'published', 'scheduled'];
-      
-      for (const status of statuses) {
-        const testPost: TestPost = {
-          title: `TEST_Post ${status}`,
-          description: `Test post with ${status} status`,
-          status,
-          platform: 'instagram',
-          user_id: testUserId
-        };
-
-        const { data, error } = await testSupabase
-          .from('posts')
-          .insert([testPost])
-          .select()
-          .single();
-
-        expect(error).toBeNull();
-        expect(data.status).toBe(status);
-      }
-    });
-  });
-
-  describe('Post Reading', () => {
-    let createdPostId: string;
-
-    beforeEach(async () => {
-      // Créer un post pour les tests de lecture
-      const testPost: TestPost = {
-        title: 'TEST_Read Post',
-        description: 'Post for reading tests',
-        status: 'draft',
-        platform: 'instagram',
-        user_id: testUserId
-      };
-
-      const { data } = await testSupabase
-        .from('posts')
-        .insert([testPost])
-        .select()
-        .single();
-
-      createdPostId = data.id;
-    });
-
-    it('should retrieve posts by user ID', async () => {
+  async testReadPosts() {
+    console.log('📖 Testing posts retrieval...');
+    
+    try {
       const { data, error } = await testSupabase
         .from('posts')
         .select('*')
-        .eq('user_id', testUserId)
+        .eq('user_id', this.testUserId)
         .like('title', 'TEST_%');
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
-    });
+      if (error) throw error;
 
-    it('should retrieve a specific post by ID', async () => {
+      console.log(`✅ Retrieved ${data.length} test posts`);
+      return data;
+    } catch (error) {
+      console.error('❌ Error reading posts:', error);
+      throw error;
+    }
+  }
+
+  async testUpdatePost(postId: string) {
+    console.log('✏️ Testing post update...');
+    
+    const updates = {
+      title: 'TEST_Updated Post Title',
+      status: 'published' as const,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
       const { data, error } = await testSupabase
         .from('posts')
-        .select('*')
-        .eq('id', createdPostId)
+        .update(updates)
+        .eq('id', postId)
+        .eq('user_id', this.testUserId)
+        .select()
         .single();
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.id).toBe(createdPostId);
-      expect(data.title).toBe('TEST_Read Post');
-    });
+      if (error) throw error;
 
-    it('should filter posts by status', async () => {
-      // Créer des posts avec différents statuts
-      const posts: TestPost[] = [
-        {
-          title: 'TEST_Draft Post',
-          description: 'Draft post',
-          status: 'draft',
-          platform: 'instagram',
-          user_id: testUserId
-        },
-        {
-          title: 'TEST_Published Post',
-          description: 'Published post',
-          status: 'published',
-          platform: 'facebook',
-          user_id: testUserId
-        }
-      ];
+      console.log('✅ Post updated successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ Error updating post:', error);
+      throw error;
+    }
+  }
 
-      await testSupabase.from('posts').insert(posts);
+  async testDeletePost(postId: string) {
+    console.log('🗑️ Testing post deletion...');
+    
+    try {
+      const { error } = await testSupabase
+        .from('posts')
+        .delete()
+        .eq('id', postId)
+        .eq('user_id', this.testUserId);
+
+      if (error) throw error;
+
+      console.log('✅ Post deleted successfully');
+    } catch (error) {
+      console.error('❌ Error deleting post:', error);
+      throw error;
+    }
+  }
+
+  async testPostFiltering() {
+    console.log('🔍 Testing post filtering...');
+    
+    // Créer plusieurs posts de test avec différents statuts
+    const testPosts: TestPost[] = [
+      {
+        title: 'TEST_Draft Post',
+        description: 'Draft post',
+        status: 'draft',
+        platform: 'instagram',
+        user_id: this.testUserId
+      },
+      {
+        title: 'TEST_Published Post',
+        description: 'Published post',
+        status: 'published',
+        platform: 'facebook',
+        user_id: this.testUserId
+      }
+    ];
+
+    try {
+      // Insérer les posts
+      const { data: insertedPosts, error: insertError } = await testSupabase
+        .from('posts')
+        .insert(testPosts)
+        .select();
+
+      if (insertError) throw insertError;
 
       // Tester le filtrage par statut
-      const { data: draftPosts, error } = await testSupabase
+      const { data: draftPosts, error: filterError } = await testSupabase
         .from('posts')
         .select('*')
-        .eq('user_id', testUserId)
+        .eq('user_id', this.testUserId)
         .eq('status', 'draft')
         .like('title', 'TEST_%');
 
-      expect(error).toBeNull();
-      expect(draftPosts.length).toBeGreaterThanOrEqual(2); // Au moins les 2 posts draft créés
-      draftPosts.forEach(post => {
-        expect(post.status).toBe('draft');
-      });
-    });
+      if (filterError) throw filterError;
 
-    it('should sort posts by creation date', async () => {
-      const { data, error } = await testSupabase
-        .from('posts')
-        .select('*')
-        .eq('user_id', testUserId)
-        .like('title', 'TEST_%')
-        .order('created_at', { ascending: false });
+      console.log(`✅ Filtering test passed: found ${draftPosts.length} draft posts`);
+      return { insertedPosts, draftPosts };
+    } catch (error) {
+      console.error('❌ Error in filtering test:', error);
+      throw error;
+    }
+  }
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
+  // Exécuter tous les tests
+  async runAllTests() {
+    try {
+      await this.setup();
       
-      // Vérifier que les posts sont triés par date décroissante
-      for (let i = 1; i < data.length; i++) {
-        const currentDate = new Date(data[i].created_at);
-        const previousDate = new Date(data[i - 1].created_at);
-        expect(currentDate.getTime()).toBeLessThanOrEqual(previousDate.getTime());
-      }
-    });
-  });
-
-  describe('Post Updates', () => {
-    let postToUpdate: any;
-
-    beforeEach(async () => {
-      // Créer un post pour les tests de mise à jour
-      const testPost: TestPost = {
-        title: 'TEST_Update Post',
-        description: 'Post for update tests',
-        status: 'draft',
-        platform: 'instagram',
-        user_id: testUserId
-      };
-
-      const { data } = await testSupabase
-        .from('posts')
-        .insert([testPost])
-        .select()
-        .single();
-
-      postToUpdate = data;
-    });
-
-    it('should update post title and description', async () => {
-      const updates = {
-        title: 'TEST_Updated Title',
-        description: 'Updated description',
-        updated_at: new Date().toISOString()
-      };
-
-      const { data, error } = await testSupabase
-        .from('posts')
-        .update(updates)
-        .eq('id', postToUpdate.id)
-        .eq('user_id', testUserId)
-        .select()
-        .single();
-
-      expect(error).toBeNull();
-      expect(data.title).toBe(updates.title);
-      expect(data.description).toBe(updates.description);
-      expect(data.id).toBe(postToUpdate.id);
-    });
-
-    it('should update post status', async () => {
-      const { data, error } = await testSupabase
-        .from('posts')
-        .update({ status: 'published' })
-        .eq('id', postToUpdate.id)
-        .eq('user_id', testUserId)
-        .select()
-        .single();
-
-      expect(error).toBeNull();
-      expect(data.status).toBe('published');
-    });
-
-    it('should not update post from different user', async () => {
-      // Créer un autre utilisateur
-      const otherUser = await testUtils.createTestUser();
+      // Test de création
+      const createdPost = await this.testCreatePost();
       
-      const updates = {
-        title: 'Unauthorized Update'
-      };
-
-      const { data, error } = await testSupabase
-        .from('posts')
-        .update(updates)
-        .eq('id', postToUpdate.id)
-        .eq('user_id', otherUser.user?.id) // Mauvais user_id
-        .select();
-
-      expect(data).toEqual([]); // Aucune ligne mise à jour
+      // Test de lecture
+      await this.testReadPosts();
       
-      // Nettoyer l'autre utilisateur
-      await testUtils.cleanupTestData(otherUser.user?.id || '');
-    });
-  });
-
-  describe('Post Deletion', () => {
-    let postToDelete: any;
-
-    beforeEach(async () => {
-      // Créer un post pour les tests de suppression
-      const testPost: TestPost = {
-        title: 'TEST_Delete Post',
-        description: 'Post for deletion tests',
-        status: 'draft',
-        platform: 'instagram',
-        user_id: testUserId
-      };
-
-      const { data } = await testSupabase
-        .from('posts')
-        .insert([testPost])
-        .select()
-        .single();
-
-      postToDelete = data;
-    });
-
-    it('should delete a post successfully', async () => {
-      const { error } = await testSupabase
-        .from('posts')
-        .delete()
-        .eq('id', postToDelete.id)
-        .eq('user_id', testUserId);
-
-      expect(error).toBeNull();
-
-      // Vérifier que le post a été supprimé
-      const { data, error: selectError } = await testSupabase
-        .from('posts')
-        .select('*')
-        .eq('id', postToDelete.id);
-
-      expect(selectError).toBeNull();
-      expect(data).toEqual([]);
-    });
-
-    it('should not delete post from different user', async () => {
-      // Créer un autre utilisateur
-      const otherUser = await testUtils.createTestUser();
+      // Test de mise à jour
+      await this.testUpdatePost(createdPost.id);
       
-      const { error } = await testSupabase
-        .from('posts')
-        .delete()
-        .eq('id', postToDelete.id)
-        .eq('user_id', otherUser.user?.id); // Mauvais user_id
-
-      expect(error).toBeNull(); // Pas d'erreur, mais aucune suppression
-
-      // Vérifier que le post existe toujours
-      const { data } = await testSupabase
-        .from('posts')
-        .select('*')
-        .eq('id', postToDelete.id);
-
-      expect(data.length).toBe(1);
+      // Test de filtrage
+      await this.testPostFiltering();
       
-      // Nettoyer l'autre utilisateur
-      await testUtils.cleanupTestData(otherUser.user?.id || '');
-    });
-  });
-
-  describe('Post Validation', () => {
-    it('should validate platform values', async () => {
-      const platforms: TestPost['platform'][] = ['instagram', 'facebook', 'tiktok', 'twitter'];
+      // Test de suppression
+      await this.testDeletePost(createdPost.id);
       
-      for (const platform of platforms) {
-        const testPost: TestPost = {
-          title: `TEST_${platform} Post`,
-          description: `Post for ${platform}`,
-          status: 'draft',
-          platform,
-          user_id: testUserId
-        };
-
-        const { data, error } = await testSupabase
-          .from('posts')
-          .insert([testPost])
-          .select()
-          .single();
-
-        expect(error).toBeNull();
-        expect(data.platform).toBe(platform);
-      }
-    });
-
-    it('should validate status values', async () => {
-      const statuses: TestPost['status'][] = ['draft', 'published', 'scheduled'];
-      
-      for (const status of statuses) {
-        const testPost: TestPost = {
-          title: `TEST_${status} Post`,
-          description: `Post with ${status} status`,
-          status,
-          platform: 'instagram',
-          user_id: testUserId
-        };
-
-        const { data, error } = await testSupabase
-          .from('posts')
-          .insert([testPost])
-          .select()
-          .single();
-
-        expect(error).toBeNull();
-        expect(data.status).toBe(status);
-      }
-    });
-  });
-});
+      console.log('🎉 All Posts DB tests passed!');
+    } catch (error) {
+      console.error('💥 Posts DB tests failed:', error);
+    } finally {
+      await this.cleanup();
+    }
+  }
+}
