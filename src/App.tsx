@@ -37,7 +37,14 @@ const App: React.FC = () => {
                   <Route path="/posts" element={<PostsDisplay />} />
                   <Route path="/posts/:postId" element={<PostEditor />} />
                   <Route path="/chats" element={<ChatsDisplay />} />
-                  <Route path="/modal" element={<FileSelectModal />} />
+                  <Route path="/modal" element={
+                    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                      <FileSelectModal 
+                        onFileSelect={(file) => console.log('File selected:', file)}
+                        onClose={() => console.log('Modal closed')}
+                      />
+                    </div>
+                  } />
                   <Route
                     path="/chats/:chatId"
                     element={<div>Chat Detail Page - Coming Soon</div>}
