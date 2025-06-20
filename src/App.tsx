@@ -42,6 +42,7 @@ const App: React.FC = () => {
                   <Route path="/modal" element={
                     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                       <FileSelectModal 
+                        onValidate={true}
                         isOpen={isModalOpen}
                         onFileSelect={(file) => console.log('File selected:', file)}
                         onClose={() => {
