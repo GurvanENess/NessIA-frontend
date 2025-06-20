@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CloudDownload, Upload, X, Check, AlertCircle } from "lucide-react";
+import { DownloadCloud as CloudDownload, Upload, X, Check, AlertCircle } from "lucide-react";
 
 interface FileSelectModalProps {
   isOpen?: boolean;
