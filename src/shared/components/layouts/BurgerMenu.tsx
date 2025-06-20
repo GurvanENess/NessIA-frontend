@@ -14,6 +14,7 @@ import {
   Library,
   Grid3X3,
   MoreHorizontal,
+  FileAxis3D,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
@@ -70,6 +71,11 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
           label: "Editor",
           path: "/post/new",
           icon: FilePenLine,
+        },
+        {
+          label: "Modal",
+          path: "/modal",
+          icon: FileAxis3D,
         },
       ],
     },
@@ -204,7 +210,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                                 </Link>
                               );
                             })}
-                            
+
                             {/* Special case for logout in "others" section */}
                             {section.id === "others" && isAuthenticated && (
                               <button
