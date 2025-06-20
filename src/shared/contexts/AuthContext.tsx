@@ -1,11 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../services/supabase";
-import { FormDataType } from "../entities/FormTypes";
+import { supabaseClient } from "../services/supabase";
+
+interface FormDataType {
+  email: string;
+  password: string;
+  username?: string;
+}
 
 interface User {
   id: string;
   email: string;
   name: string;
+  token?: string;
 }
 
 interface AuthContextType {
@@ -36,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setUser({
           id: session.user.id,
@@ -44,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           name:
             session.user.user_metadata.name ||
             session.user.email!.split("@")[0],
+          token: session.access_token,
         });
       } else {
         setUser(null);
@@ -57,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const signup = async ({ email, password, username }: FormDataType) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
@@ -70,17 +77,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
 
+    console.log("Login data:", data);
     if (error) throw error;
 
     if (data.user) {
       setUser({
         id: data.user.id,
         email: data.user.email!,
+        token: data.session?.access_token,
         name:
           data.user.user_metadata.display_name ||
           data.user.email!.split("@")[0],
@@ -89,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
     setUser(null);
   };

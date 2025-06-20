@@ -1,13 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import Message from "./ChatMessage";
 import { Message as MessageType } from "../../../shared/entities/ChatTypes";
-import { Action } from "../entities/mockAITypes";
 
 // TODO : Mettre les types des messages dans le fichier src/types/ChatTypes.ts
 
 interface MessageListProps {
   messages: MessageType[];
-  handleAction: (action: Action) => void;
+  handleAction: (label: string) => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({

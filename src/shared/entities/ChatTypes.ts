@@ -1,4 +1,4 @@
-import { Action } from "../../pages/Home/entities/mockAITypes";
+import { Action } from "../../pages/Home/entities/AITypes";
 import { PostData } from "./PostTypes";
 
 export interface Message {
@@ -7,7 +7,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   showActions?: boolean;
-  actions?: Action[];
-  handleAction?: (action: Action) => void;
+  action?: Action;
+  handleAction?: (label: string) => void;
   postData?: PostData;
 }

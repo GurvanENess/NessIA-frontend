@@ -3,18 +3,21 @@ import { PostData } from "../../../shared/entities/PostTypes";
 export interface AIRequest {
   message: string;
   sessionId?: string;
+  userToken?: string;
+  companyId: string;
 }
 
 export interface AIResponse {
   message: string;
-  availableActions: Action[];
+  action: Action;
+  sessionId: string;
   post?: PostData;
 }
 
 export interface Action {
-  label: string;
-  type: "primary" | "secondary";
-  request: AIRequest;
+  type: string;
+  responses: string[];
+  blocking: boolean;
 }
 
 export interface AIRequestFunction {
