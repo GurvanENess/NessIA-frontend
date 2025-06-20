@@ -114,24 +114,6 @@ const Home: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>Paramètres</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
-                >
-                  <HelpCircle className="w-5 h-5" />
-                  <span>Aide</span>
-                </button>
-              </li>
-              <li>
                 <Link to="/post/new">
                   <button
                     onClick={() => setIsMenuOpen(false)}
@@ -152,6 +134,26 @@ const Home: React.FC = () => {
                     <span>Chat</span>
                   </button>
                 </Link>
+              </li>
+              <li>
+                <Link to="/settings">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
+                  >
+                    <Settings className="w-5 h-5" />
+                    <span>Paramètres</span>
+                  </button>
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full flex items-center space-x-3 px-3 py-2 text-[#1A201B] hover:bg-[#E7E9F2] rounded-lg"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                  <span>Aide</span>
+                </button>
               </li>
               {isAuthenticated && (
                 <li>

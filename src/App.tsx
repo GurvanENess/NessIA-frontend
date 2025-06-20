@@ -40,6 +40,10 @@ const App: React.FC = () => {
                     path="/chats/:chatId"
                     element={<div>Chat Detail Page - Coming Soon</div>}
                   />
+                  <Route
+                    path="/settings"
+                    element={<div>Settings Page - Coming Soon</div>}
+                  />
                   <Route path="/post/new" element={<PostEditor />} />
                 </Route>
                 {/* Add more protected routes here */}

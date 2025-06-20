@@ -5,9 +5,9 @@ const mapPost = (data: any): Post => {
   return {
     id: data.id,
     title: data.title,
-    description: data.content_text,
+    description: data.content_text || "Pas de contenu.",
     status: data.status,
-    platform: data.platform.name,
+    platform: data.platform?.name || "Instagram",
     associatedChatId: data.associated_chat_id,
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
