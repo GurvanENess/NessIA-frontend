@@ -1,4 +1,5 @@
 import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,6 +20,8 @@ import ChatsDisplay from "./pages/Chats";
 import FileSelectModal from "./shared/components/FileSelectModal";
 
 const App: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(true);
+
   return (
     <Router>
       <AuthProvider>
@@ -40,9 +43,21 @@ const App: React.FC = () => {
                   <Route path="/modal" element={
                     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                       <FileSelectModal 
+                        isOpen={isModalOpen}
                         onFileSelect={(file) => console.log('File selected:', file)}
-                        onClose={() => console.log('Modal closed')}
+                        onClose={() => {
+                          console.log('Modal closed');
+                          setIsModalOpen(false);
+                        }}
                       />
+                      {!isModalOpen && (
+                        <button
+                          onClick={() => setIsModalOpen(true)}
+                          className="bg-[#7C3AED] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#6D28D9] transition-colors"
+                        >
+                          Ouvrir la modale
+                        </button>
+                      )}
                     </div>
                   } />
                   <Route
