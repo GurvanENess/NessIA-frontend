@@ -14,6 +14,7 @@ interface FileSelectModalProps {
   onClose?: () => void;
   onFileSelect?: (file: File) => void;
   onFilesChange?: (files: UploadedFile[]) => void;
+  onValidate?: (files: UploadedFile[]) => void;
   acceptedTypes?: string[];
   maxSize?: number; // in MB
   multiple?: boolean;
@@ -24,6 +25,7 @@ const FileSelectModal: React.FC<FileSelectModalProps> = ({
   onClose,
   onFileSelect,
   onFilesChange,
+  onValidate,
   acceptedTypes = ["jpg", "png", "gif"],
   maxSize = 10,
   multiple = true
@@ -193,14 +195,33 @@ const FileSelectModal: React.FC<FileSelectModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">Téléverser un fichier</h2>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Validate Button - only show when files are uploaded */}
+            {uploadedFiles.length > 0 && onValidate && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onValidate(uploadedFiles)}
+                className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Valider
+              </motion.button>
+            )}
+            
+            {/* Close Button */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Scrollable Content */}
