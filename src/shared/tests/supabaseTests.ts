@@ -12,8 +12,18 @@ async function getAllPosts() {
   try {
     const { data, error } = await supabase
       .from("post")
-      .select()
-      .eq("company_id", 1);
+      .select(
+        `
+          post_media (
+            media (
+              url,
+              mime_type
+            )
+          )
+        `
+      )
+      .eq("media.company_id", 1)
+      .limit(3);
 
     if (error) throw error;
 

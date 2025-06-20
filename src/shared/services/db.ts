@@ -1,4 +1,3 @@
-import { g } from "framer-motion/client";
 import { supabaseClient } from "./supabase";
 
 export const db = {
