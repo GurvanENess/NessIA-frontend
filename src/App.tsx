@@ -16,6 +16,7 @@ import AppLayout from "./shared/components/layouts/AppLayout";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
 import ChatsDisplay from "./pages/Chats";
+import FileSelectModal from "./shared/components/FileSelectModal";
 
 const App: React.FC = () => {
   return (
@@ -36,6 +37,7 @@ const App: React.FC = () => {
                   <Route path="/posts" element={<PostsDisplay />} />
                   <Route path="/posts/:postId" element={<PostEditor />} />
                   <Route path="/chats" element={<ChatsDisplay />} />
+                  <Route path="/modal" element={<FileSelectModal />} />
                   <Route
                     path="/chats/:chatId"
                     element={<div>Chat Detail Page - Coming Soon</div>}
