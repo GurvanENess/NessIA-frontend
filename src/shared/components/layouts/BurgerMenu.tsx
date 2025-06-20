@@ -125,30 +125,30 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9]">
+          <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9]">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                   <img
                     src="/assets/nessia_logo.svg"
                     alt="Nessia"
-                    className="w-6 h-6"
+                    className="w-5 h-5"
                   />
                 </div>
                 <div>
                   <img
                     src="/assets/nessia_title.svg"
                     alt="Nessia"
-                    className="h-6 brightness-0 invert"
+                    className="h-5 brightness-0 invert"
                   />
-                  <p className="text-xs text-purple-100 mt-1">Assistant IA</p>
+                  <p className="text-xs text-purple-100">Assistant IA</p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>
