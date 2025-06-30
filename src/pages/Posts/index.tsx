@@ -33,6 +33,7 @@ const PostsDisplay: React.FC = () => {
         try {
           const userPosts = await PostsService.fetchUserPosts();
           console.log(userPosts);
+
           fetchPosts(userPosts);
         } catch (err) {
           console.error("Failed to load posts:", err);
