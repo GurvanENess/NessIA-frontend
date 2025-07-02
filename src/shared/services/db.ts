@@ -48,7 +48,7 @@ export const db = {
         )
         .eq("company_id", 1)
         .order("created_at", { ascending: false })
-        .limit(1, { referencedTable: "media" });
+        .order("url", { ascending: false, referencedTable: "media" });
 
       if (error) throw error;
 

@@ -2,6 +2,7 @@ import { Post } from "../entities/PostTypes";
 import { db } from "../../../shared/services/db";
 
 const mapPost = (data: any): Post => {
+  console.log(data);
   return {
     id: data.id,
     title: data.title,

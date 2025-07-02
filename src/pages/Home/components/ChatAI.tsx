@@ -65,7 +65,7 @@ const Chat: React.FC = () => {
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
-    // Only show user message if not hidden (for quick actions and response actions)
+    // Only show the user message if not hidden (for quick actions and response actions)
     if (!hideUserMessage) {
       const userMessage = {
         id: crypto.randomUUID(),
