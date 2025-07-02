@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, FileText, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../services/db';
-import { ChatsService } from '../../pages/Chats/services/chatsService';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, FileText, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { db } from "../services/db";
+import { ChatsService } from "../../pages/Chats/services/chatsService";
 
 interface FloatingActionButtonProps {
-  type: 'post' | 'chat';
+  type: "post" | "chat";
   id: string;
 }
 
-const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id }) => {
+const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
+  type,
+  id,
+}) => {
   const [exists, setExists] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [associatedId, setAssociatedId] = useState<string | null>(null);
@@ -20,20 +23,22 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
     const checkExistence = async () => {
       setIsLoading(true);
       try {
-        if (type === 'post') {
+        if (type === "post") {
           // Check if post exists and get associated chat ID
           const post = await db.getPostById(id);
           if (post) {
             setExists(true);
             // In a real app, you'd get the associated chat ID from the post data
             // For now, we'll simulate finding an associated chat
-            const chats = await ChatsService.fetchUserChats('user-123');
-            const associatedChat = chats.find(chat => chat.associatedPostId === id);
+            const chats = await ChatsService.fetchUserChats("user-123");
+            const associatedChat = chats.find(
+              (chat) => chat.associatedPostId === id
+            );
             setAssociatedId(associatedChat?.id || null);
           } else {
             setExists(false);
           }
-        } else if (type === 'chat') {
+        } else if (type === "chat") {
           // Check if chat exists and get associated post ID
           const chat = await ChatsService.fetchChatById(id);
           if (chat) {
@@ -55,18 +60,18 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
   }, [type, id]);
 
   const handleClick = () => {
-    if (type === 'post' && associatedId) {
+    if (type === "post" && associatedId) {
       // Navigate from post to its associated chat
       navigate(`/chats/${associatedId}`);
-    } else if (type === 'chat' && associatedId) {
+    } else if (type === "chat" && associatedId) {
       // Navigate from chat to its associated post
       navigate(`/posts/${associatedId}`);
-    } else if (type === 'post') {
+    } else if (type === "post") {
       // If no associated chat, navigate to chats list
-      navigate('/chats');
+      navigate("/chats");
     } else {
       // If no associated post, navigate to posts list
-      navigate('/posts');
+      navigate("/posts");
     }
   };
 
@@ -74,8 +79,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
     if (isLoading) {
       return <Loader2 className="w-6 h-6 animate-spin" />;
     }
-    
-    if (type === 'post') {
+
+    if (type === "post") {
       return <MessageCircle className="w-6 h-6" />;
     } else {
       return <FileText className="w-6 h-6" />;
@@ -86,27 +91,19 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
     if (isLoading) {
       return `Vérification de l'existence du ${type}...`;
     }
-    
-    if (type === 'post') {
-      return associatedId 
-        ? 'Aller au chat associé' 
-        : 'Aller aux conversations';
+
+    if (type === "post") {
+      return associatedId ? "Aller au chat associé" : "Aller aux conversations";
     } else {
-      return associatedId 
-        ? 'Aller au post associé' 
-        : 'Aller aux publications';
+      return associatedId ? "Aller au post associé" : "Aller aux publications";
     }
   };
 
   const getTooltipText = () => {
-    if (type === 'post') {
-      return associatedId 
-        ? 'Voir le chat' 
-        : 'Voir les chats';
+    if (type === "post") {
+      return associatedId ? "Voir le chat" : "Voir les chats";
     } else {
-      return associatedId 
-        ? 'Voir le post' 
-        : 'Voir les posts';
+      return associatedId ? "Voir le post" : "Voir les posts";
     }
   };
 
@@ -122,15 +119,15 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 300, 
+          transition={{
+            type: "spring",
+            stiffness: 300,
             damping: 25,
-            duration: 0.3 
+            duration: 0.3,
           }}
-          className="fixed bottom-6 z-50 group"
+          className="fixed bottom-20 z-50 group"
           style={{
-            left: 'max(1.5rem, calc(50% - 384px + 1.5rem))', // 384px = max-w-3xl (48rem), 1.5rem = left padding
+            left: "max(1.5rem, calc(50% - 600px + 2.5rem))", // 384px = max-w-3xl (48rem), 1.5rem = left padding
           }}
         >
           {/* Tooltip */}
@@ -147,10 +144,11 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
             whileTap={{ scale: 0.95 }}
             className={`
               w-14 h-14 rounded-full shadow-lg flex items-center justify-center
-              transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300
-              ${isLoading 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-[#7C3AED] hover:bg-[#6D28D9] hover:shadow-xl active:shadow-md'
+              transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300 
+              ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#7C3AED] hover:bg-[#6D28D9] hover:shadow-xl active:shadow-md"
               }
               text-white
             `}
@@ -165,7 +163,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
             className="absolute inset-0 rounded-full bg-white opacity-0"
             animate={{ scale: [0, 1.5], opacity: [0.3, 0] }}
             transition={{ duration: 0.4 }}
-            style={{ pointerEvents: 'none' }}
+            style={{ pointerEvents: "none" }}
           />
         </motion.div>
       )}
