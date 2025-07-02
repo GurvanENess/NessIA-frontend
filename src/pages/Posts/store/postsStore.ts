@@ -1,86 +1,95 @@
-import { useReducer } from 'react';
-import { Post, PostsState } from '../entities/PostTypes';
+import { useReducer } from "react";
+import { Post, PostsState } from "../entities/PostTypes";
 
 type PostsAction =
-  | { type: 'FETCH_POSTS_START' }
-  | { type: 'FETCH_POSTS_SUCCESS'; payload: Post[] }
-  | { type: 'FETCH_POSTS_ERROR'; payload: string }
-  | { type: 'SET_SORT'; payload: { sortBy: PostsState['sortBy']; sortOrder: PostsState['sortOrder'] } }
-  | { type: 'DELETE_POST'; payload: string }
-  | { type: 'UPDATE_POST_STATUS'; payload: { id: string; status: Post['status'] } };
+  | { type: "FETCH_POSTS_START" }
+  | { type: "FETCH_POSTS_SUCCESS"; payload: Post[] }
+  | { type: "FETCH_POSTS_ERROR"; payload: string }
+  | {
+      type: "SET_SORT";
+      payload: {
+        sortBy: PostsState["sortBy"];
+        sortOrder: PostsState["sortOrder"];
+      };
+    }
+  | { type: "DELETE_POST"; payload: string }
+  | {
+      type: "UPDATE_POST_STATUS";
+      payload: { id: string; status: Post["status"] };
+    };
 
 const initialState: PostsState = {
   posts: [],
   isLoading: false,
   error: null,
-  sortBy: 'date',
-  sortOrder: 'desc'
+  sortBy: "date",
+  sortOrder: "desc",
 };
 
 const postsReducer = (state: PostsState, action: PostsAction): PostsState => {
   switch (action.type) {
-    case 'FETCH_POSTS_START':
+    case "FETCH_POSTS_START":
       return {
         ...state,
         isLoading: true,
-        error: null
+        error: null,
       };
 
-    case 'FETCH_POSTS_SUCCESS':
+    case "FETCH_POSTS_SUCCESS":
       return {
         ...state,
         isLoading: false,
         posts: action.payload,
-        error: null
+        error: null,
       };
 
-    case 'FETCH_POSTS_ERROR':
+    case "FETCH_POSTS_ERROR":
       return {
         ...state,
         isLoading: false,
-        error: action.payload
+        error: action.payload,
       };
 
-    case 'SET_SORT':
+    case "SET_SORT":
       const sortedPosts = [...state.posts].sort((a, b) => {
         let comparison = 0;
-        
+
         switch (action.payload.sortBy) {
-          case 'date':
+          case "date":
             comparison = a.createdAt.getTime() - b.createdAt.getTime();
             break;
-          case 'status':
+          case "status":
             comparison = a.status.localeCompare(b.status);
             break;
-          case 'platform':
+          case "platform":
             comparison = a.platform.localeCompare(b.platform);
             break;
         }
-        
-        return action.payload.sortOrder === 'asc' ? comparison : -comparison;
+
+        return action.payload.sortOrder === "asc" ? comparison : -comparison;
       });
 
       return {
         ...state,
         posts: sortedPosts,
         sortBy: action.payload.sortBy,
-        sortOrder: action.payload.sortOrder
+        sortOrder: action.payload.sortOrder,
       };
 
-    case 'DELETE_POST':
+    case "DELETE_POST":
       return {
         ...state,
-        posts: state.posts.filter(post => post.id !== action.payload)
+        posts: state.posts.filter((post) => post.id !== action.payload),
       };
 
-    case 'UPDATE_POST_STATUS':
+    case "UPDATE_POST_STATUS":
       return {
         ...state,
-        posts: state.posts.map(post =>
+        posts: state.posts.map((post) =>
           post.id === action.payload.id
             ? { ...post, status: action.payload.status, updatedAt: new Date() }
             : post
-        )
+        ),
       };
 
     default:
@@ -92,30 +101,34 @@ export const usePostsStore = () => {
   const [state, dispatch] = useReducer(postsReducer, initialState);
 
   const fetchPosts = (posts: Post[]) => {
-    if (posts.length === 0) {
-      dispatch({ type: 'FETCH_POSTS_START' });
-    } else {
-      dispatch({ type: 'FETCH_POSTS_SUCCESS', payload: posts });
-    }
+    dispatch({ type: "FETCH_POSTS_SUCCESS", payload: posts });
   };
 
-  const setSort = (sortBy: PostsState['sortBy'], sortOrder: PostsState['sortOrder']) => {
-    dispatch({ type: 'SET_SORT', payload: { sortBy, sortOrder } });
+  const startFetchLoading = () => {
+    dispatch({ type: "FETCH_POSTS_START" });
+  };
+
+  const setSort = (
+    sortBy: PostsState["sortBy"],
+    sortOrder: PostsState["sortOrder"]
+  ) => {
+    dispatch({ type: "SET_SORT", payload: { sortBy, sortOrder } });
   };
 
   const deletePost = (postId: string) => {
-    dispatch({ type: 'DELETE_POST', payload: postId });
+    dispatch({ type: "DELETE_POST", payload: postId });
   };
 
-  const updatePostStatus = (id: string, status: Post['status']) => {
-    dispatch({ type: 'UPDATE_POST_STATUS', payload: { id, status } });
+  const updatePostStatus = (id: string, status: Post["status"]) => {
+    dispatch({ type: "UPDATE_POST_STATUS", payload: { id, status } });
   };
 
   return {
     ...state,
+    startFetchLoading,
     fetchPosts,
     setSort,
     deletePost,
-    updatePostStatus
+    updatePostStatus,
   };
 };

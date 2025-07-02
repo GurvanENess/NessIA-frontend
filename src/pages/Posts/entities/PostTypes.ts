@@ -7,7 +7,6 @@ export interface Post {
   description: string;
   status: PostStatus;
   platform: PostPlatform;
-  associatedChatId?: string;
   createdAt: Date;
   updatedAt?: Date;
   scheduledAt?: Date;
@@ -15,6 +14,7 @@ export interface Post {
   imageUrl?: string;
   hashtags?: string[];
   userId: string;
+  conversationId?: string;
 }
 
 export interface PostsState {

@@ -17,6 +17,7 @@ import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
 import ChatsDisplay from "./pages/Chats";
 import FileSelectModal from "./shared/components/FileSelectModal";
+import ChatAI from "./pages/Home/components/ChatAI";
 
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -39,31 +40,33 @@ const App: React.FC = () => {
                   <Route path="/posts" element={<PostsDisplay />} />
                   <Route path="/posts/:postId" element={<PostEditor />} />
                   <Route path="/chats" element={<ChatsDisplay />} />
-                  <Route path="/modal" element={
-                    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                      <FileSelectModal 
-                        onValidate={true}
-                        isOpen={isModalOpen}
-                        onFileSelect={(file) => console.log('File selected:', file)}
-                        onClose={() => {
-                          console.log('Modal closed');
-                          setIsModalOpen(false);
-                        }}
-                      />
-                      {!isModalOpen && (
-                        <button
-                          onClick={() => setIsModalOpen(true)}
-                          className="bg-[#7C3AED] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#6D28D9] transition-colors"
-                        >
-                          Ouvrir la modale
-                        </button>
-                      )}
-                    </div>
-                  } />
                   <Route
-                    path="/chats/:chatId"
-                    element={<div>Chat Detail Page - Coming Soon</div>}
+                    path="/modal"
+                    element={
+                      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                        <FileSelectModal
+                          onValidate={true}
+                          isOpen={isModalOpen}
+                          onFileSelect={(file) =>
+                            console.log("File selected:", file)
+                          }
+                          onClose={() => {
+                            console.log("Modal closed");
+                            setIsModalOpen(false);
+                          }}
+                        />
+                        {!isModalOpen && (
+                          <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-[#7C3AED] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#6D28D9] transition-colors"
+                          >
+                            Ouvrir la modale
+                          </button>
+                        )}
+                      </div>
+                    }
                   />
+                  <Route path="/chats/:chatId" element={<ChatAI />} />
                   <Route
                     path="/settings"
                     element={<div>Settings Page - Coming Soon</div>}

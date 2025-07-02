@@ -1,17 +1,53 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
-import { Action } from "../entities/AITypes";
+import { db } from "../../../shared/services/db";
+import { useParams } from "react-router-dom";
+import { formatMessagesFromDb, formatMessageToDb } from "../utlis/utils";
 
 const Chat: React.FC = () => {
+  const { chatId: sessionIdParam } = useParams();
   const { state, dispatch } = useApp();
   const { user } = useAuth();
   const { sessionId } = useApp().state.chat;
-  const { messages, messageInput, isLoading, error, showQuickActions } = state.chat;
+  const { messages, messageInput, isLoading, error, showQuickActions } =
+    state.chat;
+  console.log(state.chat);
+  console.log(user);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchMessages = async () => {
+      dispatch({ type: "SET_LOADING", payload: true });
+      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam! });
+      try {
+        const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
+        if (isMounted) {
+          dispatch({
+            type: "SET_MESSAGES",
+            payload: formatMessagesFromDb(data),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    };
+
+    if (sessionIdParam) {
+      fetchMessages();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [sessionIdParam, dispatch]);
 
   const handleSendMessage = async (
     e?: React.FormEvent | React.KeyboardEvent,
@@ -38,9 +74,12 @@ const Chat: React.FC = () => {
         timestamp: new Date(),
       };
 
+      const messageToDb = formatMessageToDb(userMessage, user!.id, sessionId!);
+      await db.addMessageToChatSession(messageToDb);
+
       dispatch({ type: "ADD_MESSAGE", payload: userMessage });
     }
-    
+
     messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
 
     try {
@@ -64,6 +103,8 @@ const Chat: React.FC = () => {
         action: response.action,
         postData: response.post,
       };
+      const aiMessageToDb = formatMessageToDb(aiResponse, user!.id, sessionId!);
+      await db.addMessageToChatSession(aiMessageToDb);
 
       dispatch({ type: "ADD_MESSAGE", payload: aiResponse });
 
@@ -135,9 +176,7 @@ const Chat: React.FC = () => {
         error={error}
       >
         {isFirstMessage && showQuickActions && (
-          <QuickActions
-            onSelect={handleQuickAction}
-          />
+          <QuickActions onSelect={handleQuickAction} />
         )}
       </ChatInput>
     </>

@@ -17,6 +17,7 @@ const PostsDisplay: React.FC = () => {
     error,
     sortBy,
     sortOrder,
+    startFetchLoading,
     fetchPosts,
     setSort,
     deletePost,
@@ -28,16 +29,14 @@ const PostsDisplay: React.FC = () => {
   // Load posts on component mount
   useEffect(() => {
     const loadPosts = async () => {
-      if (user?.id) {
-        fetchPosts([]); // Start loading state
-        try {
-          const userPosts = await PostsService.fetchUserPosts();
-          console.log(userPosts);
+      startFetchLoading();
+      try {
+        const userPosts = await PostsService.fetchUserPosts();
+        console.log(userPosts);
 
-          fetchPosts(userPosts);
-        } catch (err) {
-          console.error("Failed to load posts:", err);
-        }
+        fetchPosts(userPosts);
+      } catch (err) {
+        console.error("Failed to load posts:", err);
       }
     };
 
@@ -82,6 +81,7 @@ const PostsDisplay: React.FC = () => {
   };
 
   const handleViewChat = (chatId: string) => {
+    console.log(chatId);
     navigate(`/chats/${chatId}`);
   };
 

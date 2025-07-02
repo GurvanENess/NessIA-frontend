@@ -8,12 +8,12 @@ const mapPost = (data: any): Post => {
     description: data.content_text || "Pas de contenu.",
     status: data.status,
     platform: data.platform?.name || "Instagram",
-    associatedChatId: data.associated_chat_id,
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
     publishedAt: data.published_at ? new Date(data.published_at) : undefined,
-    imageUrl: data.image_url,
+    imageUrl: data.media?.[0]?.url || "",
     userId: data.user_id,
+    conversationId: data.session?.[0]?.id || "",
   };
 };
 

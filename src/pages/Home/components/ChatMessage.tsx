@@ -25,7 +25,7 @@ const Message: React.FC<MessageType> = ({
           {isAi && (
             <div className="w-10 h-10 rounded-full bg-[#7C3AED] flex items-center justify-center">
               <img
-                src="./assets/nessia_logo.svg"
+                src="/assets/nessia_logo.svg"
                 alt="nessia logo"
                 className="invert brightness-0 w-7"
               />
@@ -55,11 +55,12 @@ const Message: React.FC<MessageType> = ({
         </div>
       </div>
 
-      {// postData && (
-       // <div className="pt-5 pb-3 scale-100">
-          /* InstagramPost {...postData} /> */
-       // </div>
-      // )
+      {
+        // postData && (
+        // <div className="pt-5 pb-3 scale-100">
+        /* InstagramPost {...postData} /> */
+        // </div>
+        // )
       }
 
       {isAi && action?.responses && (

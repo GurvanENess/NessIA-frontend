@@ -1,8 +1,9 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FileText } from 'lucide-react';
-import { Post } from '../entities/PostTypes';
-import PostCard from './PostCard';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileText } from "lucide-react";
+import { Post } from "../entities/PostTypes";
+import PostCard from "./PostCard";
+import { redirect } from "react-router-dom";
 
 interface PostsGridProps {
   posts: Post[];
@@ -21,7 +22,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({
   onEdit,
   onDelete,
   onViewChat,
-  onPostClick
+  onPostClick,
 }) => {
   if (isLoading) {
     return (
@@ -62,12 +63,14 @@ const PostsGrid: React.FC<PostsGridProps> = ({
           Aucune publication trouvée
         </h3>
         <p className="text-gray-600 mb-6">
-          Vous n'avez pas encore créé de publications. Commencez par créer votre premier post !
+          Vous n'avez pas encore créé de publications. Commencez par créer votre
+          premier post !
         </p>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="bg-[#7C3AED] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#6D28D9] transition-colors"
+          onClick={() => redirect("/post/new")}
         >
           Créer mon premier post
         </motion.button>
