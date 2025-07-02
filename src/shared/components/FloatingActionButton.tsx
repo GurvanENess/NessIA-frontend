@@ -19,12 +19,21 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
     const checkExistence = async () => {
       setIsLoading(true);
       try {
+        // Check if both the current item AND its counterpart exist
         if (type === 'post') {
-          const post = await db.getPostById(id);
-          setExists(!!post);
+          // On post page, check if both post and corresponding chat exist
+          const [post, chat] = await Promise.all([
+            db.getPostById(id),
+            ChatsService.fetchChatById(id)
+          ]);
+          setExists(!!post && !!chat);
         } else if (type === 'chat') {
-          const chat = await ChatsService.fetchChatById(id);
-          setExists(!!chat);
+          // On chat page, check if both chat and corresponding post exist
+          const [chat, post] = await Promise.all([
+            ChatsService.fetchChatById(id),
+            db.getPostById(id)
+          ]);
+          setExists(!!chat && !!post);
         }
       } catch (error) {
         console.error(`Error checking ${type} existence:`, error);
@@ -39,9 +48,11 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
 
   const handleClick = () => {
     if (type === 'post') {
-      navigate(`/posts/${id}`);
-    } else if (type === 'chat') {
+      // From post page, navigate to corresponding chat
       navigate(`/chats/${id}`);
+    } else if (type === 'chat') {
+      // From chat page, navigate to corresponding post
+      navigate(`/posts/${id}`);
     }
   };
 
@@ -56,14 +67,14 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
 
   const getAriaLabel = () => {
     return type === 'post' ? 
-      `Aller au post ${id}` : 
-      `Aller au chat ${id}`;
+      `Aller au chat ${id}` : 
+      `Aller au post ${id}`;
   };
 
   const getTooltipText = () => {
     return type === 'post' ? 
-      'Voir le post' : 
-      'Voir la conversation';
+      'Voir la conversation' : 
+      'Voir le post';
   };
 
   // Don't render if loading or doesn't exist
