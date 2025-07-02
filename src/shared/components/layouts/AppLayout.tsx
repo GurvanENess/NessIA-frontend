@@ -3,14 +3,37 @@ import {
   Bell,
   Info,
 } from "lucide-react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { AnimatePresence } from "framer-motion";
 import BurgerMenu from "./BurgerMenu";
+import FloatingActionButton from "../FloatingActionButton";
 
 const AppLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(false);
+  const location = useLocation();
+
+  // Extract type and ID from current path for FAB
+  const getFABProps = () => {
+    const path = location.pathname;
+    
+    // Match /posts/:id pattern
+    const postMatch = path.match(/^\/posts\/([^\/]+)$/);
+    if (postMatch) {
+      return { type: 'post' as const, id: postMatch[1] };
+    }
+    
+    // Match /chats/:id pattern
+    const chatMatch = path.match(/^\/chats\/([^\/]+)$/);
+    if (chatMatch) {
+      return { type: 'chat' as const, id: chatMatch[1] };
+    }
+    
+    return null;
+  };
+
+  const fabProps = getFABProps();
 
   return (
     <div className="min-h-screen bg-[#E7E9F2] flex flex-col">
@@ -50,6 +73,14 @@ const AppLayout: React.FC = () => {
           <Outlet />
         </AnimatePresence>
       </div>
+
+      {/* Floating Action Button */}
+      {fabProps && (
+        <FloatingActionButton 
+          type={fabProps.type} 
+          id={fabProps.id} 
+        />
+      )}
 
       {/* Burger Menu */}
       <BurgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />

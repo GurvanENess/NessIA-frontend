@@ -108,4 +108,13 @@ export class ChatsService {
     await new Promise(resolve => setTimeout(resolve, 500));
     console.log(`Chat ${chatId} archived`);
   }
+
+  static async fetchChatById(chatId: string): Promise<ChatConversation | null> {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Find chat in mock data
+    const chat = mockChats.find(c => c.id === chatId);
+    return chat || null;
+  }
 }
