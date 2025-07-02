@@ -128,7 +128,10 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ type, id })
             damping: 25,
             duration: 0.3 
           }}
-          className="fixed bottom-6 left-6 z-50 group"
+          className="fixed bottom-6 z-50 group"
+          style={{
+            left: 'max(1.5rem, calc(50% - 384px + 1.5rem))', // 384px = max-w-3xl (48rem), 1.5rem = left padding
+          }}
         >
           {/* Tooltip */}
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
