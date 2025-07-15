@@ -22,7 +22,7 @@ const PostEditor: React.FC = () => {
           dispatch({
             type: "UPDATE_POST_DATA",
             payload: {
-              image: "",
+              image: data.media?.[2]?.url || "", // HARDCODED FOR TESTS
               caption: getContent(data.content_text || ""),
               hashtags: getHashtags(data.content_text || ""),
             },

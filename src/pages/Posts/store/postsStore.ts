@@ -101,7 +101,11 @@ export const usePostsStore = () => {
   const [state, dispatch] = useReducer(postsReducer, initialState);
 
   const fetchPosts = (posts: Post[]) => {
-    dispatch({ type: "FETCH_POSTS_SUCCESS", payload: posts });
+    if (posts.length === 0) {
+      dispatch({ type: "FETCH_POSTS_START" });
+    } else {
+      dispatch({ type: "FETCH_POSTS_SUCCESS", payload: posts });
+    }
   };
 
   const startFetchLoading = () => {
@@ -125,10 +129,10 @@ export const usePostsStore = () => {
 
   return {
     ...state,
-    startFetchLoading,
     fetchPosts,
     setSort,
     deletePost,
     updatePostStatus,
+    startFetchLoading,
   };
 };

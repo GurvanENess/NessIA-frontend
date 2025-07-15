@@ -26,6 +26,8 @@ const PostsDisplay: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
+  console.log(posts);
+
   // Load posts on component mount
   useEffect(() => {
     const loadPosts = async () => {
