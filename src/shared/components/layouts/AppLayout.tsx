@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { Bell, Info } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -24,7 +25,6 @@ const AppLayout: React.FC = () => {
     // Match /chats/:id pattern
     const chatMatch = path.match(/^\/chats\/([^\/]+)$/);
     if (chatMatch) {
-      console.log(chatMatch);
       return { type: "chat" as const, id: chatMatch[1] };
     }
 
@@ -76,6 +76,9 @@ const AppLayout: React.FC = () => {
       {fabProps && (
         <FloatingActionButton type={fabProps.type} id={fabProps.id} />
       )}
+
+      {/* Toast Notifications */}
+      <Toaster />
 
       {/* Burger Menu */}
       <BurgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />

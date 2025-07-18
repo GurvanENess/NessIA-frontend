@@ -18,11 +18,11 @@ const PostEditor: React.FC = () => {
       const fetchPostData = async () => {
         try {
           const data = await db.getPostById(postId);
-          console.log(data);
+
           dispatch({
             type: "UPDATE_POST_DATA",
             payload: {
-              image: data.media?.[2]?.url || "", // HARDCODED FOR TESTS
+              image: data.media?.[0]?.url || "", // HARDCODED FOR TESTS
               caption: getContent(data.content_text || ""),
               hashtags: getHashtags(data.content_text || ""),
             },
@@ -39,7 +39,7 @@ const PostEditor: React.FC = () => {
     dispatch({ type: "SAVE_POST_START" });
     try {
       // TODO: Implement save functionality
-      console.log("Saving post:", postData);
+
       dispatch({ type: "SAVE_POST_SUCCESS" });
     } catch (err) {
       dispatch({
@@ -53,7 +53,7 @@ const PostEditor: React.FC = () => {
     dispatch({ type: "PUBLISH_POST_START" });
     try {
       // TODO: Implement publish functionality
-      console.log("Publishing post:", postData);
+
       dispatch({ type: "PUBLISH_POST_SUCCESS" });
     } catch (err) {
       dispatch({

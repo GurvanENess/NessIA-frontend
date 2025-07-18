@@ -8,20 +8,23 @@ class AIClient {
   ): Promise<AIResponse> => {
     const { sessionId, userToken } = request;
 
+    const headers: Record<string, string | undefined> = {
+      "Content-Type": "multipart/form-data",
+      Authorization: import.meta.env.VITE_N8N_AUTH,
+      "x-user-auth": userToken,
+    };
+    if (sessionId) {
+      headers["x-user-session"] = sessionId;
+    }
+
     const options = {
       method: "POST",
       url: n8nUrl,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: import.meta.env.VITE_N8N_AUTH,
-        "User-Auth": userToken,
-        "x-user-session": sessionId,
-      },
+      headers,
       data: request,
     };
 
     try {
-      console.log(request);
       const response = await axios.request(options);
       const headersSessionId = response.headers["x-user-session"];
 
@@ -29,8 +32,7 @@ class AIClient {
         ...response.data,
         sessionId: sessionId || headersSessionId,
       };
-      console.log("Response data:", data);
-      console.log("Is AIResponse:", isAIResponse(data));
+
       return data;
     } catch (error) {
       console.error("Error fetching AI response:", error);

@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../shared/contexts/AuthContext';
-import { useChatsStore } from './store/chatsStore';
-import { ChatsService } from './services/chatsService';
-import { ChatConversation } from './entities/ChatTypes';
-import ChatsHeader from './components/ChatsHeader';
-import ChatsGrid from './components/ChatsGrid';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../shared/contexts/AuthContext";
+import { useChatsStore } from "./store/chatsStore";
+import { ChatsService } from "./services/chatsService";
+import { ChatConversation } from "./entities/ChatTypes";
+import { db } from "../../shared/services/db";
+import ChatsHeader from "./components/ChatsHeader";
+import ChatsGrid from "./components/ChatsGrid";
+import { formatChatsforUi } from "./utils/utils";
+import toast from "react-hot-toast";
 
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
@@ -20,10 +23,10 @@ const ChatsDisplay: React.FC = () => {
     fetchChats,
     setSort,
     deleteChat,
-    archiveChat
+    archiveChat,
   } = useChatsStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredChats, setFilteredChats] = useState<ChatConversation[]>([]);
 
   // Load chats on component mount
@@ -32,13 +35,13 @@ const ChatsDisplay: React.FC = () => {
       if (user?.id) {
         fetchChats([]); // Start loading state
         try {
-          const userChats = await ChatsService.fetchUserChats(user.id);
-          fetchChats(userChats);
+          const userChats = await db.getAllChats();
+          const userChatsFormated = formatChatsforUi(userChats);
+
+          fetchChats(userChatsFormated);
         } catch (err) {
-          console.error('Failed to load chats:', err);
+          console.error("Failed to load chats:", err);
           // Even if there's an error, we can still show mock data for demo
-          const mockChats = await ChatsService.fetchUserChats('user-123');
-          fetchChats(mockChats);
         }
       }
     };
@@ -51,16 +54,17 @@ const ChatsDisplay: React.FC = () => {
     if (!searchQuery.trim()) {
       setFilteredChats(conversations);
     } else {
-      const filtered = conversations.filter(chat =>
-        chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = conversations.filter(
+        (chat) =>
+          chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredChats(filtered);
     }
   }, [conversations, searchQuery]);
 
   const handleCreateNew = () => {
-    navigate('/');
+    navigate("/");
   };
 
   const handleViewChat = (chatId: string) => {
@@ -72,26 +76,32 @@ const ChatsDisplay: React.FC = () => {
   };
 
   const handleArchive = async (chatId: string) => {
-    const chat = conversations.find(c => c.id === chatId);
-    const action = chat?.isActive ? 'archiver' : 'désarchiver';
-    
-    if (window.confirm(`Êtes-vous sûr de vouloir ${action} cette conversation ?`)) {
+    const chat = conversations.find((c) => c.id === chatId);
+    const action = chat?.isActive ? "archiver" : "désarchiver";
+
+    if (
+      window.confirm(`Êtes-vous sûr de vouloir ${action} cette conversation ?`)
+    ) {
       try {
         await ChatsService.archiveChat(chatId);
         archiveChat(chatId);
       } catch (err) {
-        console.error('Failed to archive chat:', err);
+        console.error("Failed to archive chat:", err);
       }
     }
   };
 
   const handleDelete = async (chatId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible.')) {
+    if (
+      window.confirm(
+        "Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible."
+      )
+    ) {
       try {
         await ChatsService.deleteChat(chatId);
         deleteChat(chatId);
       } catch (err) {
-        console.error('Failed to delete chat:', err);
+        console.error("Failed to delete chat:", err);
       }
     }
   };
@@ -100,7 +110,10 @@ const ChatsDisplay: React.FC = () => {
     navigate(`/chats/${chatId}`);
   };
 
-  const handleSortChange = (newSortBy: typeof sortBy, newSortOrder: typeof sortOrder) => {
+  const handleSortChange = (
+    newSortBy: typeof sortBy,
+    newSortOrder: typeof sortOrder
+  ) => {
     setSort(newSortBy, newSortOrder);
   };
 
@@ -109,7 +122,7 @@ const ChatsDisplay: React.FC = () => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
       className="min-h-screen bg-[#E7E9F2] p-4 md:p-6"
     >
       <div className="max-w-7xl mx-auto">

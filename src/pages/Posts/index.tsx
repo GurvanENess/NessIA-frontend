@@ -26,15 +26,12 @@ const PostsDisplay: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
-  console.log(posts);
-
   // Load posts on component mount
   useEffect(() => {
     const loadPosts = async () => {
       startFetchLoading();
       try {
         const userPosts = await PostsService.fetchUserPosts();
-        console.log(userPosts);
 
         fetchPosts(userPosts);
       } catch (err) {
@@ -83,7 +80,6 @@ const PostsDisplay: React.FC = () => {
   };
 
   const handleViewChat = (chatId: string) => {
-    console.log(chatId);
     navigate(`/chats/${chatId}`);
   };
 

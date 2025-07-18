@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import { Send, Image } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSend: (e: React.FormEvent | React.KeyboardEvent) => void;
+  onSend: (messageToSend: string, hideUserMessage: boolean) => void;
   isLoading: boolean;
-  error: string | null;
   children?: React.ReactNode;
 }
 
@@ -15,7 +15,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onChange,
   onSend,
   isLoading,
-  error,
   children,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -39,16 +38,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
         onChange(value + "\n");
       } else {
         e.preventDefault();
-        onSend(e);
+        onSend(value, false);
       }
     }
   };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 md:pb-8">
-      <form onSubmit={onSend} className="sm:max-w-full md:max-w-2xl mx-auto">
-        <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">{children}</div>
-        {error && <p className="text-sm text-red-600 px-4 mb-2">{error}</p>}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSend(value, false);
+        }}
+        className="sm:max-w-full md:max-w-2xl mx-auto"
+      >
+        <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
+          {children}
+        </div>
         {isLoading && (
           <p className="text-sm text-gray-500 px-4 mb-2">NessIA rédige...</p>
         )}

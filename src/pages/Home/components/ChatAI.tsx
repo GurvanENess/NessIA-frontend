@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Message } from "../../../shared/entities/ChatTypes";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
@@ -7,7 +8,12 @@ import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { db } from "../../../shared/services/db";
 import { useParams } from "react-router-dom";
-import { formatMessagesFromDb, formatMessageToDb } from "../utlis/utils";
+import {
+  formatMessagesFromDb,
+  formatMessageToDb,
+  isMessageEmpty,
+} from "../utils/utils";
+import toast from "react-hot-toast";
 
 const Chat: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
@@ -16,8 +22,6 @@ const Chat: React.FC = () => {
   const { sessionId } = useApp().state.chat;
   const { messages, messageInput, isLoading, error, showQuickActions } =
     state.chat;
-  console.log(state.chat);
-  console.log(user);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,39 +53,38 @@ const Chat: React.FC = () => {
     };
   }, [sessionIdParam, dispatch]);
 
-  const handleSendMessage = async (
-    e?: React.FormEvent | React.KeyboardEvent,
-    messageToSend?: string,
-    hideUserMessage?: boolean
-  ) => {
-    if (isLoading) return;
+  const processUserMessage = async (message: string) => {
+    try {
+      // On part du principe pour le moment que les messages ne seront jamais retrieved
+      // autrement qu'avec leur session ; par conséquent on a pas besoin de synchroniser
+      // l'identifiant en back du message avec celui en front. On peut le générer à part...
 
-    e && e.preventDefault();
-
-    const message = messageToSend || messageInput.trim();
-    if (!message) return;
-
-    dispatch({ type: "HIDE_ALL_ACTIONS" });
-    dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_ERROR", payload: null });
-
-    // Only show the user message if not hidden (for quick actions and response actions)
-    if (!hideUserMessage) {
-      const userMessage = {
-        id: crypto.randomUUID(),
+      const userMessage: Message = {
+        id: crypto.randomUUID(), // ...comme je le fais ici
         isAi: false,
         content: message,
         timestamp: new Date(),
       };
 
-      const messageToDb = formatMessageToDb(userMessage, user!.id, sessionId!);
-      await db.addMessageToChatSession(messageToDb);
-
       dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+      dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
+
+      return userMessage;
+    } catch (err) {
+      toast.error(
+        "Une erreur est survenue lors du traitement du message utilisateur",
+        {
+          duration: 3000,
+        }
+      );
+      console.error("Error processing user message:", err);
+      throw err; // Propagate error to be handled in handleSendMessage
     }
 
-    messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
+    // les erreurs seront traitées au dessus (ig)
+  };
 
+  const processAiResponse = async (message: string) => {
     try {
       const response = await AiClient.getResponse({
         message: message,
@@ -90,11 +93,13 @@ const Chat: React.FC = () => {
         companyId: "1",
       });
 
+      console.log(response);
+
       if (!sessionId) {
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
       }
 
-      const aiResponse = {
+      const aiResponse: Message = {
         id: crypto.randomUUID(),
         isAi: true,
         content: response.message,
@@ -103,33 +108,73 @@ const Chat: React.FC = () => {
         action: response.action,
         postData: response.post,
       };
-      const aiMessageToDb = formatMessageToDb(aiResponse, user!.id, sessionId!);
-      await db.addMessageToChatSession(aiMessageToDb);
 
       dispatch({ type: "ADD_MESSAGE", payload: aiResponse });
 
-      // Show actions after a delay
       setTimeout(() => {
         dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
       }, 1000);
     } catch (err) {
-      console.error("Error fetching AI response:", err);
+      toast.error(
+        "Une erreur est survenue lors du traitement de la réponse de l'IA",
+        {
+          duration: 3000,
+        }
+      );
+      console.error("Error processing AI response:", err);
+      throw err; // Propagate error to be handled in handleSendMessage
+    }
+  };
+
+  const handleSendMessage = async (
+    message: string,
+    hideUserMessage?: boolean
+  ) => {
+    // Empêche d'envoyer un message si le chat est en cours de chargement
+
+    if (isLoading) return;
+    if (isMessageEmpty(message)) return;
+
+    // On cache les actions et on démarre le chargement en front du message
+    dispatch({ type: "HIDE_ALL_ACTIONS" });
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
+
+    // TODO N'ajoute pas le message de l'utilisateur à l'état si hideUserMessage est vrai
+    try {
+      await processUserMessage(message);
+      await processAiResponse(message);
+    } catch (err) {
+      // A automatiser / Mieux gérer
+      console.error("Error processing message:", err);
       dispatch({
         type: "SET_ERROR",
-        payload: "Une erreur est survenue. Veuillez réessayer.",
+        payload: "Une erreur est survenue lors de l'envoie du message.",
       });
+      toast.error("Une erreur est survenue lors de l'envoi du message", {
+        duration: 3000,
+        style: {
+          background: "#f44336",
+          color: "#fff",
+        },
+        iconTheme: {
+          primary: "#fff",
+          secondary: "#f44336",
+        },
+      });
+      return;
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
   const handleAction = async (label: string) => {
-    await handleSendMessage(undefined, label, true);
+    await handleSendMessage(label, true);
   };
 
   const handleQuickAction = async (text: string) => {
     dispatch({ type: "HIDE_QUICK_ACTIONS" });
-    await handleSendMessage(undefined, text, true);
+    await handleSendMessage(text, true);
   };
 
   const isFirstMessage = messages.length === 0;
@@ -173,7 +218,6 @@ const Chat: React.FC = () => {
         }
         onSend={handleSendMessage}
         isLoading={isLoading}
-        error={error}
       >
         {isFirstMessage && showQuickActions && (
           <QuickActions onSelect={handleQuickAction} />

@@ -23,13 +23,16 @@ const formatMessageToDb = (
   sessionId: string
 ): unknown => {
   return {
-    id: Math.round(Math.random() * 1_000_000),
     content: message.content,
     role: message.isAi ? "assistant" : "user",
-    session_id: sessionId,
+    session_id: sessionId || null,
     user_id: userId,
     created_at: message.timestamp,
   };
 };
 
-export { formatMessagesFromDb, formatMessageToDb };
+const isMessageEmpty = (message: string): Boolean => {
+  return !message || message.trim().length === 0;
+};
+
+export { formatMessagesFromDb, formatMessageToDb, isMessageEmpty };

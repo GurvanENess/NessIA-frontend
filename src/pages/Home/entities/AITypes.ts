@@ -2,7 +2,7 @@ import { PostData } from "../../../shared/entities/PostTypes";
 
 export interface AIRequest {
   message: string;
-  sessionId?: string;
+  sessionId?: string | null;
   userToken?: string;
   companyId: string;
 }

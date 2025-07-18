@@ -145,7 +145,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log(post);
+
                     onViewChat?.(post.conversationId);
                     setShowActions(false);
                   }}
@@ -215,7 +215,7 @@ const PostCard: React.FC<PostCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                console.log(post);
+
                 onViewChat?.(post.conversationId);
               }}
               className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-700 text-white hover:bg-purple-800 transition-colors text-xs"

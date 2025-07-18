@@ -11,7 +11,7 @@ export interface PostState {
 }
 
 interface ChatState {
-  sessionId?: string;
+  sessionId?: string | null;
   messages: Message[];
   messageInput: string;
   isLoading: boolean;
@@ -64,7 +64,7 @@ export const initialState: AppState = {
     error: null,
   },
   chat: {
-    sessionId: "",
+    sessionId: null,
     messages: [],
     messageInput: "",
     isLoading: false,

@@ -51,7 +51,6 @@ const App: React.FC = () => {
                             console.log("File selected:", file)
                           }
                           onClose={() => {
-                            console.log("Modal closed");
                             setIsModalOpen(false);
                           }}
                         />

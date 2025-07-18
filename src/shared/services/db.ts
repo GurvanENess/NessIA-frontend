@@ -1,6 +1,23 @@
 import { supabaseClient } from "./supabase";
 
 export const db = {
+  async setUserMessageSessionId(userMessageId: string, sessionId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("message")
+        .update({ session_id: sessionId })
+        .eq("id", userMessageId)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error:", err);
+      throw err; // Re-throw the error for further handling
+    }
+  },
+
   async getChatSessionMessages(sessionId: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
@@ -19,11 +36,15 @@ export const db = {
     }
   },
 
-  async addMessageToChatSession(message: unknown) {
+  async addMessageToDb(message: unknown): Promise<unknown> {
     try {
+      console.log(message);
       const { data, error } = await supabaseClient
         .from("message")
-        .insert(message);
+        .upsert({
+          ...message,
+        })
+        .select();
 
       if (error) throw error;
 
@@ -42,7 +63,7 @@ export const db = {
           `
                 id, title, content_text, created_at, status,
                 platform ( name ),
-                session ( id ),
+                session!session_post_id_fkey ( id ),
                 media ( url )
             `
         )
@@ -52,7 +73,6 @@ export const db = {
 
       if (error) throw error;
 
-      console.log(data);
       return data;
     } catch (err) {
       console.error("Error:", err);
@@ -67,13 +87,37 @@ export const db = {
         .select(
           `title, content_text, created_at, id, status,
             platform( name ),
-            session( id ),
+            session!session_post_id_fkey ( id ),
             media ( url )
             `
         )
         .eq("id", id)
         .order("url", { ascending: false, referencedTable: "media" })
         .single();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error:", err);
+      throw err; // Re-throw the error for further handling
+    }
+  },
+
+  async getAllChats() {
+    try {
+      const { data, error } = await supabaseClient
+        .from("session")
+        .select(
+          `
+          *,
+          message!message_session_id_fkey(count)
+          `
+        )
+        .eq("company_id", 1)
+        .not("summary", "is", null)
+        .limit(20)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
