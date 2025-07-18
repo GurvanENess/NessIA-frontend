@@ -1,23 +1,6 @@
 import { supabaseClient } from "./supabase";
 
 export const db = {
-  async setUserMessageSessionId(userMessageId: string, sessionId: string) {
-    try {
-      const { data, error } = await supabaseClient
-        .from("message")
-        .update({ session_id: sessionId })
-        .eq("id", userMessageId)
-        .select();
-
-      if (error) throw error;
-
-      return data;
-    } catch (err) {
-      console.error("Error:", err);
-      throw err; // Re-throw the error for further handling
-    }
-  },
-
   async getChatSessionMessages(sessionId: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
@@ -26,25 +9,6 @@ export const db = {
         .eq("session_id", sessionId)
         .eq("user_id", companyId)
         .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      return data;
-    } catch (err) {
-      console.error("Error:", err);
-      throw err;
-    }
-  },
-
-  async addMessageToDb(message: unknown): Promise<unknown> {
-    try {
-      console.log(message);
-      const { data, error } = await supabaseClient
-        .from("message")
-        .upsert({
-          ...message,
-        })
-        .select();
 
       if (error) throw error;
 
@@ -161,6 +125,26 @@ export const db = {
       return data;
     } catch (err) {
       console.error("Error:", err);
+      throw err;
+    }
+  },
+
+  async getRunningJobs(sessionId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("job_state")
+        .select("*")
+        .eq("session_id", sessionId)
+        .in("status", ["running", "waiting_user"])
+        .is("finished_at", null);
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error(
+        `Error while retrieving the jobs of session ${sessionId}`,
+        err
+      );
       throw err;
     }
   },

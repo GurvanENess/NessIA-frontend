@@ -6,6 +6,7 @@ import QuickActions from "./QuickActions";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
+import { useJobPolling } from "../../../shared/hooks/useJobPolling";
 import { db } from "../../../shared/services/db";
 import { useParams } from "react-router-dom";
 import {
@@ -19,10 +20,12 @@ const Chat: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
   const { state, dispatch } = useApp();
   const { user } = useAuth();
+  const { fetchJobs, jobs, isPolling } = useJobPolling();
   const { sessionId } = useApp().state.chat;
   const { messages, messageInput, isLoading, error, showQuickActions } =
     state.chat;
 
+  console.log(jobs);
   useEffect(() => {
     let isMounted = true;
 
@@ -46,6 +49,7 @@ const Chat: React.FC = () => {
 
     if (sessionIdParam) {
       fetchMessages();
+      fetchJobs();
     }
 
     return () => {
@@ -114,6 +118,8 @@ const Chat: React.FC = () => {
       setTimeout(() => {
         dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
       }, 1000);
+
+      fetchJobs(response.sessionId);
     } catch (err) {
       toast.error(
         "Une erreur est survenue lors du traitement de la réponse de l'IA",
@@ -218,6 +224,7 @@ const Chat: React.FC = () => {
         }
         onSend={handleSendMessage}
         isLoading={isLoading}
+        jobs={jobs}
       >
         {isFirstMessage && showQuickActions && (
           <QuickActions onSelect={handleQuickAction} />
