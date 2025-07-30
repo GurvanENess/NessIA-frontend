@@ -2,6 +2,10 @@
 
 Ce dépôt contient l'interface web de NessIA, réalisée avec des outils modernes autour de React et TypeScript.
 
+## API n8n actuelle du projet
+
+https://n8n.eness.fr/webhook/nessia/chatbot/v3-1
+
 ## Technologies principales
 
 - **React 18** et **TypeScript** pour la structure de l'application et le typage.

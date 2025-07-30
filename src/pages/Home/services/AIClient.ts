@@ -15,6 +15,8 @@ class AIClient {
     };
     if (sessionId) {
       headers["x-user-session"] = sessionId;
+    } else {
+      headers["x-user-session"] = "";
     }
 
     const options = {
