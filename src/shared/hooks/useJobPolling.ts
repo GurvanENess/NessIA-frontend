@@ -7,7 +7,6 @@ import { useApp } from "../contexts/AppContext";
 
 export function useJobPolling() {
   const sessionId = useApp().state.chat.sessionId;
-  console.log("useJobPolling sessionId:", sessionId);
   const [jobs, setJobs] = useState<unknown[]>([]);
   const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);

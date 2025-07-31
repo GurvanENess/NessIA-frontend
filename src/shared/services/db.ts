@@ -27,7 +27,7 @@ export const db = {
           `
                 id, title, content_text, created_at, status,
                 platform ( name ),
-                session!session_post_id_fkey ( id ),
+                session!post_session_id_fkey ( id ),
                 media ( url )
             `
         )
@@ -51,7 +51,7 @@ export const db = {
         .select(
           `title, content_text, created_at, id, status,
             platform( name ),
-            session!session_post_id_fkey ( id ),
+            session!post_session_id_fkey ( id ),
             media ( url )
             `
         )

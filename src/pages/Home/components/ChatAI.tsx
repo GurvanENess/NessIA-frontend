@@ -25,37 +25,28 @@ const Chat: React.FC = () => {
   const { messages, messageInput, isLoading, error, showQuickActions } =
     state.chat;
 
-  console.log(jobs);
+  const fetchMessages = async () => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam! });
+    try {
+      const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
+      dispatch({
+        type: "SET_MESSAGES",
+        payload: formatMessagesFromDb(data),
+      });
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
+
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchMessages = async () => {
-      dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam! });
-      try {
-        const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
-        if (isMounted) {
-          dispatch({
-            type: "SET_MESSAGES",
-            payload: formatMessagesFromDb(data),
-          });
-        }
-      } catch (err) {
-        console.error("Error fetching messages:", err);
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    };
-
     if (sessionIdParam) {
       fetchMessages();
       fetchJobs();
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [sessionIdParam, dispatch]);
+  }, [sessionIdParam]);
 
   const processUserMessage = async (message: string) => {
     try {
@@ -103,23 +94,11 @@ const Chat: React.FC = () => {
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
       }
 
-      const aiResponse: Message = {
-        id: crypto.randomUUID(),
-        isAi: true,
-        content: response.message,
-        timestamp: new Date(),
-        showActions: false,
-        action: response.action,
-        postData: response.post,
-      };
+      fetchMessages();
 
-      dispatch({ type: "ADD_MESSAGE", payload: aiResponse });
-
-      setTimeout(() => {
-        dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
-      }, 1000);
-
-      fetchJobs(response.sessionId);
+      await fetchJobs(response.sessionId);
+      console.log("ok");
+      await fetchMessages();
     } catch (err) {
       toast.error(
         "Une erreur est survenue lors du traitement de la réponse de l'IA",
