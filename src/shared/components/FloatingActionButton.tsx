@@ -39,8 +39,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
           // Check if chat exists and get associated post ID
           // TODO : aller chercher si le chat a un post associé
           const chat = await db.getChatById(id);
-          const associatedPostId = chat.post_id || null;
-          console.log(chat);
+          const associatedPostId = chat.post ? chat.post.id : null;
 
           if (associatedPostId) {
             setExists(true);

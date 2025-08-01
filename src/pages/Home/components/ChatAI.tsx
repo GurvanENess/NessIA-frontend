@@ -15,19 +15,42 @@ import {
   isMessageEmpty,
 } from "../utils/utils";
 import toast from "react-hot-toast";
+import { p } from "framer-motion/client";
 
 const Chat: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
   const { state, dispatch } = useApp();
   const { user } = useAuth();
-  const { fetchJobs, jobs, isPolling } = useJobPolling();
+  const {
+    fetchJobs,
+    jobs,
+    isPolling,
+    startPolling,
+    stopPolling,
+    hasRunningJobs,
+  } = useJobPolling();
   const { sessionId } = useApp().state.chat;
   const { messages, messageInput, isLoading, error, showQuickActions } =
     state.chat;
 
+  // Déplacer la logique conditionnelle dans un useEffect
+  useEffect(() => {
+    if (sessionIdParam && sessionId !== sessionIdParam) {
+      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
+    }
+  }, [sessionIdParam, sessionId, dispatch]);
+
+  // Nettoyer le polling quand le composant se démonte
+  useEffect(() => {
+    return () => {
+      if (isPolling) {
+        stopPolling();
+      }
+    };
+  }, [isPolling, stopPolling]);
+
   const fetchMessages = async () => {
     dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam! });
     try {
       const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
       dispatch({
@@ -44,7 +67,7 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (sessionIdParam) {
       fetchMessages();
-      fetchJobs();
+      fetchJobs(sessionIdParam);
     }
   }, [sessionIdParam]);
 
@@ -91,13 +114,14 @@ const Chat: React.FC = () => {
       console.log(response);
 
       if (!sessionId) {
+        // Ne se mets pas à jour automatiquement pour la suite
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
       }
 
-      fetchMessages();
+      // Lancer le polling pour surveiller les jobs en cours
+      await startPolling(response.sessionId);
+      console.log("Polling started for session:", response.sessionId);
 
-      await fetchJobs(response.sessionId);
-      console.log("ok");
       await fetchMessages();
     } catch (err) {
       toast.error(
@@ -162,6 +186,24 @@ const Chat: React.FC = () => {
     await handleSendMessage(text, true);
   };
 
+  // Fonction pour gérer les interactions utilisateur avec les jobs en attente
+  const handleJobInteraction = async (jobId: string, userInput: any) => {
+    try {
+      // Ici vous pouvez appeler une API pour envoyer l'interaction utilisateur
+      console.log("Sending user interaction for job:", jobId, userInput);
+
+      // Relancer le polling pour voir les mises à jour
+      if (sessionId) {
+        await startPolling(sessionId);
+      }
+    } catch (err) {
+      console.error("Error handling job interaction:", err);
+      toast.error("Erreur lors de l'interaction avec le job", {
+        duration: 3000,
+      });
+    }
+  };
+
   const isFirstMessage = messages.length === 0;
 
   return (
@@ -196,6 +238,73 @@ const Chat: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Affichage des jobs en cours avec interactions */}
+      {jobs.length > 0 && (
+        <div className="fixed bottom-32 left-0 right-0 md:pb-8 z-10">
+          <div className="sm:max-w-full md:max-w-2xl mx-auto px-4">
+            {jobs.map((job) => (
+              <div
+                key={job.id}
+                className="bg-white border border-gray-300 rounded-lg p-4 mb-2 shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
+                  </span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {job.status === "running"
+                      ? "Traitement en cours..."
+                      : "En attente d'interaction"}
+                  </span>
+                </div>
+
+                {job.current_msg && (
+                  <p className="text-sm text-gray-600 mb-2 animate-pulse">
+                    {job.current_msg}
+                  </p>
+                )}
+
+                {job.status === "waiting_user" && job.need_user_input && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">
+                      Interaction requise :
+                    </p>
+                    <div className="flex gap-2">
+                      {Array.isArray(job.need_user_input) ? (
+                        job.need_user_input.map(
+                          (option: string, index: number) => (
+                            <button
+                              key={index}
+                              onClick={() =>
+                                handleJobInteraction(job.id, option)
+                              }
+                              className="px-3 py-1 text-xs bg-violet-100 text-violet-700 rounded-md hover:bg-violet-200 transition-colors"
+                            >
+                              {option}
+                            </button>
+                          )
+                        )
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handleJobInteraction(job.id, job.need_user_input)
+                          }
+                          className="px-3 py-1 text-xs bg-violet-100 text-violet-700 rounded-md hover:bg-violet-200 transition-colors"
+                        >
+                          Continuer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <ChatInput
         value={messageInput}
         onChange={(value) =>

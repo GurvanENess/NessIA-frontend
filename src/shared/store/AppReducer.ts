@@ -46,7 +46,8 @@ export type ChatAction =
   | { type: "HIDE_ALL_ACTIONS" }
   | { type: "SHOW_ACTIONS"; payload: string }
   | { type: "HIDE_QUICK_ACTIONS" }
-  | { type: "SHOW_QUICK_ACTIONS" };
+  | { type: "SHOW_QUICK_ACTIONS" }
+  | { type: "RESET_CHAT" };
 
 export type AppAction = PostAction | ChatAction;
 
@@ -259,6 +260,11 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
           ...state.chat,
           showQuickActions: true,
         },
+      };
+
+    case "RESET_CHAT":
+      return {
+        ...initialState,
       };
 
     default:

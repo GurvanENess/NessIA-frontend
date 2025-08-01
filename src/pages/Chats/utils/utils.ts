@@ -1,8 +1,9 @@
 export const formatChatsforUi = (chats: any[]) => {
+  console.log(chats);
   return chats.map((chat) => ({
     id: chat.id,
     title: chat.title || "Conversation sans titre",
-    associatedPostId: chat.post_id || null,
+    associatedPostId: chat.post ? chat.post.id : null,
     lastMessage: chat.summary || "Aucun sommaire disponible",
     lastMessageDate: chat.last_message_date || new Date(),
     messageCount: chat.message[0].count || 0,

@@ -47,6 +47,7 @@ const PostsDisplay: React.FC = () => {
     if (!searchQuery.trim()) {
       setFilteredPosts(posts);
     } else {
+      console.log(posts);
       const filtered = posts.filter(
         (post) =>
           post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -37,7 +38,13 @@ interface MenuSection {
 
 const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, logout } = useAuth();
+  const { dispatch } = useApp();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+
+  const onNewChat = () => {
+    dispatch({ type: "RESET_CHAT" });
+    onClose();
+  };
 
   const menuSections: MenuSection[] = [
     {
@@ -161,6 +168,16 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
 
           {/* Navigation */}
           <nav className="p-4 flex-1 overflow-y-auto">
+            {/* Bouton Nouvelle conversation */}
+            <Link
+              to="/"
+              onClick={onNewChat}
+              className="flex items-center gap-2 w-full mb-4 px-3 py-2 rounded-lg text-white font-semibold shadow-md transition-colors bg-[#9B37F1] hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-[#9B37F1] focus:ring-offset-2 text-left"
+              style={{ letterSpacing: 0.5 }}
+            >
+              <MessageCircle className="w-4 h-4 text-white" />
+              <span className="text-sm">Nouvelle conversation</span>
+            </Link>
             <div className="space-y-2">
               {menuSections.map((section) => {
                 const isExpanded = expandedSections.includes(section.id);

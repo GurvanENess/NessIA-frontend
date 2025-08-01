@@ -75,7 +75,10 @@ export const db = {
         .select(
           `
           *,
-          message!message_session_id_fkey(count)
+          message!message_session_id_fkey(count),
+          post (
+            id
+          )
           `
         )
         .eq("company_id", 1)
@@ -106,6 +109,9 @@ export const db = {
             created_at,
             role,
             content
+          ),
+          post (
+            id
           )
         `
         )

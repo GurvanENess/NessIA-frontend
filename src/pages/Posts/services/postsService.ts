@@ -13,7 +13,7 @@ const mapPost = (data: any): Post => {
     publishedAt: data.published_at ? new Date(data.published_at) : undefined,
     imageUrl: data.media?.[0]?.url || "",
     userId: data.user_id,
-    conversationId: data.session?.[0]?.id || "",
+    conversationId: data.session?.id || "",
   };
 };
 

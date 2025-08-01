@@ -10,10 +10,13 @@ import ChatsHeader from "./components/ChatsHeader";
 import ChatsGrid from "./components/ChatsGrid";
 import { formatChatsforUi } from "./utils/utils";
 import toast from "react-hot-toast";
+import { useApp } from "../../shared/contexts/AppContext";
 
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { dispatch } = useApp();
+
   const {
     conversations,
     isLoading,
@@ -36,7 +39,7 @@ const ChatsDisplay: React.FC = () => {
         fetchChats([]); // Start loading state
         try {
           const userChats = await db.getAllChats();
-          const userChatsFormated = formatChatsforUi(userChats);
+          const userChatsFormated = formatChatsforUi(userChats); // A bouger dans les services
 
           fetchChats(userChatsFormated);
         } catch (err) {
@@ -64,6 +67,7 @@ const ChatsDisplay: React.FC = () => {
   }, [conversations, searchQuery]);
 
   const handleCreateNew = () => {
+    dispatch({ type: "RESET_CHAT" });
     navigate("/");
   };
 
