@@ -8,6 +8,7 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSend: (messageToSend: string, hideUserMessage: boolean) => void;
+  handleSuggestionClick: (job: unknown, answer: string) => Promise<void>;
   isLoading: boolean;
   jobs?: Job[];
   children?: React.ReactNode;
@@ -17,6 +18,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   value,
   onChange,
   onSend,
+  handleSuggestionClick,
   isLoading,
   children,
   jobs = [],
@@ -50,11 +52,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const hasActiveJobs = jobs.some(
     (job) => job.status === "running" || job.status === "waiting_user"
   );
-
-  const handleSuggestionClick = (suggestion: string) => {
-    // Envoyer directement la suggestion comme message
-    onSend(suggestion, false);
-  };
 
   return (
     <>

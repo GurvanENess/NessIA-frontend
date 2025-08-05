@@ -5,7 +5,7 @@ import { Job } from "../../../shared/entities/JobTypes";
 interface JobStatusProps {
   jobs: Job[];
   className?: string;
-  onSuggestionClick?: (suggestion: string) => void;
+  onSuggestionClick?: (job: unknown, answer: string) => Promise<void>;
 }
 
 /**
@@ -129,7 +129,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
                 (suggestion: string, index: number) => (
                   <button
                     key={index}
-                    onClick={() => onSuggestionClick?.(suggestion)}
+                    onClick={() => onSuggestionClick?.(job, suggestion)}
                     className="px-3 py-1.5 text-xs font-medium text-white bg-[#7C3AED] hover:bg-[#6D28D9] rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
                   >
                     {suggestion}

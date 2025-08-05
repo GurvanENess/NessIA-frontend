@@ -141,10 +141,15 @@ export const db = {
         .from("job_state")
         .select("*")
         .eq("session_id", sessionId)
-        .in("status", ["running", "waiting_user"])
+        .in("status", ["running", "waiting_user", "error"])
         .is("finished_at", null);
 
+      const firstJob = data?.[0];
+
       if (error) throw error;
+      if (firstJob?.status === "error") {
+        throw new Error(firstJob.error_msg);
+      }
       return data || [];
     } catch (err) {
       console.error(

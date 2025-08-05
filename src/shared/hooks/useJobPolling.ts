@@ -27,20 +27,28 @@ export default function useJobPolling() {
   };
 
   const poll = async (sessionId: string) => {
-    const runningJobs = await fetchRunningJobs(sessionId);
-    setJobs(runningJobs);
-    console.log("Polling jobs...");
-    console.log("Actual jobs:", runningJobs);
+    try {
+      const runningJobs = await fetchRunningJobs(sessionId);
+      setJobs(runningJobs);
+      console.log("Polling jobs...");
+      console.log("Actual jobs:", runningJobs);
 
-    if (runningJobs.length === 0 || !resolveRef.current) {
-      // un peu cracra mais ça marche
-      stopPolling();
-      if (resolveRef.current) resolveRef.current(runningJobs);
-      return;
-    } else {
-      intervalRef.current = setTimeout(() => {
-        poll(sessionId);
-      }, POLLING_INTERVAL);
+      if (
+        runningJobs.length === 0 ||
+        !resolveRef.current ||
+        runningJobs[0].status === "waiting_user"
+      ) {
+        // un peu cracra mais ça marche
+        stopPolling();
+        if (resolveRef.current) resolveRef.current(runningJobs);
+        return;
+      } else {
+        intervalRef.current = setTimeout(() => {
+          poll(sessionId);
+        }, POLLING_INTERVAL);
+      }
+    } catch (err) {
+      throw err;
     }
   };
 

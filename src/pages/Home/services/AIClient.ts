@@ -1,8 +1,42 @@
 import { AIRequest, AIRequestFunction, AIResponse } from "../entities/AITypes";
 import axios from "axios";
 const n8nUrl = import.meta.env.VITE_N8N_URL_PROD; // Use the production URL for n8n
+const n8nJobsInputUrl = import.meta.env.VITE_N8N_URL_JOBS_USERINPUT;
 
 class AIClient {
+  sendAnswerToSuggestion = async ({
+    sessionId,
+    userToken,
+    userInput,
+    jobId,
+    agentIndex,
+  }: {
+    sessionId: string;
+    userToken: string;
+    userInput: string;
+    jobId: string;
+    agentIndex: number;
+  }): Promise<unknown> => {
+    const options = {
+      method: "PATCH",
+      url: n8nJobsInputUrl,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: import.meta.env.VITE_N8N_AUTH,
+        "x-user-auth": userToken,
+        "x-user-session": sessionId,
+      },
+      data: {
+        userInput,
+        jobId,
+        agentIndex,
+      },
+    };
+
+    const response = await axios.request(options);
+    return response;
+  };
+
   getResponse: AIRequestFunction = async (
     request: AIRequest
   ): Promise<AIResponse> => {

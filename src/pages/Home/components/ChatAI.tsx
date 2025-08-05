@@ -153,8 +153,30 @@ const Chat: React.FC = () => {
     }
   };
 
-  const handleAction = async (label: string) => {
-    await handleSendMessage(label, true);
+  const handleAction = () => {}; // A SUPPRIMER PLUS TARD
+
+  const handleSuggestionClick = async (job: unknown, answer: string) => {
+    try {
+      if (!sessionIdParam || !user?.token || !job) return;
+
+      const response = await AiClient.sendAnswerToSuggestion({
+        sessionId: sessionIdParam,
+        userToken: user?.token,
+        userInput: answer,
+        jobId: job.id,
+        agentIndex: job.need_user_input?.agent_index,
+      });
+
+      console.log(response);
+
+      await startPolling(sessionIdParam);
+      await fetchMessages(sessionIdParam);
+    } catch (err) {
+      console.error("Error sending suggestion response:", err);
+      toast.error("Une erreur est survenue lors de l'envoi de la réponse", {
+        duration: 3000,
+      });
+    }
   };
 
   const handleQuickAction = async (text: string) => {
@@ -205,6 +227,7 @@ const Chat: React.FC = () => {
         onSend={handleSendMessage}
         isLoading={isLoading}
         jobs={jobs}
+        handleSuggestionClick={handleSuggestionClick}
       >
         {isFirstMessage && showQuickActions && (
           <QuickActions onSelect={handleQuickAction} />
