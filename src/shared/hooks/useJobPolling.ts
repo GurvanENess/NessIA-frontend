@@ -1,107 +1,82 @@
-import { useEffect, useCallback, useState } from "react";
+import { useState, useRef } from "react";
 import { db } from "../services/db";
-import { useApp } from "../contexts/AppContext";
 
-// Type pour les jobs
-interface Job {
-  id: string;
-  status: string;
-  current_msg?: string;
-  need_user_input?: any;
-}
+// Que fait useJobPolling ?
+// Pour une session donnée, useJobPolling cherche les jobs qui sont en cours à intervalle fixe (arbitraire)
+// Son state est mis à jour par rapport à ces données de job
+// En sortie, on a accès aux jobs, à une fonction pour démarrer le polling et à une autre pour l'arrêter,
+// ainsi qu'à un "isPolling" qui dit si le polling est en cours ou non
 
-// On garde pour le moment le long polling local. Mais à terme il sera rendu global pour garder le
-// state des tâches courantes dans toute l'application
+const POLLING_INTERVAL = 2000;
 
-export function useJobPolling() {
-  const sessionId = useApp().state.chat.sessionId;
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [isPolling, setIsPolling] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function useJobPolling() {
+  const [jobs, setJobs] = useState<unknown[]>([]);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
 
-  const fetchJobs = useCallback(async (sessionId: string) => {
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const resolveRef = useRef<((value: unknown[]) => void) | null>(null);
+
+  const fetchRunningJobs = async (sessionId: string) => {
     try {
-      console.log("fetch jobs", sessionId);
       const data = await db.getRunningJobs(sessionId);
-      console.log(data);
-      setJobs((_) => data || []);
-      setError(null);
-      return data || [];
+      return data;
     } catch (err) {
-      console.error("Error fetching jobs:", err);
-      setError("Failed to fetch jobs");
+      console.log("Error fetching running jobs:", err);
       return [];
     }
-  }, []);
+  };
 
-  // Fonction pour démarrer le polling manuellement
-  const startPolling = useCallback(
-    async (sessionId: string) => {
-      console.log("Starting polling for session:", sessionId);
-      setIsPolling(true);
-      await fetchJobs(sessionId);
-      console.log(jobs, hasRunningJobs);
-    },
-    [fetchJobs]
-  );
+  const poll = async (sessionId: string) => {
+    const runningJobs = await fetchRunningJobs(sessionId);
+    setJobs(runningJobs);
+    console.log("Polling jobs...");
+    console.log("Actual jobs:", runningJobs);
 
-  // Fonction pour arrêter le polling
-  const stopPolling = useCallback(() => {
-    console.log("Stopping polling");
-    setIsPolling(false);
-    setJobs((_) => []);
-  }, []);
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        await fetchJobs(sessionId!);
-      } catch (err) {
-        console.error("Error during initial fetch:", err);
-        setError("Failed to fetch jobs");
-      }
-    };
-
-    if (!sessionId) return;
-
-    fetch();
-  }, [sessionId, fetchJobs]);
-
-  const hasRunningJobs = jobs.some((j) =>
-    ["running", "waiting_user"].includes(j.status)
-  );
-
-  // Polling automatique quand il y a des jobs en cours
-  useEffect(() => {
-    if (!hasRunningJobs || !isPolling) return;
-
-    console.log("Starting automatic polling for running jobs");
-    const id = setInterval(async () => {
-      await fetchJobs(sessionId!);
-      console.log(jobs);
-    }, 2000);
-
-    return () => {
-      console.log("Clearing polling interval");
-      clearInterval(id);
-    };
-  }, [hasRunningJobs, isPolling, sessionId, fetchJobs]);
-
-  // Arrêter le polling si plus de jobs en cours
-  useEffect(() => {
-    if (!hasRunningJobs && isPolling) {
-      console.log("No more running jobs, stopping polling");
-      setIsPolling(false);
+    if (runningJobs.length === 0 || !resolveRef.current) {
+      // un peu cracra mais ça marche
+      stopPolling();
+      if (resolveRef.current) resolveRef.current(runningJobs);
+      return;
+    } else {
+      intervalRef.current = setTimeout(() => {
+        poll(sessionId);
+      }, POLLING_INTERVAL);
     }
-  }, [hasRunningJobs, isPolling]);
+  };
+
+  const startPolling = async (sessionId: string): Promise<unknown[]> => {
+    return new Promise((resolve, reject) => {
+      if (isPolling) {
+        reject(new Error("Polling already in progress"));
+        return;
+      }
+
+      console.log("Started polling jobs for session", sessionId);
+      setIsPolling(true);
+      resolveRef.current = resolve;
+
+      poll(sessionId);
+    });
+  };
+
+  const stopPolling = () => {
+    if (intervalRef.current) {
+      clearTimeout(intervalRef.current);
+      console.log("Stopping polling");
+    }
+    intervalRef.current = null;
+    setIsPolling(false);
+
+    // Résoudre la promesse avec les jobs actuels si elle existe
+    if (resolveRef.current) {
+      resolveRef.current(jobs);
+      resolveRef.current = null;
+    }
+  };
 
   return {
     jobs,
-    isPolling,
-    error,
-    fetchJobs,
     startPolling,
     stopPolling,
-    hasRunningJobs,
   };
 }

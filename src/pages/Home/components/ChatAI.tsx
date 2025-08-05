@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Message } from "../../../shared/entities/ChatTypes";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
@@ -6,53 +6,37 @@ import QuickActions from "./QuickActions";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
-import { useJobPolling } from "../../../shared/hooks/useJobPolling";
 import { db } from "../../../shared/services/db";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   formatMessagesFromDb,
   formatMessageToDb,
   isMessageEmpty,
 } from "../utils/utils";
+import useJobPolling from "../../../shared/hooks/useJobPolling";
 import toast from "react-hot-toast";
-import { p } from "framer-motion/client";
 
 const Chat: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
   const { state, dispatch } = useApp();
   const { user } = useAuth();
-  const {
-    fetchJobs,
-    jobs,
-    isPolling,
-    startPolling,
-    stopPolling,
-    hasRunningJobs,
-  } = useJobPolling();
   const { sessionId } = useApp().state.chat;
   const { messages, messageInput, isLoading, error, showQuickActions } =
     state.chat;
+  const { jobs, startPolling, stopPolling } = useJobPolling();
+  const navigate = useNavigate();
 
-  // Déplacer la logique conditionnelle dans un useEffect
+  // ===== LOGIQUE DE GESTION DES SESSIONS =====
   useEffect(() => {
     if (sessionIdParam && sessionId !== sessionIdParam) {
       dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
     }
   }, [sessionIdParam, sessionId, dispatch]);
 
-  // Nettoyer le polling quand le composant se démonte
-  useEffect(() => {
-    return () => {
-      if (isPolling) {
-        stopPolling();
-      }
-    };
-  }, [isPolling, stopPolling]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = async (sessionId) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
-      const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
+      const data = await db.getChatSessionMessages(sessionId, user!.id);
       dispatch({
         type: "SET_MESSAGES",
         payload: formatMessagesFromDb(data),
@@ -66,19 +50,21 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     if (sessionIdParam) {
-      fetchMessages();
-      fetchJobs(sessionIdParam);
+      fetchMessages(sessionIdParam);
+      startPolling(sessionIdParam);
     }
+
+    return () => {
+      console.log("UNMOUNTED");
+      stopPolling();
+    };
   }, [sessionIdParam]);
 
+  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
   const processUserMessage = async (message: string) => {
     try {
-      // On part du principe pour le moment que les messages ne seront jamais retrieved
-      // autrement qu'avec leur session ; par conséquent on a pas besoin de synchroniser
-      // l'identifiant en back du message avec celui en front. On peut le générer à part...
-
       const userMessage: Message = {
-        id: crypto.randomUUID(), // ...comme je le fais ici
+        id: crypto.randomUUID(),
         isAi: false,
         content: message,
         timestamp: new Date(),
@@ -96,10 +82,8 @@ const Chat: React.FC = () => {
         }
       );
       console.error("Error processing user message:", err);
-      throw err; // Propagate error to be handled in handleSendMessage
+      throw err;
     }
-
-    // les erreurs seront traitées au dessus (ig)
   };
 
   const processAiResponse = async (message: string) => {
@@ -113,16 +97,13 @@ const Chat: React.FC = () => {
 
       console.log(response);
 
-      if (!sessionId) {
-        // Ne se mets pas à jour automatiquement pour la suite
-        dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
-      }
-
-      // Lancer le polling pour surveiller les jobs en cours
       await startPolling(response.sessionId);
-      console.log("Polling started for session:", response.sessionId);
+      await fetchMessages(response.sessionId);
 
-      await fetchMessages();
+      if (!sessionId) {
+        dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
+        navigate(`/chats/${response.sessionId}`);
+      }
     } catch (err) {
       toast.error(
         "Une erreur est survenue lors du traitement de la réponse de l'IA",
@@ -131,7 +112,7 @@ const Chat: React.FC = () => {
         }
       );
       console.error("Error processing AI response:", err);
-      throw err; // Propagate error to be handled in handleSendMessage
+      throw err;
     }
   };
 
@@ -139,22 +120,17 @@ const Chat: React.FC = () => {
     message: string,
     hideUserMessage?: boolean
   ) => {
-    // Empêche d'envoyer un message si le chat est en cours de chargement
-
     if (isLoading) return;
     if (isMessageEmpty(message)) return;
 
-    // On cache les actions et on démarre le chargement en front du message
     dispatch({ type: "HIDE_ALL_ACTIONS" });
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
-    // TODO N'ajoute pas le message de l'utilisateur à l'état si hideUserMessage est vrai
     try {
       await processUserMessage(message);
       await processAiResponse(message);
     } catch (err) {
-      // A automatiser / Mieux gérer
       console.error("Error processing message:", err);
       dispatch({
         type: "SET_ERROR",
@@ -184,24 +160,6 @@ const Chat: React.FC = () => {
   const handleQuickAction = async (text: string) => {
     dispatch({ type: "HIDE_QUICK_ACTIONS" });
     await handleSendMessage(text, true);
-  };
-
-  // Fonction pour gérer les interactions utilisateur avec les jobs en attente
-  const handleJobInteraction = async (jobId: string, userInput: any) => {
-    try {
-      // Ici vous pouvez appeler une API pour envoyer l'interaction utilisateur
-      console.log("Sending user interaction for job:", jobId, userInput);
-
-      // Relancer le polling pour voir les mises à jour
-      if (sessionId) {
-        await startPolling(sessionId);
-      }
-    } catch (err) {
-      console.error("Error handling job interaction:", err);
-      toast.error("Erreur lors de l'interaction avec le job", {
-        duration: 3000,
-      });
-    }
   };
 
   const isFirstMessage = messages.length === 0;
@@ -238,72 +196,6 @@ const Chat: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Affichage des jobs en cours avec interactions */}
-      {jobs.length > 0 && (
-        <div className="fixed bottom-32 left-0 right-0 md:pb-8 z-10">
-          <div className="sm:max-w-full md:max-w-2xl mx-auto px-4">
-            {jobs.map((job) => (
-              <div
-                key={job.id}
-                className="bg-white border border-gray-300 rounded-lg p-4 mb-2 shadow-sm"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
-                  </span>
-                  <span className="text-sm font-medium text-gray-700">
-                    {job.status === "running"
-                      ? "Traitement en cours..."
-                      : "En attente d'interaction"}
-                  </span>
-                </div>
-
-                {job.current_msg && (
-                  <p className="text-sm text-gray-600 mb-2 animate-pulse">
-                    {job.current_msg}
-                  </p>
-                )}
-
-                {job.status === "waiting_user" && job.need_user_input && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      Interaction requise :
-                    </p>
-                    <div className="flex gap-2">
-                      {Array.isArray(job.need_user_input) ? (
-                        job.need_user_input.map(
-                          (option: string, index: number) => (
-                            <button
-                              key={index}
-                              onClick={() =>
-                                handleJobInteraction(job.id, option)
-                              }
-                              className="px-3 py-1 text-xs bg-violet-100 text-violet-700 rounded-md hover:bg-violet-200 transition-colors"
-                            >
-                              {option}
-                            </button>
-                          )
-                        )
-                      ) : (
-                        <button
-                          onClick={() =>
-                            handleJobInteraction(job.id, job.need_user_input)
-                          }
-                          className="px-3 py-1 text-xs bg-violet-100 text-violet-700 rounded-md hover:bg-violet-200 transition-colors"
-                        >
-                          Continuer
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <ChatInput
         value={messageInput}

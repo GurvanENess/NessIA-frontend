@@ -135,7 +135,7 @@ export const db = {
     }
   },
 
-  async getRunningJobs(sessionId: string) {
+  async getRunningJobs(sessionId: string): Promise<unknown[]> {
     try {
       const { data, error } = await supabaseClient
         .from("job_state")
@@ -145,7 +145,7 @@ export const db = {
         .is("finished_at", null);
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (err) {
       console.error(
         `Error while retrieving the jobs of session ${sessionId}`,
