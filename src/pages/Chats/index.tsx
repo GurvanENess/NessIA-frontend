@@ -79,6 +79,7 @@ const ChatsDisplay: React.FC = () => {
     navigate(`/posts/${postId}`);
   };
 
+  // A dégager
   const handleArchive = async (chatId: string) => {
     const chat = conversations.find((c) => c.id === chatId);
     const action = chat?.isActive ? "archiver" : "désarchiver";
@@ -102,7 +103,8 @@ const ChatsDisplay: React.FC = () => {
       )
     ) {
       try {
-        await ChatsService.deleteChat(chatId);
+        const response = await db.deleteChatById(chatId);
+        console.log(response);
         deleteChat(chatId);
       } catch (err) {
         console.error("Failed to delete chat:", err);

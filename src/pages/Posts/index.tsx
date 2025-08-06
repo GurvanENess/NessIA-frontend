@@ -5,6 +5,7 @@ import { useAuth } from "../../shared/contexts/AuthContext";
 import { usePostsStore } from "./store/postsStore";
 import { PostsService } from "./services/postsService";
 import { Post } from "./entities/PostTypes";
+import { db } from "../../shared/services/db";
 import PostsHeader from "./components/PostsHeader";
 import PostsGrid from "./components/PostsGrid";
 
@@ -73,6 +74,7 @@ const PostsDisplay: React.FC = () => {
       window.confirm("Êtes-vous sûr de vouloir supprimer cette publication ?")
     ) {
       try {
+        await db.deletePostById(postId);
         deletePost(postId);
       } catch (err) {
         console.error("Failed to delete post:", err);

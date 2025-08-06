@@ -5,7 +5,7 @@ import PostPreview from "./PostPreview";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useParams } from "react-router-dom";
 import { db } from "../../shared/services/db";
-import { getContent, getHashtags } from "./utils/utils";
+import { getContent, getHashtags, formatPostToDb } from "./utils/utils";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
@@ -23,12 +23,12 @@ const PostEditor: React.FC = () => {
             type: "UPDATE_POST_DATA",
             payload: {
               image: data.media?.[0]?.url || "", // HARDCODED FOR TESTS
-              caption: getContent(data.content_text || ""),
-              hashtags: getHashtags(data.content_text || ""),
+              caption: data.content_text,
+              hashtags: getHashtags(data.hashtags || ""),
             },
           });
         } catch (err) {
-          console.error("Treated later:", err);
+          console.error("Error updating post content:", err);
         }
       };
       fetchPostData();
@@ -38,7 +38,9 @@ const PostEditor: React.FC = () => {
   const handleSave = async () => {
     dispatch({ type: "SAVE_POST_START" });
     try {
-      // TODO: Implement save functionality
+      const formatedPost = formatPostToDb(postData);
+      console.log(formatedPost);
+      await db.updatePostById(postId!, formatedPost);
 
       dispatch({ type: "SAVE_POST_SUCCESS" });
     } catch (err) {
@@ -53,6 +55,7 @@ const PostEditor: React.FC = () => {
     dispatch({ type: "PUBLISH_POST_START" });
     try {
       // TODO: Implement publish functionality
+      alert("Pif, paf, pouf... Publié ! (non)");
 
       dispatch({ type: "PUBLISH_POST_SUCCESS" });
     } catch (err) {

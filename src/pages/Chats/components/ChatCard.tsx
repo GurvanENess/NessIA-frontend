@@ -1,9 +1,17 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { MessageCircle, Calendar, MoreVertical, Eye, Archive, Trash2, ExternalLink } from 'lucide-react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale/fr';
-import { ChatConversation } from '../entities/ChatTypes';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  MessageCircle,
+  Calendar,
+  MoreVertical,
+  Eye,
+  Archive,
+  Trash2,
+  ExternalLink,
+} from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale/fr";
+import { ChatConversation } from "../entities/ChatTypes";
 
 interface ChatCardProps {
   chat: ChatConversation;
@@ -14,29 +22,29 @@ interface ChatCardProps {
   onChatClick?: (chatId: string) => void;
 }
 
-const ChatCard: React.FC<ChatCardProps> = ({ 
-  chat, 
-  onViewChat, 
+const ChatCard: React.FC<ChatCardProps> = ({
+  chat,
+  onViewChat,
   onViewPost,
   onArchive,
   onDelete,
-  onChatClick
+  onChatClick,
 }) => {
   const [showActions, setShowActions] = React.useState(false);
 
   const truncateText = (text: string, maxLength: number = 150) => {
     if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + '...';
+    return text.slice(0, maxLength) + "...";
   };
 
   const getActivityColor = (isActive: boolean) => {
-    return isActive 
-      ? 'bg-green-100 text-green-800 border-green-200' 
-      : 'bg-gray-100 text-gray-800 border-gray-200';
+    return isActive
+      ? "bg-green-100 text-green-800 border-green-200"
+      : "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   const getActivityText = (isActive: boolean) => {
-    return isActive ? 'Actif' : 'Archivé';
+    return isActive ? "Actif" : "Archivé";
   };
 
   return (
@@ -65,7 +73,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
             >
               <MoreVertical className="w-4 h-4 text-gray-500" />
             </button>
-            
+
             {showActions && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -106,7 +114,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                 >
                   <Archive className="w-4 h-4" />
-                  {chat.isActive ? 'Archiver' : 'Désarchiver'}
+                  {chat.isActive ? "Archiver" : "Désarchiver"}
                 </button>
                 <button
                   onClick={(e) => {
@@ -133,11 +141,15 @@ const ChatCard: React.FC<ChatCardProps> = ({
 
         {/* Status and message count */}
         <div className="flex items-center gap-2 mb-4">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getActivityColor(chat.isActive)}`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium border ${getActivityColor(
+              chat.isActive
+            )}`}
+          >
             {getActivityText(chat.isActive)}
           </span>
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            {chat.messageCount} message{chat.messageCount !== 1 ? 's' : ''}
+            {chat.messageCount} message{chat.messageCount !== 1 ? "s" : ""}
           </span>
         </div>
 
@@ -146,10 +158,13 @@ const ChatCard: React.FC<ChatCardProps> = ({
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             <span>
-              Dernière activité le {format(chat.lastMessageDate, 'd MMM yyyy à HH:mm', { locale: fr })}
+              Dernière activité le{" "}
+              {format(chat.lastMessageDate, "d MMM yyyy à HH:mm", {
+                locale: fr,
+              })}
             </span>
           </div>
-          
+
           {chat.associatedPostId && (
             <button
               onClick={(e) => {

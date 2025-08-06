@@ -49,7 +49,7 @@ export const db = {
       const { data, error } = await supabaseClient
         .from("post")
         .select(
-          `title, content_text, created_at, id, status,
+          `title, content_text, hashtags, created_at, id, status,
             platform( name ),
             session!post_session_id_fkey ( id ),
             media ( url )
@@ -65,6 +65,44 @@ export const db = {
     } catch (err) {
       console.error("Error:", err);
       throw err; // Re-throw the error for further handling
+    }
+  },
+
+  async deletePostById(id: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("post")
+        .delete()
+        .eq("id", id)
+        .eq("company_id", 1);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error:", err);
+      throw err;
+    }
+  },
+
+  async updatePostById(
+    id: string,
+    { content, hashtags }: { content: string; hashtags: string }
+  ) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("post")
+        .update({ content_text: content, hashtags: hashtags })
+        .eq("id", id)
+        .eq("company_id", 1)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error updating post", id, ":", err);
+      throw err;
     }
   },
 
@@ -129,6 +167,26 @@ export const db = {
       }
 
       return data;
+    } catch (err) {
+      console.error("Error:", err);
+      throw err;
+    }
+  },
+
+  async deleteChatById(id: string) {
+    /*
+    Attention. Par effet cascade en supprimant une session
+    on supprime a minima le post et tous les messages associés
+    */
+    console.log("HERE", id);
+    try {
+      const response = await supabaseClient
+        .from("session")
+        .delete()
+        .eq("id", id)
+        .eq("company_id", 1);
+
+      return response;
     } catch (err) {
       console.error("Error:", err);
       throw err;

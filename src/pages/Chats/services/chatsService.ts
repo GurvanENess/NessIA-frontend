@@ -1,6 +1,7 @@
 import { ChatConversation } from "../entities/ChatTypes";
 
-// Mock data for demonstration
+// Mock data pour l'exemple de ce à quoi doit ressembler le state
+
 const mockChats: ChatConversation[] = [
   {
     id: "chat-001",
@@ -94,33 +95,7 @@ const mockChats: ChatConversation[] = [
 ];
 
 export class ChatsService {
-  static async fetchUserChats(userId: string): Promise<ChatConversation[]> {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // For demo purposes, always return mock data regardless of userId
-    // In real app, this would filter by actual userId
-    return mockChats.sort(
-      (a, b) => b.lastMessageDate.getTime() - a.lastMessageDate.getTime()
-    );
-  }
-
-  static async deleteChat(chatId: string): Promise<void> {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
-  static async archiveChat(chatId: string): Promise<void> {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
-  static async fetchChatById(chatId: string): Promise<ChatConversation | null> {
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Find chat in mock data
-    const chat = mockChats.find((c) => c.id === chatId);
-    return chat || null;
-  }
+  // Pourra être utile un jour, qui sait ¯\_(ツ)_/¯
 }
+
+// TODO: supprimer des composants
