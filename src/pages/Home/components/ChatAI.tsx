@@ -17,21 +17,48 @@ import useJobPolling from "../../../shared/hooks/useJobPolling";
 import toast from "react-hot-toast";
 
 const Chat: React.FC = () => {
-  const { chatId: sessionIdParam } = useParams();
-  const { state, dispatch } = useApp();
+  // ===== HOOKS & VARIABLES INITIALES =====
+
   const { user } = useAuth();
-  const { sessionId } = useApp().state.chat;
-  const { messages, messageInput, isLoading, error, showQuickActions } =
-    state.chat;
+  const { chatId: sessionIdParam } = useParams();
+  const appContext = useApp();
+  const { dispatch, state } = appContext;
+  const {
+    chat: {
+      sessionId,
+      messages,
+      messageInput,
+      isLoading,
+      error,
+      showQuickActions,
+    },
+  } = state;
   const { jobs, startPolling, stopPolling } = useJobPolling();
   const navigate = useNavigate();
 
+  const isFirstMessage = messages.length === 0;
+
   // ===== LOGIQUE DE GESTION DES SESSIONS =====
+
   useEffect(() => {
     if (sessionIdParam && sessionId !== sessionIdParam) {
       dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
     }
   }, [sessionIdParam, sessionId, dispatch]);
+
+  useEffect(() => {
+    if (sessionIdParam) {
+      fetchMessages(sessionIdParam);
+      startPolling(sessionIdParam);
+    }
+
+    return () => {
+      console.log("UNMOUNTED");
+      stopPolling();
+    };
+  }, [sessionIdParam]);
+
+  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
 
   const fetchMessages = async (sessionId) => {
     dispatch({ type: "SET_LOADING", payload: true });
@@ -48,19 +75,6 @@ const Chat: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (sessionIdParam) {
-      fetchMessages(sessionIdParam);
-      startPolling(sessionIdParam);
-    }
-
-    return () => {
-      console.log("UNMOUNTED");
-      stopPolling();
-    };
-  }, [sessionIdParam]);
-
-  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
   const processUserMessage = async (message: string) => {
     try {
       const userMessage: Message = {
@@ -115,6 +129,8 @@ const Chat: React.FC = () => {
       throw err;
     }
   };
+
+  // ===== HANDLERS =====
 
   const handleSendMessage = async (
     message: string,
@@ -184,7 +200,7 @@ const Chat: React.FC = () => {
     await handleSendMessage(text, true);
   };
 
-  const isFirstMessage = messages.length === 0;
+  // ===== RENDERING =====
 
   return (
     <>
