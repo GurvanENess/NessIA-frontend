@@ -5,12 +5,14 @@ import PostPreview from "./PostPreview";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useParams } from "react-router-dom";
 import { db } from "../../shared/services/db";
-import { getContent, getHashtags, formatPostToDb } from "./utils/utils";
+import { getHashtags, formatPostToDb } from "./utils/utils";
+import { toast } from "react-hot-toast";
+import { wait } from "../../shared/utils/utils";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
   const { postId } = useParams<{ postId: string }>();
-  const { isPreviewMode, postData, isSaving, isPublishing, error } = state.post;
+  const { isPreviewMode, postData, isSaving, isPublishing } = state.post;
 
   if (postId) {
     useEffect(() => {
@@ -18,6 +20,7 @@ const PostEditor: React.FC = () => {
       const fetchPostData = async () => {
         try {
           const data = await db.getPostById(postId);
+          console.log(data);
 
           dispatch({
             type: "UPDATE_POST_DATA",
@@ -28,7 +31,7 @@ const PostEditor: React.FC = () => {
             },
           });
         } catch (err) {
-          console.error("Error updating post content:", err);
+          console.error("Error fetching post content:", err);
         }
       };
       fetchPostData();
@@ -44,6 +47,7 @@ const PostEditor: React.FC = () => {
 
       dispatch({ type: "SAVE_POST_SUCCESS" });
     } catch (err) {
+      toast.error("Erreur lors de la sauvegarde du post");
       dispatch({
         type: "SAVE_POST_ERROR",
         payload: err instanceof Error ? err.message : "Failed to save post",
@@ -59,6 +63,7 @@ const PostEditor: React.FC = () => {
 
       dispatch({ type: "PUBLISH_POST_SUCCESS" });
     } catch (err) {
+      toast.error("Erreur lors de la publication du post");
       dispatch({
         type: "PUBLISH_POST_ERROR",
         payload: err instanceof Error ? err.message : "Failed to publish post",
@@ -160,11 +165,6 @@ const PostEditor: React.FC = () => {
           {isPublishing ? "Publication..." : "Publier"}
         </motion.button>
       </div>
-      {error && (
-        <div className="p-4 text-red-600 bg-red-50 border border-red-200 rounded-lg mx-5 mb-5">
-          {error}
-        </div>
-      )}
     </motion.div>
   );
 };

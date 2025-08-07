@@ -1,7 +1,7 @@
 import { PostData } from "../../../shared/entities/PostTypes";
 
 export const getHashtags = (text: string): string => {
-  return JSON.parse(text).join(" ");
+  return text ? JSON.parse(text).join(" ") : text;
 };
 
 export const getContent = (text: string): string => {

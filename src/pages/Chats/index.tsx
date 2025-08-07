@@ -43,8 +43,8 @@ const ChatsDisplay: React.FC = () => {
 
           fetchChats(userChatsFormated);
         } catch (err) {
+          toast.error("Erreur lors du chargement des conversations");
           console.error("Failed to load chats:", err);
-          // Even if there's an error, we can still show mock data for demo
         }
       }
     };
