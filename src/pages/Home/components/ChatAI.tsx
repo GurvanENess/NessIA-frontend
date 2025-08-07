@@ -89,12 +89,6 @@ const Chat: React.FC = () => {
 
       return userMessage;
     } catch (err) {
-      toast.error(
-        "Une erreur est survenue lors du traitement du message utilisateur",
-        {
-          duration: 3000,
-        }
-      );
       console.error("Error processing user message:", err);
       throw err;
     }
@@ -119,12 +113,6 @@ const Chat: React.FC = () => {
         navigate(`/chats/${response.sessionId}`);
       }
     } catch (err) {
-      toast.error(
-        "Une erreur est survenue lors du traitement de la réponse de l'IA",
-        {
-          duration: 3000,
-        }
-      );
       console.error("Error processing AI response:", err);
       throw err;
     }
