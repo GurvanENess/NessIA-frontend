@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useState } from "react";
+import { Message } from "../../../shared/entities/ChatTypes";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import QuickActions from "./QuickActions";
@@ -6,82 +7,100 @@ import { useApp } from "../../../shared/contexts/AppContext";
 import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { db } from "../../../shared/services/db";
-import { useParams } from "react-router-dom";
-import { formatMessagesFromDb, formatMessageToDb } from "../utlis/utils";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  formatMessagesFromDb,
+  formatMessageToDb,
+  isMessageEmpty,
+} from "../utils/utils";
+import useJobPolling from "../../../shared/hooks/useJobPolling";
+import toast from "react-hot-toast";
 
 const Chat: React.FC = () => {
-  const { chatId: sessionIdParam } = useParams();
-  const { state, dispatch } = useApp();
+  // ===== HOOKS & VARIABLES INITIALES =====
+
   const { user } = useAuth();
-  const { sessionId } = useApp().state.chat;
-  const { messages, messageInput, isLoading, error, showQuickActions } =
-    state.chat;
-  console.log(state.chat);
-  console.log(user);
+  const { chatId: sessionIdParam } = useParams();
+  const appContext = useApp();
+  const { dispatch, state } = appContext;
+  const {
+    chat: {
+      sessionId,
+      messages,
+      messageInput,
+      isLoading,
+      error,
+      showQuickActions,
+    },
+  } = state;
+  const { jobs, startPolling, stopPolling } = useJobPolling();
+  const navigate = useNavigate();
+
+  const isFirstMessage = messages.length === 0;
+
+  // ===== LOGIQUE DE GESTION DES SESSIONS =====
 
   useEffect(() => {
-    let isMounted = true;
+    if (sessionIdParam && sessionId !== sessionIdParam) {
+      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
+    }
+  }, [sessionIdParam, sessionId, dispatch]);
 
-    const fetchMessages = async () => {
-      dispatch({ type: "SET_LOADING", payload: true });
-      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam! });
-      try {
-        const data = await db.getChatSessionMessages(sessionIdParam!, user!.id);
-        if (isMounted) {
-          dispatch({
-            type: "SET_MESSAGES",
-            payload: formatMessagesFromDb(data),
-          });
-        }
-      } catch (err) {
-        console.error("Error fetching messages:", err);
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    };
-
+  useEffect(() => {
     if (sessionIdParam) {
-      fetchMessages();
+      fetchMessages(sessionIdParam);
+      startPolling(sessionIdParam);
     }
 
     return () => {
-      isMounted = false;
+      console.log("UNMOUNTED");
+      stopPolling();
     };
-  }, [sessionIdParam, dispatch]);
+  }, [sessionIdParam]);
 
-  const handleSendMessage = async (
-    e?: React.FormEvent | React.KeyboardEvent,
-    messageToSend?: string,
-    hideUserMessage?: boolean
-  ) => {
-    if (isLoading) return;
+  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
 
-    e && e.preventDefault();
-
-    const message = messageToSend || messageInput.trim();
-    if (!message) return;
-
-    dispatch({ type: "HIDE_ALL_ACTIONS" });
+  const fetchMessages = async (sessionId) => {
     dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_ERROR", payload: null });
+    try {
+      const data = await db.getChatSessionMessages(sessionId, user!.id);
+      dispatch({
+        type: "SET_MESSAGES",
+        payload: formatMessagesFromDb(data),
+      });
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
 
-    // Only show the user message if not hidden (for quick actions and response actions)
-    if (!hideUserMessage) {
-      const userMessage = {
+  const processUserMessage = async (message: string) => {
+    try {
+      const userMessage: Message = {
         id: crypto.randomUUID(),
         isAi: false,
         content: message,
         timestamp: new Date(),
       };
 
-      const messageToDb = formatMessageToDb(userMessage, user!.id, sessionId!);
-      await db.addMessageToChatSession(messageToDb);
-
       dispatch({ type: "ADD_MESSAGE", payload: userMessage });
+      dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
+
+      return userMessage;
+    } catch (err) {
+      toast.error(
+        "Une erreur est survenue lors du traitement du message utilisateur",
+        {
+          duration: 3000,
+        }
+      );
+      console.error("Error processing user message:", err);
+      throw err;
     }
+  };
 
-    messageToSend || dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
-
+  const processAiResponse = async (message: string) => {
     try {
       const response = await AiClient.getResponse({
         message: message,
@@ -90,49 +109,98 @@ const Chat: React.FC = () => {
         companyId: "1",
       });
 
+      console.log(response);
+
+      await startPolling(response.sessionId);
+      await fetchMessages(response.sessionId);
+
       if (!sessionId) {
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
+        navigate(`/chats/${response.sessionId}`);
       }
-
-      const aiResponse = {
-        id: crypto.randomUUID(),
-        isAi: true,
-        content: response.message,
-        timestamp: new Date(),
-        showActions: false,
-        action: response.action,
-        postData: response.post,
-      };
-      const aiMessageToDb = formatMessageToDb(aiResponse, user!.id, sessionId!);
-      await db.addMessageToChatSession(aiMessageToDb);
-
-      dispatch({ type: "ADD_MESSAGE", payload: aiResponse });
-
-      // Show actions after a delay
-      setTimeout(() => {
-        dispatch({ type: "SHOW_ACTIONS", payload: aiResponse.id });
-      }, 1000);
     } catch (err) {
-      console.error("Error fetching AI response:", err);
+      toast.error(
+        "Une erreur est survenue lors du traitement de la réponse de l'IA",
+        {
+          duration: 3000,
+        }
+      );
+      console.error("Error processing AI response:", err);
+      throw err;
+    }
+  };
+
+  // ===== HANDLERS =====
+
+  const handleSendMessage = async (
+    message: string,
+    hideUserMessage?: boolean
+  ) => {
+    if (isLoading) return;
+    if (isMessageEmpty(message)) return;
+
+    dispatch({ type: "HIDE_ALL_ACTIONS" });
+    dispatch({ type: "SET_LOADING", payload: true });
+    dispatch({ type: "SET_ERROR", payload: null });
+
+    try {
+      await processUserMessage(message);
+      await processAiResponse(message);
+    } catch (err) {
+      console.error("Error processing message:", err);
       dispatch({
         type: "SET_ERROR",
-        payload: "Une erreur est survenue. Veuillez réessayer.",
+        payload: "Une erreur est survenue lors de l'envoie du message.",
       });
+      toast.error("Une erreur est survenue lors de l'envoi du message", {
+        duration: 3000,
+        style: {
+          background: "#f44336",
+          color: "#fff",
+        },
+        iconTheme: {
+          primary: "#fff",
+          secondary: "#f44336",
+        },
+      });
+      return;
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 
-  const handleAction = async (label: string) => {
-    await handleSendMessage(undefined, label, true);
+  const handleAction = () => {}; // A SUPPRIMER PLUS TARD
+
+  const handleSuggestionClick = async (job: unknown, answer: string) => {
+    try {
+      if (!sessionIdParam || !user?.token || !job) return;
+
+      const response = await AiClient.sendAnswerToSuggestion({
+        sessionId: sessionIdParam,
+        userToken: user?.token,
+        userInput: answer,
+        jobId: job.id,
+        agentIndex: job.need_user_input?.agent_index,
+      });
+
+      console.log(response);
+
+      await startPolling(sessionIdParam);
+      await fetchMessages(sessionIdParam);
+    } catch (err) {
+      console.error("Error sending suggestion response:", err);
+      toast.error("Une erreur est survenue lors de l'envoi de la réponse", {
+        duration: 3000,
+      });
+    }
   };
 
   const handleQuickAction = async (text: string) => {
     dispatch({ type: "HIDE_QUICK_ACTIONS" });
-    await handleSendMessage(undefined, text, true);
+    await handleSendMessage(text, true);
   };
 
-  const isFirstMessage = messages.length === 0;
+  // ===== RENDERING =====
 
   return (
     <>
@@ -166,6 +234,7 @@ const Chat: React.FC = () => {
           </div>
         </div>
       </div>
+
       <ChatInput
         value={messageInput}
         onChange={(value) =>
@@ -173,7 +242,8 @@ const Chat: React.FC = () => {
         }
         onSend={handleSendMessage}
         isLoading={isLoading}
-        error={error}
+        jobs={jobs}
+        handleSuggestionClick={handleSuggestionClick}
       >
         {isFirstMessage && showQuickActions && (
           <QuickActions onSelect={handleQuickAction} />

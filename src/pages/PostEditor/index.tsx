@@ -5,12 +5,14 @@ import PostPreview from "./PostPreview";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useParams } from "react-router-dom";
 import { db } from "../../shared/services/db";
-import { getContent, getHashtags } from "./utils/utils";
+import { getHashtags, formatPostToDb } from "./utils/utils";
+import { toast } from "react-hot-toast";
+import { wait } from "../../shared/utils/utils";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
   const { postId } = useParams<{ postId: string }>();
-  const { isPreviewMode, postData, isSaving, isPublishing, error } = state.post;
+  const { isPreviewMode, postData, isSaving, isPublishing } = state.post;
 
   if (postId) {
     useEffect(() => {
@@ -19,16 +21,17 @@ const PostEditor: React.FC = () => {
         try {
           const data = await db.getPostById(postId);
           console.log(data);
+
           dispatch({
             type: "UPDATE_POST_DATA",
             payload: {
-              image: "",
-              caption: getContent(data.content_text || ""),
-              hashtags: getHashtags(data.content_text || ""),
+              image: data.media?.[0]?.url || "", // HARDCODED FOR TESTS
+              caption: data.content_text,
+              hashtags: getHashtags(data.hashtags || ""),
             },
           });
         } catch (err) {
-          console.error("Treated later:", err);
+          console.error("Error fetching post content:", err);
         }
       };
       fetchPostData();
@@ -38,10 +41,13 @@ const PostEditor: React.FC = () => {
   const handleSave = async () => {
     dispatch({ type: "SAVE_POST_START" });
     try {
-      // TODO: Implement save functionality
-      console.log("Saving post:", postData);
+      const formatedPost = formatPostToDb(postData);
+      console.log(formatedPost);
+      await db.updatePostById(postId!, formatedPost);
+
       dispatch({ type: "SAVE_POST_SUCCESS" });
     } catch (err) {
+      toast.error("Erreur lors de la sauvegarde du post");
       dispatch({
         type: "SAVE_POST_ERROR",
         payload: err instanceof Error ? err.message : "Failed to save post",
@@ -53,9 +59,11 @@ const PostEditor: React.FC = () => {
     dispatch({ type: "PUBLISH_POST_START" });
     try {
       // TODO: Implement publish functionality
-      console.log("Publishing post:", postData);
+      alert("Pif, paf, pouf... Publié ! (non)");
+
       dispatch({ type: "PUBLISH_POST_SUCCESS" });
     } catch (err) {
+      toast.error("Erreur lors de la publication du post");
       dispatch({
         type: "PUBLISH_POST_ERROR",
         payload: err instanceof Error ? err.message : "Failed to publish post",
@@ -157,11 +165,6 @@ const PostEditor: React.FC = () => {
           {isPublishing ? "Publication..." : "Publier"}
         </motion.button>
       </div>
-      {error && (
-        <div className="p-4 text-red-600 bg-red-50 border border-red-200 rounded-lg mx-5 mb-5">
-          {error}
-        </div>
-      )}
     </motion.div>
   );
 };

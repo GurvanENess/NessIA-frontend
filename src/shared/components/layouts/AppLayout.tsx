@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import {
-  Bell,
-  Info,
-} from "lucide-react";
+import { Toaster } from "react-hot-toast";
+import { Bell, Info } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { AnimatePresence } from "framer-motion";
@@ -17,19 +15,19 @@ const AppLayout: React.FC = () => {
   // Extract type and ID from current path for FAB
   const getFABProps = () => {
     const path = location.pathname;
-    
+
     // Match /posts/:id pattern
     const postMatch = path.match(/^\/posts\/([^\/]+)$/);
     if (postMatch) {
-      return { type: 'post' as const, id: postMatch[1] };
+      return { type: "post" as const, id: postMatch[1] };
     }
-    
+
     // Match /chats/:id pattern
     const chatMatch = path.match(/^\/chats\/([^\/]+)$/);
     if (chatMatch) {
-      return { type: 'chat' as const, id: chatMatch[1] };
+      return { type: "chat" as const, id: chatMatch[1] };
     }
-    
+
     return null;
   };
 
@@ -76,11 +74,11 @@ const AppLayout: React.FC = () => {
 
       {/* Floating Action Button */}
       {fabProps && (
-        <FloatingActionButton 
-          type={fabProps.type} 
-          id={fabProps.id} 
-        />
+        <FloatingActionButton type={fabProps.type} id={fabProps.id} />
       )}
+
+      {/* Toast Notifications */}
+      <Toaster />
 
       {/* Burger Menu */}
       <BurgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />

@@ -2,7 +2,7 @@ import { Action } from "../../pages/Home/entities/AITypes";
 import { PostData } from "./PostTypes";
 
 export interface Message {
-  id: string;
+  id?: string;
   isAi: boolean;
   content: string;
   timestamp: Date;

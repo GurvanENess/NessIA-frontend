@@ -72,7 +72,7 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
         <div className="text-sm text-blue-900 flex flex-wrap">
           {hashtags.split(" ").map((tag, index) => (
             <span key={index} className="mr-1">
-              {tag}
+              {"#" + tag}
             </span>
           ))}
         </div>

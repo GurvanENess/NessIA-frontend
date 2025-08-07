@@ -6,7 +6,6 @@ const supabaseAnonKey =
 
 // Supabase service
 export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-console.log("Supabase client initialized with URL:", supabaseUrl);
 
 async function getAllPosts() {
   try {
@@ -25,8 +24,6 @@ async function getAllPosts() {
       .limit(1, { referencedTable: "media" });
 
     if (error) throw error;
-
-    console.log(data[0].media);
   } catch (err) {
     console.error("Error:", err);
   }
@@ -42,8 +39,6 @@ async function getChatSessionMessages(sessionId: string, companyId: string) {
       .order("created_at", { ascending: true });
 
     if (error) throw error;
-
-    console.log(data);
 
     return data;
   } catch (err) {

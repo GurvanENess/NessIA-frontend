@@ -82,7 +82,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       password,
     });
 
-    console.log("Login data:", data);
     if (error) throw error;
 
     if (data.user) {

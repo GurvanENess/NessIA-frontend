@@ -5,4 +5,3 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY_PROD;
 
 // Supabase service
 export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-console.log("Supabase client initialized with URL:", supabaseUrl);

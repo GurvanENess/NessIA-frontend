@@ -32,9 +32,6 @@ export const truncateText = (text: string, maxLength: number): string => {
 /**
  * Delays execution for a specified amount of milliseconds
  */
-export const sleep = (ms: number): Promise<void> => {
+export const wait = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-
-export const sessionId =
-  "session_" + Math.random().toString(36).substring(2, 15) + "_" + Date.now();

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, FileText, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../services/db";
-import { ChatsService } from "../../pages/Chats/services/chatsService";
+import { db } from "../services/db"; // services de base de données globaux
 
 interface FloatingActionButtonProps {
   type: "post" | "chat";
@@ -14,9 +13,11 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   type,
   id,
 }) => {
-  const [exists, setExists] = useState<boolean | null>(null);
+  // state local lié uniquement à l'ui
+
+  const [exists, setExists] = useState<boolean | null>(null); // définit l'existence de l'élément (post ou chat)
   const [isLoading, setIsLoading] = useState(true);
-  const [associatedId, setAssociatedId] = useState<string | null>(null);
+  const [associatedId, setAssociatedId] = useState<string | null>(null); // gare en mémoire l'id associé (post ou chat) pour la navigation
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,26 +25,25 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
       setIsLoading(true);
       try {
         if (type === "post") {
-          // Check if post exists and get associated chat ID
+          // Check if associated chat exists and get his ID
           const post = await db.getPostById(id);
-          if (post) {
+          const associatedChatId = post?.session?.id || null;
+
+          if (associatedChatId) {
             setExists(true);
-            // In a real app, you'd get the associated chat ID from the post data
-            // For now, we'll simulate finding an associated chat
-            const chats = await ChatsService.fetchUserChats("user-123");
-            const associatedChat = chats.find(
-              (chat) => chat.associatedPostId === id
-            );
-            setAssociatedId(associatedChat?.id || null);
+            setAssociatedId(associatedChatId || null);
           } else {
             setExists(false);
           }
         } else if (type === "chat") {
           // Check if chat exists and get associated post ID
-          const chat = await ChatsService.fetchChatById(id);
-          if (chat) {
+          // TODO : aller chercher si le chat a un post associé
+          const chat = await db.getChatById(id);
+          const associatedPostId = chat.post ? chat.post.id : null;
+
+          if (associatedPostId) {
             setExists(true);
-            setAssociatedId(chat.associatedPostId || null);
+            setAssociatedId(associatedPostId);
           } else {
             setExists(false);
           }
@@ -66,12 +66,6 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     } else if (type === "chat" && associatedId) {
       // Navigate from chat to its associated post
       navigate(`/posts/${associatedId}`);
-    } else if (type === "post") {
-      // If no associated chat, navigate to chats list
-      navigate("/chats");
-    } else {
-      // If no associated post, navigate to posts list
-      navigate("/posts");
     }
   };
 
@@ -93,17 +87,17 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     }
 
     if (type === "post") {
-      return associatedId ? "Aller au chat associé" : "Aller aux conversations";
+      return "Aller au chat associé";
     } else {
-      return associatedId ? "Aller au post associé" : "Aller aux publications";
+      return "Aller au post associé";
     }
   };
 
   const getTooltipText = () => {
     if (type === "post") {
-      return associatedId ? "Voir le chat" : "Voir les chats";
+      return "Voir le chat";
     } else {
-      return associatedId ? "Voir le post" : "Voir les posts";
+      return "Voir le post";
     }
   };
 
