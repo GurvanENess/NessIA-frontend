@@ -5,11 +5,14 @@ import {
   AppState,
   AppAction,
 } from "../store/AppReducer";
+import { handleError } from "../utils/errorHandler";
 
 // Context
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
+  setGlobalError: (error: unknown, message: string) => void;
+  clearGlobalError: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -20,8 +23,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
+  const setGlobalError = (error: unknown, message: string) => {
+    const summary = handleError(error, message);
+    dispatch({ type: "SET_GLOBAL_ERROR", payload: summary });
+  };
+
+  const clearGlobalError = () => dispatch({ type: "CLEAR_GLOBAL_ERROR" });
+
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider
+      value={{ state, dispatch, setGlobalError, clearGlobalError }}
+    >
       {children}
     </AppContext.Provider>
   );

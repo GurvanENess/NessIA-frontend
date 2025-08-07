@@ -22,6 +22,7 @@ const PostsDisplay: React.FC = () => {
     fetchPosts,
     setSort,
     deletePost,
+    setError,
   } = usePostsStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,10 +34,9 @@ const PostsDisplay: React.FC = () => {
       startFetchLoading();
       try {
         const userPosts = await PostsService.fetchUserPosts();
-
         fetchPosts(userPosts);
       } catch (err) {
-        console.error("Failed to load posts:", err);
+        setError(err, "Impossible de charger les publications");
       }
     };
 
@@ -77,7 +77,7 @@ const PostsDisplay: React.FC = () => {
         await db.deletePostById(postId);
         deletePost(postId);
       } catch (err) {
-        console.error("Failed to delete post:", err);
+        setError(err, "Impossible de supprimer la publication");
       }
     }
   };
