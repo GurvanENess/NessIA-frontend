@@ -78,7 +78,7 @@ class AIClient {
 }
 
 function isAIResponse(data: any): data is AIResponse {
-  return "message" in data && "availableActions" in data;
+  return "message" in data;
 }
 
 export const AiClient = new AIClient();

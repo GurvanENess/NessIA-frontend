@@ -8,11 +8,7 @@ import { AiClient } from "../services/AIClient";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { db } from "../../../shared/services/db";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  formatMessagesFromDb,
-  formatMessageToDb,
-  isMessageEmpty,
-} from "../utils/utils";
+import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
 import useJobPolling from "../../../shared/hooks/useJobPolling";
 import toast from "react-hot-toast";
 
@@ -60,7 +56,7 @@ const Chat: React.FC = () => {
 
   // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
 
-  const fetchMessages = async (sessionId) => {
+  const fetchMessages = async (sessionId: string) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const data = await db.getChatSessionMessages(sessionId, user!.id);
@@ -127,7 +123,6 @@ const Chat: React.FC = () => {
     if (isLoading) return;
     if (isMessageEmpty(message)) return;
 
-    dispatch({ type: "HIDE_ALL_ACTIONS" });
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
@@ -156,8 +151,6 @@ const Chat: React.FC = () => {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
-
-  const handleAction = () => {}; // A SUPPRIMER PLUS TARD
 
   const handleSuggestionClick = async (job: unknown, answer: string) => {
     try {
@@ -218,7 +211,7 @@ const Chat: React.FC = () => {
               messages.length === 0 ? "opacity-0" : "opacity-100"
             }`}
           >
-            <MessageList messages={messages} handleAction={handleAction} />
+            <MessageList messages={messages} />
           </div>
         </div>
       </div>

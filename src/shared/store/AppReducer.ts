@@ -44,8 +44,6 @@ export type ChatAction =
   | { type: "SET_MESSAGES"; payload: Message[] }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
-  | { type: "HIDE_ALL_ACTIONS" }
-  | { type: "SHOW_ACTIONS"; payload: string }
   | { type: "HIDE_QUICK_ACTIONS" }
   | { type: "SHOW_QUICK_ACTIONS" }
   | { type: "RESET_CHAT" };
@@ -224,29 +222,6 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         chat: {
           ...state.chat,
           error: action.payload,
-        },
-      };
-
-    case "HIDE_ALL_ACTIONS":
-      return {
-        ...state,
-        chat: {
-          ...state.chat,
-          messages: state.chat.messages.map((msg) => ({
-            ...msg,
-            showActions: false,
-          })),
-        },
-      };
-
-    case "SHOW_ACTIONS":
-      return {
-        ...state,
-        chat: {
-          ...state.chat,
-          messages: state.chat.messages.map((msg) =>
-            msg.id === action.payload ? { ...msg, showActions: true } : msg
-          ),
         },
       };
 
