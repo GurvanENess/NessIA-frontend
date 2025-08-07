@@ -22,6 +22,7 @@ interface ChatState {
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  error: string | null;
 }
 
 // Action Types
@@ -49,7 +50,11 @@ export type ChatAction =
   | { type: "SHOW_QUICK_ACTIONS" }
   | { type: "RESET_CHAT" };
 
-export type AppAction = PostAction | ChatAction;
+export type AppAction =
+  | PostAction
+  | ChatAction
+  | { type: "SET_GLOBAL_ERROR"; payload: string }
+  | { type: "CLEAR_GLOBAL_ERROR" };
 
 // Initial State
 export const initialState: AppState = {
@@ -72,6 +77,7 @@ export const initialState: AppState = {
     error: null,
     showQuickActions: true,
   },
+  error: null,
 };
 
 // Reducer
@@ -265,6 +271,18 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case "RESET_CHAT":
       return {
         ...initialState,
+      };
+
+    case "SET_GLOBAL_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    case "CLEAR_GLOBAL_ERROR":
+      return {
+        ...state,
+        error: null,
       };
 
     default:

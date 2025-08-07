@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import { Post, PostsState } from "../entities/PostTypes";
+import { handleError } from "../../../shared/utils/errorHandler";
 
 type PostsAction =
   | { type: "FETCH_POSTS_START" }
@@ -127,6 +128,11 @@ export const usePostsStore = () => {
     dispatch({ type: "UPDATE_POST_STATUS", payload: { id, status } });
   };
 
+  const setError = (error: unknown, message: string) => {
+    const summary = handleError(error, message);
+    dispatch({ type: "FETCH_POSTS_ERROR", payload: summary });
+  };
+
   return {
     ...state,
     fetchPosts,
@@ -134,5 +140,6 @@ export const usePostsStore = () => {
     deletePost,
     updatePostStatus,
     startFetchLoading,
+    setError,
   };
 };

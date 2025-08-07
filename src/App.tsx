@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./shared/contexts/AuthContext";
 import { AppProvider } from "./shared/contexts/AppContext";
@@ -18,6 +17,7 @@ import PostsDisplay from "./pages/Posts";
 import ChatsDisplay from "./pages/Chats";
 import FileSelectModal from "./shared/components/FileSelectModal";
 import ChatAI from "./pages/Home/components/ChatAI";
+import NotFound from "./shared/components/errors/NotFound";
 
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -75,8 +75,8 @@ const App: React.FC = () => {
                 {/* Add more protected routes here */}
               </Route>
 
-              {/* Redirect to home for any other routes */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Fallback for unknown routes */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </AppProvider>
