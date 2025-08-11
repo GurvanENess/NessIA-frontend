@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   X,
   Settings,
@@ -8,11 +8,13 @@ import {
   MessageCircle,
   ChevronRight,
   MoreHorizontal,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "../../contexts/AppContext";
 import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { db } from "../../services/db";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import UserAccountDropdown from "../UserAccountDropdown";
@@ -36,7 +38,10 @@ interface MenuSection {
 const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   const { dispatch } = useApp();
   const { conversations, fetchChats } = useChatsStore();
+  const { chatId: currentChatId } = useParams();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [showActionsForChatId, setShowActionsForChatId] = useState<string | null>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   // Load recent chats when menu opens
   useEffect(() => {
@@ -54,6 +59,23 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
 
     loadRecentChats();
   }, [isOpen, conversations.length, fetchChats]);
+
+  // Close actions popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionsRef.current && !actionsRef.current.contains(event.target as Node)) {
+        setShowActionsForChatId(null);
+      }
+    };
+
+    if (showActionsForChatId) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showActionsForChatId]);
 
   const onNewChat = () => {
     dispatch({ type: "RESET_CHAT" });
@@ -84,6 +106,24 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
 
   const handleItemClick = () => {
     onClose();
+  };
+
+  const handleActionsClick = (e: React.MouseEvent, chatId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowActionsForChatId(showActionsForChatId === chatId ? null : chatId);
+  };
+
+  const handleRename = (chatId: string) => {
+    // TODO: Implement rename modal
+    console.log("Rename chat:", chatId);
+    setShowActionsForChatId(null);
+  };
+
+  const handleDelete = (chatId: string) => {
+    // TODO: Implement delete modal
+    console.log("Delete chat:", chatId);
+    setShowActionsForChatId(null);
   };
 
   return (
@@ -172,17 +212,67 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                 </h3>
                 <div className="space-y-1">
                   {recentChats.map((chat) => (
-                    <Link
+                    <div
                       key={chat.id}
-                      to={`/chats/${chat.id}`}
-                      onClick={handleItemClick}
-                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+                      className="relative"
                     >
-                      <MessageCircle className="w-4 h-4 text-gray-400 group-hover:text-[#7C3AED] transition-colors flex-shrink-0" />
-                      <span className="text-sm truncate">
-                        {truncateTitle(chat.title)}
-                      </span>
-                    </Link>
+                      <Link
+                        to={`/chats/${chat.id}`}
+                        onClick={handleItemClick}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group ${
+                          currentChatId === chat.id
+                            ? "bg-purple-100 text-[#7C3AED] font-medium"
+                            : "text-gray-600 hover:text-[#7C3AED] hover:bg-purple-50"
+                        }`}
+                      >
+                        <MessageCircle className={`w-4 h-4 transition-colors flex-shrink-0 ${
+                          currentChatId === chat.id
+                            ? "text-[#7C3AED]"
+                            : "text-gray-400 group-hover:text-[#7C3AED]"
+                        }`} />
+                        <span className="text-sm truncate flex-1">
+                          {truncateTitle(chat.title)}
+                        </span>
+                        {currentChatId === chat.id && (
+                          <button
+                            onClick={(e) => handleActionsClick(e, chat.id)}
+                            className="p-1 hover:bg-purple-200 rounded-full transition-colors opacity-70 hover:opacity-100"
+                          >
+                            <MoreHorizontal className="w-3 h-3 text-[#7C3AED]" />
+                          </button>
+                        )}
+                      </Link>
+
+                      {/* Actions Popup */}
+                      <AnimatePresence>
+                        {showActionsForChatId === chat.id && (
+                          <motion.div
+                            ref={actionsRef}
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-[120px]"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              onClick={() => handleRename(chat.id)}
+                              className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Edit className="w-3 h-3" />
+                              Renommer
+                            </button>
+                            <button
+                              onClick={() => handleDelete(chat.id)}
+                              className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Supprimer
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   ))}
                 </div>
               </div>
