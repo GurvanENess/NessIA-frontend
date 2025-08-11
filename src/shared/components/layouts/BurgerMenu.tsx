@@ -140,7 +140,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
               style={{ letterSpacing: 0.5 }}
             >
               <MessageCircle className="w-4 h-4 text-white" />
-              <span className="text-sm">Nouvelle conversation</span>
+              <span>Nouvelle conversation</span>
             </Link>
 
             {/* Main Navigation Links */}
@@ -148,25 +148,25 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/chats"
                 onClick={handleItemClick}
-                className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-gray-700 font-semibold hover:text-[#7C3AED] hover:bg-purple-50 transition-colors group"
               >
-                <MessageCircle className="w-5 h-5 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
-                <span className="font-medium">Discussions</span>
+                <MessageCircle className="w-4 h-4 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
+                <span>Discussions</span>
               </Link>
               
               <Link
                 to="/posts"
                 onClick={handleItemClick}
-                className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-gray-700 font-semibold hover:text-[#7C3AED] hover:bg-purple-50 transition-colors group"
               >
-                <FileText className="w-5 h-5 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
-                <span className="font-medium">Posts</span>
+                <FileText className="w-4 h-4 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
+                <span>Posts</span>
               </Link>
             </div>
 
             {/* Recent Chats Section */}
             {recentChats.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-6 -mt-2">
                 <h3 className="px-3 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Récents
                 </h3>
