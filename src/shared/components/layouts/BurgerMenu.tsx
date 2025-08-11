@@ -61,23 +61,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   };
 
   const menuSections: MenuSection[] = [
-    {
-      id: "others",
-      title: "Autres",
-      icon: MoreHorizontal,
-      items: [
-        {
-          label: "Paramètres",
-          path: "/settings",
-          icon: Settings,
-        },
-        {
-          label: "Aide",
-          path: "/help",
-          icon: HelpCircle,
-        },
-      ],
-    },
   ];
 
   // Get 5 most recent chats
