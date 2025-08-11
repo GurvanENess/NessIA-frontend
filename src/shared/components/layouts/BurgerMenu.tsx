@@ -5,20 +5,18 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  FilePenLine,
-  MessageSquareText,
   FileText,
   MessageCircle,
-  ChevronDown,
   ChevronRight,
-  Library,
-  Grid3X3,
   MoreHorizontal,
-  FileAxis3D,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
+import { useEffect } from "react";
+import { db } from "../../services/db";
+import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -39,7 +37,25 @@ interface MenuSection {
 const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, logout } = useAuth();
   const { dispatch } = useApp();
+  const { conversations, fetchChats } = useChatsStore();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+
+  // Load recent chats when menu opens
+  useEffect(() => {
+    const loadRecentChats = async () => {
+      if (isOpen && conversations.length === 0) {
+        try {
+          const userChats = await db.getAllChats();
+          const userChatsFormated = formatChatsforUi(userChats);
+          fetchChats(userChatsFormated);
+        } catch (err) {
+          console.error("Failed to load recent chats:", err);
+        }
+      }
+    };
+
+    loadRecentChats();
+  }, [isOpen, conversations.length, fetchChats]);
 
   const onNewChat = () => {
     dispatch({ type: "RESET_CHAT" });
@@ -47,45 +63,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   };
 
   const menuSections: MenuSection[] = [
-    {
-      id: "library",
-      title: "Bibliothèque",
-      icon: Library,
-      items: [
-        {
-          label: "Posts",
-          path: "/posts",
-          icon: FileText,
-        },
-        {
-          label: "Chats",
-          path: "/chats",
-          icon: MessageCircle,
-        },
-      ],
-    },
-    {
-      id: "modules",
-      title: "Modules",
-      icon: Grid3X3,
-      items: [
-        {
-          label: "Chat",
-          path: "/",
-          icon: MessageSquareText,
-        },
-        {
-          label: "Editor",
-          path: "/post/new",
-          icon: FilePenLine,
-        },
-        {
-          label: "Modal",
-          path: "/modal",
-          icon: FileAxis3D,
-        },
-      ],
-    },
     {
       id: "others",
       title: "Autres",
@@ -104,6 +81,17 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       ],
     },
   ];
+
+  // Get 5 most recent chats
+  const recentChats = conversations
+    .filter(chat => chat.isActive)
+    .sort((a, b) => b.lastMessageDate.getTime() - a.lastMessageDate.getTime())
+    .slice(0, 5);
+
+  const truncateTitle = (title: string, maxLength: number = 30) => {
+    if (title.length <= maxLength) return title;
+    return title.slice(0, maxLength) + "...";
+  };
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) =>
@@ -178,6 +166,52 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
               <MessageCircle className="w-4 h-4 text-white" />
               <span className="text-sm">Nouvelle conversation</span>
             </Link>
+
+            {/* Main Navigation Links */}
+            <div className="space-y-1 mb-6">
+              <Link
+                to="/chats"
+                onClick={handleItemClick}
+                className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+              >
+                <MessageCircle className="w-5 h-5 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
+                <span className="font-medium">Discussions</span>
+              </Link>
+              
+              <Link
+                to="/posts"
+                onClick={handleItemClick}
+                className="flex items-center gap-3 px-3 py-3 text-gray-700 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+              >
+                <FileText className="w-5 h-5 text-gray-500 group-hover:text-[#7C3AED] transition-colors" />
+                <span className="font-medium">Posts</span>
+              </Link>
+            </div>
+
+            {/* Recent Chats Section */}
+            {recentChats.length > 0 && (
+              <div className="mb-6">
+                <h3 className="px-3 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  Récents
+                </h3>
+                <div className="space-y-1">
+                  {recentChats.map((chat) => (
+                    <Link
+                      key={chat.id}
+                      to={`/chats/${chat.id}`}
+                      onClick={handleItemClick}
+                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:text-[#7C3AED] hover:bg-purple-50 rounded-lg transition-colors group"
+                    >
+                      <MessageCircle className="w-4 h-4 text-gray-400 group-hover:text-[#7C3AED] transition-colors flex-shrink-0" />
+                      <span className="text-sm truncate">
+                        {truncateTitle(chat.title)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               {menuSections.map((section) => {
                 const isExpanded = expandedSections.includes(section.id);
