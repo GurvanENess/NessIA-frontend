@@ -4,19 +4,18 @@ import {
   X,
   Settings,
   HelpCircle,
-  LogOut,
   FileText,
   MessageCircle,
   ChevronRight,
   MoreHorizontal,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
 import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { useEffect } from "react";
 import { db } from "../../services/db";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
+import UserAccountDropdown from "../UserAccountDropdown";
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -35,7 +34,6 @@ interface MenuSection {
 }
 
 const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
-  const { isAuthenticated, logout } = useAuth();
   const { dispatch } = useApp();
   const { conversations, fetchChats } = useChatsStore();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
@@ -102,11 +100,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   };
 
   const handleItemClick = () => {
-    onClose();
-  };
-
-  const handleLogout = () => {
-    logout();
     onClose();
   };
 
@@ -262,16 +255,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                               );
                             })}
 
-                            {/* Special case for logout in "others" section */}
-                            {section.id === "others" && isAuthenticated && (
-                              <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors group"
-                              >
-                                <LogOut className="w-4 h-4 group-hover:text-red-700 transition-colors" />
-                                <span className="text-sm">Déconnexion</span>
-                              </button>
-                            )}
                           </div>
                         </motion.div>
                       )}
@@ -283,11 +266,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
           </nav>
 
           {/* Footer - Always at bottom */}
-          <div className="mt-auto p-4 border-t border-gray-100 bg-gray-50">
-            <div className="text-center">
-              <p className="text-xs text-gray-500">Version 1.0.0</p>
-              <p className="text-xs text-gray-400 mt-1">© 2024 Nessia</p>
-            </div>
+          <div className="mt-auto">
+            <UserAccountDropdown />
           </div>
         </div>
       </motion.div>
