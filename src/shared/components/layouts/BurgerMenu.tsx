@@ -74,7 +74,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     };
 
     loadRecentChats();
-  }, [isOpen, state.currentCompany?.id, fetchChats]);
+  }, [isOpen, state.currentCompany?.id]);
 
   // Load companies when menu opens
   useEffect(() => {

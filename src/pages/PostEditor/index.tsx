@@ -8,51 +8,59 @@ import { db } from "../../shared/services/db";
 import { getHashtags, formatPostToDb } from "./utils/utils";
 import { toast } from "react-hot-toast";
 import { wait } from "../../shared/utils/utils";
+import { useCompanyResourceAccess } from "../../shared/hooks/useCompanyResourceAccess";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
   const { postId } = useParams<{ postId: string }>();
   const { isPreviewMode, postData, isSaving, isPublishing } = state.post;
 
-  if (postId) {
-    useEffect(() => {
-      // Fetch post data by ID when postId is available
-      const fetchPostData = async () => {
-        try {
-          const data = await db.getPostById(
-            postId,
-            state.currentCompany?.id as string
-          );
-          console.log(data);
+  // Vérifier l'accès au post par compagnie
+  const { hasAccess, isLoading, resourceData, error } =
+    useCompanyResourceAccess("post");
 
-          dispatch({
-            type: "UPDATE_POST_DATA",
-            payload: {
-              image: data.media?.[0]?.url || "", // HARDCODED FOR TESTS
-              caption: data.content_text,
-              hashtags: getHashtags(data.hashtags || ""),
-            },
-          });
-        } catch (err) {
-          console.error("Error fetching post content:", err);
-        }
-      };
-      fetchPostData();
-    }, [postId, state.currentCompany?.id]);
+  // Charger les données du post si on a accès
+  useEffect(() => {
+    if (postId && hasAccess && resourceData) {
+      dispatch({
+        type: "UPDATE_POST_DATA",
+        payload: {
+          image: resourceData.media?.[0]?.url || "",
+          caption: resourceData.content_text,
+          hashtags: getHashtags(resourceData.hashtags || ""),
+        },
+      });
+    }
+  }, [postId, hasAccess, resourceData, dispatch]);
+
+  // Si en cours de vérification, afficher un indicateur
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#E7E9F2] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C3AED] mx-auto mb-4"></div>
+          <p className="text-gray-600">Vérification de l'accès au post...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si pas d'accès, le hook redirigera automatiquement vers 404
+  if (!hasAccess) {
+    return null;
   }
 
   const handleSave = async () => {
+    if (!postId || !state.currentCompany?.id) return;
+
     dispatch({ type: "SAVE_POST_START" });
     try {
       const formatedPost = formatPostToDb(postData);
       console.log(formatedPost);
-      await db.updatePostById(
-        postId!,
-        formatedPost,
-        state.currentCompany?.id as string
-      );
+      await db.updatePostById(postId, formatedPost, state.currentCompany.id);
 
       dispatch({ type: "SAVE_POST_SUCCESS" });
+      toast.success("Post sauvegardé avec succès");
     } catch (err) {
       toast.error("Erreur lors de la sauvegarde du post");
       dispatch({

@@ -14,6 +14,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
 import { Company } from "../store/AppReducer";
+import { useNavigate } from "react-router-dom";
 
 interface UserAccountDropdownProps {
   companies?: Array<Company>;
@@ -25,6 +26,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { state, setCurrentCompany, clearCurrentCompany } = useApp();
 
   // Close dropdown when clicking outside
@@ -57,6 +59,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   const handleCompanySelect = (company: Company) => {
     setCurrentCompany(company);
     setIsOpen(false);
+    navigate(0);
   };
 
   const getUserInitial = () => {
