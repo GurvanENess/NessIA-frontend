@@ -29,6 +29,7 @@ const Chat: React.FC = () => {
       showQuickActions,
     },
   } = state;
+  const companyId = state.currentCompany?.id as string;
   const { jobs, startPolling, stopPolling } = useJobPolling();
   const navigate = useNavigate();
 
@@ -96,7 +97,7 @@ const Chat: React.FC = () => {
         message: message,
         sessionId: sessionId,
         userToken: user?.token,
-        companyId: "1",
+        companyId: companyId,
       });
 
       console.log(response);
@@ -156,13 +157,14 @@ const Chat: React.FC = () => {
     try {
       if (!sessionIdParam || !user?.token || !job) return;
 
-      const response = await AiClient.sendAnswerToSuggestion({
-        sessionId: sessionIdParam,
-        userToken: user?.token,
-        userInput: answer,
-        jobId: job.id,
-        agentIndex: job.need_user_input?.agent_index,
-      });
+        const response = await AiClient.sendAnswerToSuggestion({
+          sessionId: sessionIdParam,
+          userToken: user?.token,
+          userInput: answer,
+          jobId: job.id,
+          agentIndex: job.need_user_input?.agent_index,
+          companyId: companyId,
+        });
 
       console.log(response);
 
