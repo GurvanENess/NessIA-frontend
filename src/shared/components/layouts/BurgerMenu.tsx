@@ -365,7 +365,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                                   </Link>
                                 );
                               })}
-
                             </div>
                           </motion.div>
                         )}
@@ -411,27 +410,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
         </>
       )}
     </>
-  );
-};
-
-export default BurgerMenu;
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </div>
-          </nav>
-
-          {/* Footer - Always at bottom */}
-          <div className="mt-auto">
-            <UserAccountDropdown />
-          </div>
-        </div>
-      </motion.div>
-    </div>
   );
 };
 
