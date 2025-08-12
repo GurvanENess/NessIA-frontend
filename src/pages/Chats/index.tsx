@@ -52,7 +52,7 @@ const ChatsDisplay: React.FC = () => {
     };
 
     loadChats();
-  }, [user?.id]);
+  }, [user?.id, state.currentCompany?.id]);
 
   // Filter chats based on search query
   useEffect(() => {

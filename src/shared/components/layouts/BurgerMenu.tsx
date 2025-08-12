@@ -61,21 +61,20 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   // Load recent chats when menu opens
   useEffect(() => {
     const loadRecentChats = async () => {
-      if (isOpen && conversations.length === 0) {
-        try {
-          const userChats = await db.getAllChats(
-            state.currentCompany?.id as string
-          );
-          const userChatsFormated = formatChatsforUi(userChats);
-          fetchChats(userChatsFormated);
-        } catch (err) {
-          console.error("Failed to load recent chats:", err);
-        }
+      if (!isOpen) return;
+      try {
+        const userChats = await db.getAllChats(
+          state.currentCompany?.id as string
+        );
+        const userChatsFormated = formatChatsforUi(userChats);
+        fetchChats(userChatsFormated);
+      } catch (err) {
+        console.error("Failed to load recent chats:", err);
       }
     };
 
     loadRecentChats();
-  }, [isOpen, conversations.length, fetchChats]);
+  }, [isOpen, state.currentCompany?.id, fetchChats]);
 
   // Load companies when menu opens
   useEffect(() => {
