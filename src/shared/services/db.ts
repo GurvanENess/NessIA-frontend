@@ -35,7 +35,7 @@ export const db = {
     }
   },
 
-  async getAllPosts() {
+  async getAllPosts(companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
@@ -47,7 +47,7 @@ export const db = {
                 media ( url )
             `
         )
-        .eq("company_id", 1)
+        .eq("company_id", companyId)
         .order("created_at", { ascending: false })
         .order("url", { ascending: false, referencedTable: "media" });
 
@@ -60,7 +60,7 @@ export const db = {
     }
   },
 
-  async getPostById(id: string) {
+  async getPostById(id: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
@@ -72,6 +72,7 @@ export const db = {
             `
         )
         .eq("id", id)
+        .eq("company_id", companyId)
         .order("url", { ascending: false, referencedTable: "media" })
         .single();
 
@@ -84,13 +85,13 @@ export const db = {
     }
   },
 
-  async deletePostById(id: string) {
+  async deletePostById(id: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
         .delete()
         .eq("id", id)
-        .eq("company_id", 1);
+        .eq("company_id", companyId);
 
       if (error) throw error;
 
@@ -103,14 +104,15 @@ export const db = {
 
   async updatePostById(
     id: string,
-    { content, hashtags }: { content: string; hashtags: string }
+    { content, hashtags }: { content: string; hashtags: string },
+    companyId: string
   ) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
         .update({ content_text: content, hashtags: hashtags })
         .eq("id", id)
-        .eq("company_id", 1)
+        .eq("company_id", companyId)
         .select();
 
       if (error) throw error;
@@ -122,7 +124,7 @@ export const db = {
     }
   },
 
-  async getAllChats() {
+  async getAllChats(companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("session")
@@ -135,7 +137,7 @@ export const db = {
           )
           `
         )
-        .eq("company_id", 1)
+        .eq("company_id", companyId)
         .not("summary", "is", null)
         .limit(20)
         .order("created_at", { ascending: false });
@@ -149,7 +151,7 @@ export const db = {
     }
   },
 
-  async getChatById(sessionId: string) {
+  async getChatById(sessionId: string, companyId: string) {
     try {
       // Récupère la session et tous ses messages associés, triés par date
       const { data, error } = await supabaseClient
@@ -170,6 +172,7 @@ export const db = {
         `
         )
         .eq("id", sessionId)
+        .eq("company_id", companyId)
         .single();
 
       if (error) throw error;
@@ -189,7 +192,7 @@ export const db = {
     }
   },
 
-  async deleteChatById(id: string) {
+  async deleteChatById(id: string, companyId: string) {
     /*
     Attention. Par effet cascade en supprimant une session
     on supprime a minima le post et tous les messages associés
@@ -200,7 +203,7 @@ export const db = {
         .from("session")
         .delete()
         .eq("id", id)
-        .eq("company_id", 1);
+        .eq("company_id", companyId);
 
       return response;
     } catch (err) {
@@ -209,13 +212,13 @@ export const db = {
     }
   },
 
-  async renameChatById(id: string, newName: string) {
+  async renameChatById(id: string, newName: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("session")
         .update({ title: newName })
         .eq("id", id)
-        .eq("company_id", 1)
+        .eq("company_id", companyId)
         .select();
 
       console.log(data);
