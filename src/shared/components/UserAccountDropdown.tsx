@@ -12,16 +12,29 @@ import {
   User,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { useApp } from "../contexts/AppContext";
+import { db } from "../services/db";
+import { Company } from "../store/AppReducer";
 
-const UserAccountDropdown: React.FC = () => {
+interface UserAccountDropdownProps {
+  companies?: Array<Company>;
+}
+
+const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
+  companies,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
+  const { state, setCurrentCompany } = useApp();
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -40,10 +53,20 @@ const UserAccountDropdown: React.FC = () => {
     setIsOpen(false);
   };
 
-  const getUserInitial = () => {
-    return user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U";
+  const handleCompanySelect = (company: Company) => {
+    setCurrentCompany(company);
+    setIsOpen(false);
   };
 
+  const getUserInitial = () => {
+    return (
+      user?.name?.charAt(0).toUpperCase() ||
+      user?.email?.charAt(0).toUpperCase() ||
+      "U"
+    );
+  };
+
+  // A réutiliser pour le formattage des accounts
   const mockAccounts = [
     {
       id: "current",
@@ -87,23 +110,30 @@ const UserAccountDropdown: React.FC = () => {
 
             {/* Accounts Section */}
             <div className="py-2">
-              {mockAccounts.map((account) => {
-                const IconComponent = account.icon;
+              {companies?.map((company) => {
+                const IconComponent = company.icon || User;
+                const isActive = state.currentCompany?.id === company.id;
+
                 return (
                   <button
-                    key={account.id}
+                    key={company.id}
+                    onClick={() => handleCompanySelect(company)}
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left"
                   >
-                    <div className={`w-6 h-6 rounded-full ${account.color} flex items-center justify-center flex-shrink-0`}>
+                    <div
+                      className={`w-6 h-6 rounded-full ${
+                        company.color || "bg-blue-500"
+                      } flex items-center justify-center flex-shrink-0`}
+                    >
                       <IconComponent className="w-3 h-3 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-gray-900 truncate">
-                        {account.name}
+                        {company.name}
                       </div>
                     </div>
-                    {account.isActive && (
-                      <Check className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                    {isActive && (
+                      <Check className="w-4 h-4 text-[#7C3AED] flex-shrink-0" />
                     )}
                   </button>
                 );
@@ -160,7 +190,7 @@ const UserAccountDropdown: React.FC = () => {
             {user?.name || "Utilisateur"}
           </div>
           <div className="text-xs text-gray-500 truncate">
-            e-Ness
+            {state.currentCompany?.name || "Sélectionner une compagnie"}
           </div>
         </div>
 

@@ -1,6 +1,22 @@
 import { supabaseClient } from "./supabase";
 
 export const db = {
+  async getCompaniesByUserId(userId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("company")
+        .select("*")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error fetching companies:", err);
+      throw err; // Re-throw the error for further handling
+    }
+  },
+
   async getChatSessionMessages(sessionId: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient

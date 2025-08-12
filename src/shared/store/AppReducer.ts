@@ -2,6 +2,15 @@ import { PostData } from "../entities/PostTypes";
 import { Message } from "../entities/ChatTypes";
 
 // Types
+export interface Company {
+  id: string;
+  name: string;
+  email?: string;
+  isActive?: boolean;
+  icon?: React.ComponentType<{ className?: string }>;
+  color?: string;
+}
+
 export interface PostState {
   isPreviewMode: boolean;
   postData: PostData;
@@ -22,6 +31,7 @@ interface ChatState {
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  currentCompany: Company | null;
   error: string | null;
 }
 
@@ -48,9 +58,14 @@ export type ChatAction =
   | { type: "SHOW_QUICK_ACTIONS" }
   | { type: "RESET_CHAT" };
 
+export type CompanyAction =
+  | { type: "SET_CURRENT_COMPANY"; payload: Company }
+  | { type: "CLEAR_CURRENT_COMPANY" };
+
 export type AppAction =
   | PostAction
   | ChatAction
+  | CompanyAction
   | { type: "SET_GLOBAL_ERROR"; payload: string }
   | { type: "CLEAR_GLOBAL_ERROR" };
 
@@ -75,6 +90,7 @@ export const initialState: AppState = {
     error: null,
     showQuickActions: true,
   },
+  currentCompany: null,
   error: null,
 };
 
@@ -246,6 +262,20 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case "RESET_CHAT":
       return {
         ...initialState,
+        currentCompany: state.currentCompany, // Garder la compagnie actuelle
+      };
+
+    // Company Actions
+    case "SET_CURRENT_COMPANY":
+      return {
+        ...state,
+        currentCompany: action.payload,
+      };
+
+    case "CLEAR_CURRENT_COMPANY":
+      return {
+        ...state,
+        currentCompany: null,
       };
 
     case "SET_GLOBAL_ERROR":
