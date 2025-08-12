@@ -86,7 +86,6 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
     setIsLoading(true);
     
     try {
-      console.log(chatId, newTitle);
       await db.renameChatById(chatId, newTitle.trim());
       onRenameConfirm(newTitle.trim());
       toast.success("Conversation renommée avec succès");
