@@ -202,6 +202,7 @@ export const db = {
         .eq("company_id", 1)
         .select();
 
+      console.log(data);
       if (error) throw error;
 
       return data;
