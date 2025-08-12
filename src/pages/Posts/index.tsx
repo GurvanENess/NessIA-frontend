@@ -45,7 +45,7 @@ const PostsDisplay: React.FC = () => {
     };
 
     loadPosts();
-  }, [user?.id]);
+  }, [user?.id, state.currentCompany?.id]);
 
   // Filter posts based on search query
   useEffect(() => {

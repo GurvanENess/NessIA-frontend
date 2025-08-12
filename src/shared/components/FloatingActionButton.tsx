@@ -65,7 +65,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     };
 
     checkExistence();
-  }, [type, id]);
+  }, [type, id, state.currentCompany?.id]);
 
   const handleClick = () => {
     if (type === "post" && associatedId) {

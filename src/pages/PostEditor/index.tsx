@@ -38,7 +38,7 @@ const PostEditor: React.FC = () => {
         }
       };
       fetchPostData();
-    }, [postId]);
+    }, [postId, state.currentCompany?.id]);
   }
 
   const handleSave = async () => {
