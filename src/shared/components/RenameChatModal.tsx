@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Edit } from "lucide-react";
 import { db } from "../services/db";
 import toast from "react-hot-toast";
+import { useApp } from "../contexts/AppContext";
 
 interface RenameChatModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { state } = useApp();
 
   // Reset title when modal opens
   useEffect(() => {
@@ -86,7 +88,11 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
     setIsLoading(true);
     
     try {
-      await db.renameChatById(chatId, newTitle.trim());
+      await db.renameChatById(
+        chatId,
+        newTitle.trim(),
+        state.currentCompany?.id as string
+      );
       onRenameConfirm(newTitle.trim());
       toast.success("Conversation renommée avec succès");
       onClose();

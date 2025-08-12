@@ -6,12 +6,14 @@ import { usePostsStore } from "./store/postsStore";
 import { PostsService } from "./services/postsService";
 import { Post } from "./entities/PostTypes";
 import { db } from "../../shared/services/db";
+import { useApp } from "../../shared/contexts/AppContext";
 import PostsHeader from "./components/PostsHeader";
 import PostsGrid from "./components/PostsGrid";
 
 const PostsDisplay: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { state } = useApp();
   const {
     posts,
     isLoading,
@@ -33,7 +35,9 @@ const PostsDisplay: React.FC = () => {
     const loadPosts = async () => {
       startFetchLoading();
       try {
-        const userPosts = await PostsService.fetchUserPosts();
+        const userPosts = await PostsService.fetchUserPosts(
+          state.currentCompany?.id as string
+        );
         fetchPosts(userPosts);
       } catch (err) {
         setError(err, "Impossible de charger les publications");
@@ -74,7 +78,7 @@ const PostsDisplay: React.FC = () => {
       window.confirm("Êtes-vous sûr de vouloir supprimer cette publication ?")
     ) {
       try {
-        await db.deletePostById(postId);
+        await db.deletePostById(postId, state.currentCompany?.id as string);
         deletePost(postId);
       } catch (err) {
         setError(err, "Impossible de supprimer la publication");

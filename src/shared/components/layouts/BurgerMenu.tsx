@@ -40,7 +40,7 @@ interface MenuSection {
 }
 
 const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
-  const { dispatch } = useApp();
+  const { dispatch, state } = useApp();
   const { user } = useAuth();
   const { conversations, fetchChats } = useChatsStore();
   const { chatId: currentChatId } = useParams();
@@ -63,7 +63,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     const loadRecentChats = async () => {
       if (isOpen && conversations.length === 0) {
         try {
-          const userChats = await db.getAllChats();
+          const userChats = await db.getAllChats(
+            state.currentCompany?.id as string
+          );
           const userChatsFormated = formatChatsforUi(userChats);
           fetchChats(userChatsFormated);
         } catch (err) {

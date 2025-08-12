@@ -19,7 +19,10 @@ const PostEditor: React.FC = () => {
       // Fetch post data by ID when postId is available
       const fetchPostData = async () => {
         try {
-          const data = await db.getPostById(postId);
+          const data = await db.getPostById(
+            postId,
+            state.currentCompany?.id as string
+          );
           console.log(data);
 
           dispatch({
@@ -43,7 +46,11 @@ const PostEditor: React.FC = () => {
     try {
       const formatedPost = formatPostToDb(postData);
       console.log(formatedPost);
-      await db.updatePostById(postId!, formatedPost);
+      await db.updatePostById(
+        postId!,
+        formatedPost,
+        state.currentCompany?.id as string
+      );
 
       dispatch({ type: "SAVE_POST_SUCCESS" });
     } catch (err) {

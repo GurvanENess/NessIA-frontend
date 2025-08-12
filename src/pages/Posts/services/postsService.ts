@@ -18,9 +18,9 @@ const mapPost = (data: any): Post => {
 };
 
 export class PostsService {
-  static async fetchUserPosts(): Promise<Post[]> {
+  static async fetchUserPosts(companyId: string): Promise<Post[]> {
     // Simulate API call delay
-    const posts = await db.getAllPosts();
+    const posts = await db.getAllPosts(companyId);
     const mappedPosts = posts.map(mapPost);
 
     // For demo purposes, always return mock data regardless of userId
