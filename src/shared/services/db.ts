@@ -193,6 +193,24 @@ export const db = {
     }
   },
 
+  async renameChatById(id: string, newName: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("session")
+        .update({ title: newName })
+        .eq("id", id)
+        .eq("company_id", 1)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error renaming chat", id, ":", err);
+      throw err;
+    }
+  },
+
   async getRunningJobs(sessionId: string): Promise<unknown[]> {
     try {
       const { data, error } = await supabaseClient
