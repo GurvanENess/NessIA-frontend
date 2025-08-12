@@ -7,7 +7,8 @@ type ChatsAction =
   | { type: 'FETCH_CHATS_ERROR'; payload: string }
   | { type: 'SET_SORT'; payload: { sortBy: ChatsState['sortBy']; sortOrder: ChatsState['sortOrder'] } }
   | { type: 'DELETE_CHAT'; payload: string }
-  | { type: 'ARCHIVE_CHAT'; payload: string };
+  | { type: 'ARCHIVE_CHAT'; payload: string }
+  | { type: 'RENAME_CHAT'; payload: { id: string; newTitle: string } };
 
 const initialState: ChatsState = {
   conversations: [],
@@ -83,6 +84,16 @@ const chatsReducer = (state: ChatsState, action: ChatsAction): ChatsState => {
         )
       };
 
+    case 'RENAME_CHAT':
+      return {
+        ...state,
+        conversations: state.conversations.map(chat =>
+          chat.id === action.payload.id
+            ? { ...chat, title: action.payload.newTitle, updatedAt: new Date() }
+            : chat
+        )
+      };
+
     default:
       return state;
   }
@@ -111,11 +122,16 @@ export const useChatsStore = () => {
     dispatch({ type: 'ARCHIVE_CHAT', payload: chatId });
   };
 
+  const renameChat = (chatId: string, newTitle: string) => {
+    dispatch({ type: 'RENAME_CHAT', payload: { id: chatId, newTitle } });
+  };
+
   return {
     ...state,
     fetchChats,
     setSort,
     deleteChat,
-    archiveChat
+    archiveChat,
+    renameChat
   };
 };
