@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
-import { db } from "../services/db";
 import { Company } from "../store/AppReducer";
 
 interface UserAccountDropdownProps {
@@ -26,7 +25,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
-  const { state, setCurrentCompany } = useApp();
+  const { state, setCurrentCompany, clearCurrentCompany } = useApp();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -49,7 +48,9 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   }, [isOpen]);
 
   const handleLogout = () => {
+    clearCurrentCompany();
     logout();
+    localStorage.removeItem("nessia_current_company");
     setIsOpen(false);
   };
 
