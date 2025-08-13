@@ -1,5 +1,5 @@
-import { PostData } from "../entities/PostTypes";
 import { Message } from "../entities/ChatTypes";
+import { PostData } from "../entities/PostTypes";
 
 // Types
 export interface Company {
@@ -60,7 +60,8 @@ export type ChatAction =
 
 export type CompanyAction =
   | { type: "SET_CURRENT_COMPANY"; payload: Company }
-  | { type: "CLEAR_CURRENT_COMPANY" };
+  | { type: "CLEAR_CURRENT_COMPANY" }
+  | { type: "CHANGE_COMPANY_AND_RESET"; payload: Company };
 
 export type AppAction =
   | PostAction
@@ -262,7 +263,7 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case "RESET_CHAT":
       return {
         ...initialState,
-        currentCompany: state.currentCompany, // Garder la compagnie actuelle
+        currentCompany: state.currentCompany, // Preserve current company on chat reset
       };
 
     // Company Actions
@@ -276,6 +277,13 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         currentCompany: null,
+      };
+
+    case "CHANGE_COMPANY_AND_RESET":
+      return {
+        ...initialState,
+        currentCompany: action.payload, // Garde la nouvelle compagnie
+        // Tous les autres états sont réinitialisés
       };
 
     case "SET_GLOBAL_ERROR":

@@ -1,16 +1,16 @@
 import React, {
   createContext,
-  useContext,
-  useReducer,
   ReactNode,
+  useContext,
   useEffect,
+  useReducer,
 } from "react";
 import {
-  appReducer,
-  initialState,
-  AppState,
   AppAction,
+  appReducer,
+  AppState,
   Company,
+  initialState,
 } from "../store/AppReducer";
 import { handleError } from "../utils/errorHandler";
 
@@ -22,6 +22,7 @@ interface AppContextType {
   clearGlobalError: () => void;
   setCurrentCompany: (company: Company) => void;
   clearCurrentCompany: () => void;
+  changeCompanyAndReset: (company: Company) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -79,6 +80,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "CLEAR_CURRENT_COMPANY" });
   };
 
+  const changeCompanyAndReset = (company: Company) => {
+    dispatch({ type: "CHANGE_COMPANY_AND_RESET", payload: company });
+  };
+
   const value = {
     state,
     dispatch,
@@ -86,6 +91,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     clearGlobalError,
     setCurrentCompany,
     clearCurrentCompany,
+    changeCompanyAndReset,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

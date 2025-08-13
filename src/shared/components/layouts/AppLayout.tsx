@@ -1,12 +1,10 @@
+import { AnimatePresence } from "framer-motion";
+import { Bell, Info } from "lucide-react";
 import React, { useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Bell, Info } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { AnimatePresence } from "framer-motion";
-import BurgerMenu from "./BurgerMenu";
 import FloatingActionButton from "../FloatingActionButton";
-import CompanySelectionModal from "../CompanySelectionModal";
+import BurgerMenu from "./BurgerMenu";
 
 const AppLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,9 +34,6 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#E7E9F2] flex flex-col">
-      {/* Company Selection Modal - Obligatoire si aucune compagnie n'est sélectionnée */}
-      <CompanySelectionModal />
-
       {/* Mobile Header */}
       <div className="flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
         <div className="flex items-center space-x-2">

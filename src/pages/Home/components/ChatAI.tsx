@@ -1,17 +1,17 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { Message } from "../../../shared/entities/ChatTypes";
-import MessageList from "./MessageList";
-import ChatInput from "./ChatInput";
-import QuickActions from "./QuickActions";
-import { useApp } from "../../../shared/contexts/AppContext";
-import { AiClient } from "../services/AIClient";
-import { useAuth } from "../../../shared/contexts/AuthContext";
-import { db } from "../../../shared/services/db";
-import { useNavigate, useParams } from "react-router-dom";
-import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
-import useJobPolling from "../../../shared/hooks/useJobPolling";
-import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
+import React, { useEffect } from "react";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { useApp } from "../../../shared/contexts/AppContext";
+import { useAuth } from "../../../shared/contexts/AuthContext";
+import { Message } from "../../../shared/entities/ChatTypes";
+import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
+import useJobPolling from "../../../shared/hooks/useJobPolling";
+import { db } from "../../../shared/services/db";
+import { AiClient } from "../services/AIClient";
+import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
+import ChatInput from "./ChatInput";
+import MessageList from "./MessageList";
+import QuickActions from "./QuickActions";
 
 const Chat: React.FC = () => {
   // ===== HOOKS & VARIABLES INITIALES =====

@@ -74,7 +74,7 @@ export const db = {
         .eq("id", id)
         .eq("company_id", companyId)
         .order("url", { ascending: false, referencedTable: "media" })
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -173,7 +173,7 @@ export const db = {
         )
         .eq("id", sessionId)
         .eq("company_id", companyId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 

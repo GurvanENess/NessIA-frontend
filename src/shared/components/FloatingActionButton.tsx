@@ -28,10 +28,14 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
       try {
         if (type === "post") {
           // Check if associated chat exists and get his ID
-            const post = await db.getPostById(
-              id,
-              state.currentCompany?.id as string
-            );
+          const post = await db.getPostById(
+            id,
+            state.currentCompany?.id as string
+          );
+          if (!post) {
+            setExists(false);
+            return;
+          }
           const associatedChatId = post?.session?.id || null;
 
           if (associatedChatId) {
@@ -43,10 +47,15 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
         } else if (type === "chat") {
           // Check if chat exists and get associated post ID
           // TODO : aller chercher si le chat a un post associé
-            const chat = await db.getChatById(
-              id,
-              state.currentCompany?.id as string
-            );
+          const chat = await db.getChatById(
+            id,
+            state.currentCompany?.id as string
+          );
+
+          if (!chat) {
+            setExists(false);
+            return;
+          }
           const associatedPostId = chat.post ? chat.post.id : null;
 
           if (associatedPostId) {

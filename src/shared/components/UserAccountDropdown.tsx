@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
+  Building2,
+  Check,
   ChevronDown,
   ChevronUp,
-  Plus,
-  Check,
-  Settings,
   HelpCircle,
   LogOut,
-  Building2,
+  Plus,
+  Settings,
   User,
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { useApp } from "../contexts/AppContext";
-import { Company } from "../store/AppReducer";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext";
+import { Company } from "../store/AppReducer";
 
 interface UserAccountDropdownProps {
   companies?: Array<Company>;
@@ -27,7 +27,8 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { state, setCurrentCompany, clearCurrentCompany } = useApp();
+  const { state, changeCompanyAndReset, clearCurrentCompany, dispatch } =
+    useApp();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -57,7 +58,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   };
 
   const handleCompanySelect = (company: Company) => {
-    setCurrentCompany(company);
+    changeCompanyAndReset(company);
     setIsOpen(false);
     navigate(0);
   };
@@ -71,7 +72,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   };
 
   // A réutiliser pour le formattage des accounts
-  const mockAccounts = [
+  const mockAccounts: Company[] = [
     {
       id: "current",
       name: "e-Ness",
