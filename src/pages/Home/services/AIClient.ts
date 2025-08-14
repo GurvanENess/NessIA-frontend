@@ -10,12 +10,14 @@ class AIClient {
     userInput,
     jobId,
     agentIndex,
+    companyId,
   }: {
     sessionId: string;
     userToken: string;
     userInput: string;
     jobId: string;
     agentIndex: number;
+    companyId: string;
   }): Promise<unknown> => {
     const options = {
       method: "PATCH",
@@ -30,6 +32,7 @@ class AIClient {
         userInput,
         jobId,
         agentIndex,
+        companyId,
       },
     };
 
@@ -78,7 +81,7 @@ class AIClient {
 }
 
 function isAIResponse(data: any): data is AIResponse {
-  return "message" in data && "availableActions" in data;
+  return "message" in data;
 }
 
 export const AiClient = new AIClient();

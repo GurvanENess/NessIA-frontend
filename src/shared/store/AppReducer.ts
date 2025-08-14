@@ -1,7 +1,16 @@
-import { PostData } from "../entities/PostTypes";
 import { Message } from "../entities/ChatTypes";
+import { PostData } from "../entities/PostTypes";
 
 // Types
+export interface Company {
+  id: string;
+  name: string;
+  email?: string;
+  isActive?: boolean;
+  icon?: React.ComponentType<{ className?: string }>;
+  color?: string;
+}
+
 export interface PostState {
   isPreviewMode: boolean;
   postData: PostData;
@@ -22,6 +31,8 @@ interface ChatState {
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  currentCompany: Company | null;
+  error: string | null;
 }
 
 // Action Types
@@ -43,13 +54,21 @@ export type ChatAction =
   | { type: "SET_MESSAGES"; payload: Message[] }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
-  | { type: "HIDE_ALL_ACTIONS" }
-  | { type: "SHOW_ACTIONS"; payload: string }
   | { type: "HIDE_QUICK_ACTIONS" }
   | { type: "SHOW_QUICK_ACTIONS" }
   | { type: "RESET_CHAT" };
 
-export type AppAction = PostAction | ChatAction;
+export type CompanyAction =
+  | { type: "SET_CURRENT_COMPANY"; payload: Company }
+  | { type: "CLEAR_CURRENT_COMPANY" }
+  | { type: "CHANGE_COMPANY_AND_RESET"; payload: Company };
+
+export type AppAction =
+  | PostAction
+  | ChatAction
+  | CompanyAction
+  | { type: "SET_GLOBAL_ERROR"; payload: string }
+  | { type: "CLEAR_GLOBAL_ERROR" };
 
 // Initial State
 export const initialState: AppState = {
@@ -72,6 +91,8 @@ export const initialState: AppState = {
     error: null,
     showQuickActions: true,
   },
+  currentCompany: null,
+  error: null,
 };
 
 // Reducer
@@ -221,29 +242,6 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         },
       };
 
-    case "HIDE_ALL_ACTIONS":
-      return {
-        ...state,
-        chat: {
-          ...state.chat,
-          messages: state.chat.messages.map((msg) => ({
-            ...msg,
-            showActions: false,
-          })),
-        },
-      };
-
-    case "SHOW_ACTIONS":
-      return {
-        ...state,
-        chat: {
-          ...state.chat,
-          messages: state.chat.messages.map((msg) =>
-            msg.id === action.payload ? { ...msg, showActions: true } : msg
-          ),
-        },
-      };
-
     case "HIDE_QUICK_ACTIONS":
       return {
         ...state,
@@ -265,6 +263,39 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
     case "RESET_CHAT":
       return {
         ...initialState,
+        currentCompany: state.currentCompany, // Preserve current company on chat reset
+      };
+
+    // Company Actions
+    case "SET_CURRENT_COMPANY":
+      return {
+        ...state,
+        currentCompany: action.payload,
+      };
+
+    case "CLEAR_CURRENT_COMPANY":
+      return {
+        ...state,
+        currentCompany: null,
+      };
+
+    case "CHANGE_COMPANY_AND_RESET":
+      return {
+        ...initialState,
+        currentCompany: action.payload, // Garde la nouvelle compagnie
+        // Tous les autres états sont réinitialisés
+      };
+
+    case "SET_GLOBAL_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    case "CLEAR_GLOBAL_ERROR":
+      return {
+        ...state,
+        error: null,
       };
 
     default:

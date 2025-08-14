@@ -1,0 +1,32 @@
+import React from "react";
+import { useLocation, Outlet } from "react-router-dom";
+import { useCompanyResourceAccess } from "../shared/hooks/useCompanyResourceAccess";
+import LoadingScreen from "../shared/components/LoadingScreen";
+
+const isPost = (url: string) => /^\/posts\/[0-9]+/.test(url);
+const isChat = (url: string) => /^\/chats\/[a-zA-Z0-9]+/.test(url);
+
+const CompanyProtectedResource = () => {
+  // Si la compagnie actuelle a le droit d'accéder à la ressource en question
+  // (Comment savoir que ^ ?)
+  const { pathname } = useLocation();
+  console.log("COMPANY PROTECTED RESOURCE");
+
+  let resourceType = "";
+
+  if (isPost(pathname)) resourceType = "post";
+  else if (isChat(pathname)) resourceType = "chat";
+  else return null;
+
+  const { isLoading, hasAccess } = useCompanyResourceAccess(resourceType);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (hasAccess) {
+    return <Outlet />;
+  }
+};
+
+export default CompanyProtectedResource;

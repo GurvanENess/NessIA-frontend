@@ -6,13 +6,9 @@ import { Message as MessageType } from "../../../shared/entities/ChatTypes";
 
 interface MessageListProps {
   messages: MessageType[];
-  handleAction: (label: string) => void;
 }
 
-const MessageList: React.FC<MessageListProps> = ({
-  messages,
-  handleAction,
-}) => {
+const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,7 +18,7 @@ const MessageList: React.FC<MessageListProps> = ({
   return (
     <div className="flex flex-col space-y-6 py-6">
       {messages.map((message) => (
-        <Message key={message.id} handleAction={handleAction} {...message} />
+        <Message key={message.id} {...message} />
       ))}
       <div ref={messageEndRef} />
     </div>

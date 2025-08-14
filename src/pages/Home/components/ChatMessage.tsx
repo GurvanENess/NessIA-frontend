@@ -9,9 +9,6 @@ const Message: React.FC<MessageType> = ({
   isAi,
   content,
   timestamp,
-  showActions,
-  action,
-  handleAction,
   postData,
 }) => {
   return (
@@ -62,30 +59,6 @@ const Message: React.FC<MessageType> = ({
         // </div>
         // )
       }
-
-      {isAi && action?.responses && (
-        <div
-          className={`flex flex-wrap gap-2 mt-3 ml-[52px] transition-all relative duration-500 ease-in-out transform ${
-            showActions
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-4 pointer-events-none hidden"
-          }`}
-        >
-          {action.responses.map((response, index) => (
-            <button
-              key={index}
-              className={`px-4 py-2 rounded-lg transition-colors shadow-sm text-sm font-medium ${
-                action.type === "confirm"
-                  ? "bg-[#7C3AED] text-white hover:bg-[#6D28D9]"
-                  : "bg-white text-[#1A201B] border border-gray-300 hover:bg-gray-50"
-              }`}
-              onClick={() => handleAction?.(response)}
-            >
-              {response}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

@@ -1,11 +1,10 @@
+import { AnimatePresence } from "framer-motion";
+import { Bell, Info } from "lucide-react";
 import React, { useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Bell, Info } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { AnimatePresence } from "framer-motion";
-import BurgerMenu from "./BurgerMenu";
 import FloatingActionButton from "../FloatingActionButton";
+import BurgerMenu from "./BurgerMenu";
 
 const AppLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,9 +33,9 @@ const AppLayout: React.FC = () => {
   const fabProps = getFABProps();
 
   return (
-    <div className="min-h-screen bg-[#E7E9F2] flex flex-col">
+    <div className="app-layout-desktop min-h-screen bg-[#E7E9F2] grid">
       {/* Mobile Header */}
-      <div className="flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
+      <header className="flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsMenuOpen(true)}
@@ -63,14 +62,16 @@ const AppLayout: React.FC = () => {
             )}
           </button>
         </div>
-      </div>
+      </header>
 
+      {/* Burger Menu */}
+      <BurgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       {/* Main Content Area */}
-      <div className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto translate-y-0">
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
-      </div>
+      </main>
 
       {/* Floating Action Button */}
       {fabProps && (
@@ -79,9 +80,6 @@ const AppLayout: React.FC = () => {
 
       {/* Toast Notifications */}
       <Toaster />
-
-      {/* Burger Menu */}
-      <BurgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </div>
   );
 };

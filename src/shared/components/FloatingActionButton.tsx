@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, FileText, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../services/db"; // services de base de données globaux
+import { useApp } from "../contexts/AppContext";
 
 interface FloatingActionButtonProps {
   type: "post" | "chat";
@@ -19,6 +20,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [associatedId, setAssociatedId] = useState<string | null>(null); // gare en mémoire l'id associé (post ou chat) pour la navigation
   const navigate = useNavigate();
+  const { state } = useApp();
 
   useEffect(() => {
     const checkExistence = async () => {
@@ -26,7 +28,14 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
       try {
         if (type === "post") {
           // Check if associated chat exists and get his ID
-          const post = await db.getPostById(id);
+          const post = await db.getPostById(
+            id,
+            state.currentCompany?.id as string
+          );
+          if (!post) {
+            setExists(false);
+            return;
+          }
           const associatedChatId = post?.session?.id || null;
 
           if (associatedChatId) {
@@ -38,7 +47,15 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
         } else if (type === "chat") {
           // Check if chat exists and get associated post ID
           // TODO : aller chercher si le chat a un post associé
-          const chat = await db.getChatById(id);
+          const chat = await db.getChatById(
+            id,
+            state.currentCompany?.id as string
+          );
+
+          if (!chat) {
+            setExists(false);
+            return;
+          }
           const associatedPostId = chat.post ? chat.post.id : null;
 
           if (associatedPostId) {
@@ -57,7 +74,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     };
 
     checkExistence();
-  }, [type, id]);
+  }, [type, id, state.currentCompany?.id]);
 
   const handleClick = () => {
     if (type === "post" && associatedId) {

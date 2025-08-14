@@ -15,7 +15,7 @@ import { useApp } from "../../shared/contexts/AppContext";
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { dispatch } = useApp();
+  const { dispatch, state } = useApp();
 
   const {
     conversations,
@@ -38,7 +38,9 @@ const ChatsDisplay: React.FC = () => {
       if (user?.id) {
         fetchChats([]); // Start loading state
         try {
-          const userChats = await db.getAllChats();
+          const userChats = await db.getAllChats(
+            state.currentCompany?.id as string
+          );
           const userChatsFormated = formatChatsforUi(userChats); // A bouger dans les services
 
           fetchChats(userChatsFormated);
@@ -50,7 +52,7 @@ const ChatsDisplay: React.FC = () => {
     };
 
     loadChats();
-  }, [user?.id]);
+  }, [user?.id, state.currentCompany?.id]);
 
   // Filter chats based on search query
   useEffect(() => {
@@ -103,7 +105,10 @@ const ChatsDisplay: React.FC = () => {
       )
     ) {
       try {
-        const response = await db.deleteChatById(chatId);
+        const response = await db.deleteChatById(
+          chatId,
+          state.currentCompany?.id as string
+        );
         console.log(response);
         deleteChat(chatId);
       } catch (err) {

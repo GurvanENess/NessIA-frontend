@@ -10,9 +10,6 @@ const formatMessagesFromDb = (messages: unknown[]): Message[] => {
     isAi: message.role === "assistant",
     content: message.content,
     timestamp: new Date(message.created_at),
-    showActions: false,
-    action: undefined,
-    handleAction: undefined,
     postData: undefined,
   }));
 };
