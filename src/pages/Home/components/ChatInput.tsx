@@ -1,8 +1,7 @@
-import React, { useRef, useEffect } from "react";
-import { Send, Image } from "lucide-react";
-import toast from "react-hot-toast";
-import JobStatus from "./JobStatus";
+import { Image, Send } from "lucide-react";
+import React, { useEffect, useRef } from "react";
 import { Job } from "../../../shared/entities/JobTypes";
+import JobStatus from "./JobStatus";
 
 interface ChatInputProps {
   value: string;
@@ -40,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
-      if (e.ctrlKey) {
+      if (e.shiftKey) {
         onChange(value + "\n");
       } else {
         e.preventDefault();

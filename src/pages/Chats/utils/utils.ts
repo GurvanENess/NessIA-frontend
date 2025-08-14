@@ -1,5 +1,4 @@
 export const formatChatsforUi = (chats: any[]) => {
-  console.log(chats);
   return chats.map((chat) => ({
     id: chat.id,
     title: chat.title || "Conversation sans titre",

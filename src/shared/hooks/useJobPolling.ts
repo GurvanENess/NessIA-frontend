@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { db } from "../services/db";
 
 // Que fait useJobPolling ?
@@ -21,7 +21,6 @@ export default function useJobPolling() {
       const data = await db.getRunningJobs(sessionId);
       return data;
     } catch (err) {
-      console.log("Error fetching running jobs:", err);
       return [];
     }
   };
@@ -30,8 +29,6 @@ export default function useJobPolling() {
     try {
       const runningJobs = await fetchRunningJobs(sessionId);
       setJobs(runningJobs);
-      console.log("Polling jobs...");
-      console.log("Actual jobs:", runningJobs);
 
       if (
         runningJobs.length === 0 ||
@@ -59,7 +56,6 @@ export default function useJobPolling() {
         return;
       }
 
-      console.log("Started polling jobs for session", sessionId);
       setIsPolling(true);
       resolveRef.current = resolve;
 
@@ -70,7 +66,6 @@ export default function useJobPolling() {
   const stopPolling = () => {
     if (intervalRef.current) {
       clearTimeout(intervalRef.current);
-      console.log("Stopping polling");
     }
     intervalRef.current = null;
     setIsPolling(false);

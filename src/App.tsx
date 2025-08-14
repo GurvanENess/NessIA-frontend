@@ -3,11 +3,11 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatsDisplay from "./pages/Chats";
 import CompanySelectionPage from "./pages/CompanySelection/index";
 import Home from "./pages/Home";
-import ChatAI from "./pages/Home/components/ChatAI";
 import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
 import Register from "./pages/Register";
+import CompanyProtectedResource from "./routes/CompanyProtectedRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import NotFound from "./shared/components/errors/NotFound";
@@ -15,7 +15,6 @@ import FileSelectModal from "./shared/components/FileSelectModal";
 import AppLayout from "./shared/components/layouts/AppLayout";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { AuthProvider } from "./shared/contexts/AuthContext";
-import CompanyProtectedResource from "./routes/CompanyProtectedRoute";
 
 // Il y a quelque chose qui est fucked ici avec les routes, et les autorisations. En gros :
 // - On ne PEUT PAS accéder aux pages de posts et de chats si on a pas : COMPANY, USER de définis
@@ -60,9 +59,9 @@ const App: React.FC = () => {
                           <FileSelectModal
                             onValidate={() => true}
                             isOpen={isModalOpen}
-                            onFileSelect={(file) =>
-                              console.log("File selected:", file)
-                            }
+                            onFileSelect={(file) => {
+                              // File selected
+                            }}
                             onClose={() => {
                               setIsModalOpen(false);
                             }}

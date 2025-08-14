@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../shared/contexts/AuthContext";
-import { usePostsStore } from "./store/postsStore";
-import { PostsService } from "./services/postsService";
-import { Post } from "./entities/PostTypes";
-import { db } from "../../shared/services/db";
 import { useApp } from "../../shared/contexts/AppContext";
-import PostsHeader from "./components/PostsHeader";
+import { useAuth } from "../../shared/contexts/AuthContext";
+import { db } from "../../shared/services/db";
 import PostsGrid from "./components/PostsGrid";
+import PostsHeader from "./components/PostsHeader";
+import { Post } from "./entities/PostTypes";
+import { PostsService } from "./services/postsService";
+import { usePostsStore } from "./store/postsStore";
 
 const PostsDisplay: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +52,6 @@ const PostsDisplay: React.FC = () => {
     if (!searchQuery.trim()) {
       setFilteredPosts(posts);
     } else {
-      console.log(posts);
       const filtered = posts.filter(
         (post) =>
           post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

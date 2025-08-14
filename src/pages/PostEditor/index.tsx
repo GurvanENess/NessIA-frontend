@@ -1,14 +1,13 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import { useApp } from "../../shared/contexts/AppContext";
+import { useCompanyResourceAccess } from "../../shared/hooks/useCompanyResourceAccess";
+import { db } from "../../shared/services/db";
 import PostForm from "./PostForm";
 import PostPreview from "./PostPreview";
-import { useApp } from "../../shared/contexts/AppContext";
-import { useParams } from "react-router-dom";
-import { db } from "../../shared/services/db";
-import { getHashtags, formatPostToDb } from "./utils/utils";
-import { toast } from "react-hot-toast";
-import { wait } from "../../shared/utils/utils";
-import { useCompanyResourceAccess } from "../../shared/hooks/useCompanyResourceAccess";
+import { formatPostToDb, getHashtags } from "./utils/utils";
 
 const PostEditor: React.FC = () => {
   const { state, dispatch } = useApp();
@@ -56,7 +55,6 @@ const PostEditor: React.FC = () => {
     dispatch({ type: "SAVE_POST_START" });
     try {
       const formatedPost = formatPostToDb(postData);
-      console.log(formatedPost);
       await db.updatePostById(postId, formatedPost, state.currentCompany.id);
 
       dispatch({ type: "SAVE_POST_SUCCESS" });

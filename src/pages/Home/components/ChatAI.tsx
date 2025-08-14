@@ -60,7 +60,6 @@ const Chat: React.FC = () => {
     }
 
     return () => {
-      console.log("UNMOUNTED");
       stopPolling();
     };
   }, [sessionIdParam]);
@@ -109,8 +108,6 @@ const Chat: React.FC = () => {
         userToken: user?.token,
         companyId: state.currentCompany?.id || "1",
       });
-
-      console.log(response);
 
       await startPolling(response.sessionId);
       await fetchMessages(response.sessionId);
@@ -175,8 +172,6 @@ const Chat: React.FC = () => {
         agentIndex: job.need_user_input?.agent_index,
         companyId: state.currentCompany?.id || "1",
       });
-
-      console.log(response);
 
       await startPolling(sessionIdParam);
       await fetchMessages(sessionIdParam);

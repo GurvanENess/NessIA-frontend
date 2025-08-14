@@ -8,7 +8,6 @@ import { db } from "../../shared/services/db";
 import { Company } from "../../shared/store/AppReducer";
 
 const CompanySelectionPage: React.FC = () => {
-  console.log("here");
   const { setCurrentCompany } = useApp();
   const { user } = useAuth();
   const navigate = useNavigate();

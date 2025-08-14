@@ -197,7 +197,6 @@ export const db = {
     Attention. Par effet cascade en supprimant une session
     on supprime a minima le post et tous les messages associés
     */
-    console.log("HERE", id);
     try {
       const response = await supabaseClient
         .from("session")
@@ -221,7 +220,6 @@ export const db = {
         .eq("company_id", companyId)
         .select();
 
-      console.log(data);
       if (error) throw error;
 
       return data;
