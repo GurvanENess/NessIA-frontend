@@ -1,27 +1,24 @@
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  X,
-  Settings,
-  HelpCircle,
+  ChevronRight,
+  Edit,
   FileText,
   MessageCircle,
-  ChevronRight,
   MoreHorizontal,
-  Edit,
   Trash2,
+  X,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
+import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
-import { useEffect, useRef } from "react";
 import { db } from "../../services/db";
-import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
-import UserAccountDropdown from "../UserAccountDropdown";
-import RenameChatModal from "../RenameChatModal";
-import DeleteChatModal from "../DeleteChatModal";
 import { Company } from "../../store/AppReducer";
+import DeleteChatModal from "../DeleteChatModal";
+import RenameChatModal from "../RenameChatModal";
+import UserAccountDropdown from "../UserAccountDropdown";
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -198,7 +195,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   return (
     <>
       <div
-        className={`fixed inset-0 bg-opacity-50 z-50 transition-opacity ${
+        className={`burger-menu-desktop fixed inset-0 bg-opacity-50 z-50 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -207,12 +204,12 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
           initial={{ x: -320 }}
           animate={{ x: isOpen ? 0 : -320 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="absolute top-0 left-0 w-80 h-full bg-white shadow-2xl"
+          className="absolute top-0 left-0 h-full w-80 bg-white shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9]">
+            <div className="h-[65px] p-4 border-b border-gray-100 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">

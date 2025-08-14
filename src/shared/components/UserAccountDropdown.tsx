@@ -107,7 +107,12 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
             <div className="px-4 py-2 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">{user?.email}</span>
-                <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                <button
+                  onClick={() => {
+                    alert("NOT IMPLEMENTED YET");
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                >
                   <Plus className="w-4 h-4 text-gray-500" />
                 </button>
               </div>
