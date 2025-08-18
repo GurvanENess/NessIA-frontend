@@ -5,6 +5,16 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-y: auto;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -33,6 +43,7 @@
 /* Ensure font loading */
 :root {
   font-family: "Commissioner", sans-serif;
+  --scrollbar-width: calc(100vw - (100vw - 100%));
 }
 
 .font-coolvetica {
@@ -41,7 +52,12 @@
 
 /* App layout on > 768px screens (desktop / tablets) */
 
-@media (min-width: 768px) {
+.app-layout-desktop {
+  grid-template-columns: 1fr;
+}
+@media screen and (min-width: 768px) {
+  /* HARCODE: NE MARCHERA PAS SUR DIFFERENTS NAVIGATEURS */
+
   .app-layout-desktop {
     grid-template-columns: 290px 1fr;
     grid-template-rows: auto 1fr;
@@ -57,7 +73,7 @@
 
   .burger-menu-desktop {
     grid-row: 1 / 3;
-    position: static !important;
+    width: 290px !important;
     height: 100vh !important;
     transform: none !important;
     opacity: 1 !important;

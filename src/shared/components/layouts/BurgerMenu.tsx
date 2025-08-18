@@ -23,6 +23,8 @@ import UserAccountDropdown from "../UserAccountDropdown";
 interface BurgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen: () => void;
+  appDimensions: { width: number; height: number } | null;
 }
 
 interface MenuSection {
@@ -36,7 +38,12 @@ interface MenuSection {
   }[];
 }
 
-const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
+const BurgerMenu: React.FC<BurgerMenuProps> = ({
+  isOpen,
+  onClose,
+  onOpen,
+  appDimensions,
+}) => {
   const { dispatch, state } = useApp();
   const { user } = useAuth();
   const { conversations, fetchChats } = useChatsStore();
@@ -53,6 +60,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     title: string;
   } | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [isAutomaticallyClosed, setIsAutomaticallyClosed] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
 
   // Load recent chats when menu opens
@@ -114,6 +122,20 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     dispatch({ type: "RESET_CHAT" });
     onClose();
   };
+
+  // Force BurgerMenu to be open when width is superior than 768px
+  useEffect(() => {
+    console.log(appDimensions);
+    if (appDimensions && appDimensions.width > 768) {
+      onOpen();
+      setIsAutomaticallyClosed(false);
+    }
+
+    if (appDimensions && appDimensions.width <= 768 && !isAutomaticallyClosed) {
+      onClose();
+      setIsAutomaticallyClosed(true);
+    }
+  });
 
   const menuSections: MenuSection[] = [];
 
@@ -201,8 +223,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
         onClick={onClose}
       >
         <motion.div
-          initial={{ x: -320 }}
-          animate={{ x: isOpen ? 0 : -320 }}
+          initial={{ x: -290 }}
+          animate={{ x: isOpen ? 0 : -290 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="absolute top-0 left-0 h-full bg-white shadow-xl"
           onClick={(e) => e.stopPropagation()}
@@ -228,12 +250,14 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                     <p className="text-xs text-purple-100">Assistant IA</p>
                   </div>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
+                {appDimensions && appDimensions.width < 768 && (
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                )}
               </div>
             </div>
 
