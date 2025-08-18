@@ -1,7 +1,6 @@
-import React from "react";
-import { useLocation, Outlet } from "react-router-dom";
-import { useCompanyResourceAccess } from "../shared/hooks/useCompanyResourceAccess";
+import { Outlet, useLocation } from "react-router-dom";
 import LoadingScreen from "../shared/components/LoadingScreen";
+import { useCompanyResourceAccess } from "../shared/hooks/useCompanyResourceAccess";
 
 const isPost = (url: string) => /^\/posts\/[0-9]+/.test(url);
 const isChat = (url: string) => /^\/chats\/[a-zA-Z0-9]+/.test(url);

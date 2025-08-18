@@ -41,7 +41,7 @@
 
 /* App layout on > 768px screens (desktop / tablets) */
 
-/* @media (min-width: 768px) {
+@media (min-width: 768px) {
   .app-layout-desktop {
     grid-template-columns: 290px 1fr;
     grid-template-rows: auto 1fr;
@@ -73,5 +73,3 @@
     position: static !important;
   }
 }
-
-*/

@@ -15,12 +15,8 @@ import FileSelectModal from "./shared/components/FileSelectModal";
 import AppLayout from "./shared/components/layouts/AppLayout";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { AuthProvider } from "./shared/contexts/AuthContext";
-import CompanyProtectedResource from "./routes/CompanyProtectedRoute";
 
-// Il y a quelque chose qui est fucked ici avec les routes, et les autorisations. En gros :
-// - On ne PEUT PAS accéder aux pages de posts et de chats si on a pas : COMPANY, USER de définis
-// - On ne PEUT PAS accéder à la page de sélection de compagnie si on a pas : USER de défini
-// - On ne PEUT PAS accéder aux
+// Il y a quelque chose qui est fucked ici avec
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,11 +44,8 @@ const App: React.FC = () => {
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/posts" element={<PostsDisplay />} />
+                    <Route path="/posts/:postId" element={<PostEditor />} />
                     <Route path="/chats" element={<ChatsDisplay />} />
-                    <Route element={<CompanyProtectedResource />}>
-                      <Route path="/posts/:postId" element={<PostEditor />} />
-                      <Route path="/chats/:chatId" element={<Home />} />
-                    </Route>
                     <Route
                       path="/modal"
                       element={
@@ -78,6 +71,7 @@ const App: React.FC = () => {
                         </div>
                       }
                     />
+                    <Route path="/chats/:chatId" element={<ChatAI />} />
                     <Route
                       path="/settings"
                       element={<div>Settings Page - Coming Soon</div>}
