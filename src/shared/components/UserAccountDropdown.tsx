@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../contexts/AppContext";
 import { useAuth } from "../contexts/AuthContext";
 import { Company } from "../store/AppReducer";
@@ -155,10 +155,14 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
 
             {/* Settings Section */}
             <div className="py-1">
-              <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left">
+              <Link
+                to="/settings"
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left"
+              >
                 <Settings className="w-4 h-4 text-gray-500" />
                 <span className="text-sm text-gray-700">Paramètres</span>
-              </button>
+              </Link>
               <button className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left">
                 <HelpCircle className="w-4 h-4 text-gray-500" />
                 <span className="text-sm text-gray-700">Aide</span>
