@@ -82,8 +82,8 @@ const SettingsPage: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row p-5 bg-[#E7E9F2]">
           {/* Desktop Sidebar */}
-          <div className="hidden lg:block w-64 p-6 overflow-y-auto">
-            <nav className="space-y-1 max-h-full">
+          <div className="hidden lg:block w-64 p-6">
+            <nav className="space-y-1">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -92,7 +92,7 @@ const SettingsPage: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors whitespace-nowrap ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       isActive
                         ? "bg-gray-200 text-gray-900 font-medium"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -111,8 +111,8 @@ const SettingsPage: React.FC = () => {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="lg:hidden border-b border-gray-200 bg-white overflow-hidden">
-            <div className="flex overflow-x-auto scrollbar-hide px-4 pb-1">
+          <div className="lg:hidden border-b border-gray-200 bg-white">
+            <div className="flex overflow-x-auto scrollbar-hide px-4">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -121,7 +121,7 @@ const SettingsPage: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex-shrink-0 ${
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                       isActive
                         ? "border-[#7C3AED] text-[#7C3AED]"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -136,14 +136,14 @@ const SettingsPage: React.FC = () => {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 lg:border-l lg:border-gray-200 overflow-hidden">
+          <div className="flex-1 lg:border-l lg:border-gray-200">
             <div className="bg-white lg:m-6 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 min-h-[600px]">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className="p-6 overflow-y-auto max-h-full"
+                className="p-6"
               >
                 <ActiveComponent />
               </motion.div>
