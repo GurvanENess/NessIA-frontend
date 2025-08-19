@@ -112,7 +112,7 @@ const SettingsPage: React.FC = () => {
 
           {/* Mobile Tabs */}
           <div className="lg:hidden border-b border-gray-200 bg-white">
-            <div className="flex overflow-x-auto scrollbar-hide px-4 flex-nowrap">
+            <div className="flex overflow-x-auto px-4 flex-nowrap">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
