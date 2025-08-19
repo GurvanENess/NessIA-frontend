@@ -37,11 +37,11 @@ const AppLayout: React.FC = () => {
 
   return (
     <div
-      className="app-layout-desktop min-h-screen bg-[#E7E9F2] grid"
+      className="grid-cols-1 md:grid-cols-[290px_1fr] md:grid-rows-[auto_1fr] min-h-screen bg-[#E7E9F2] grid"
       ref={appContainerRef}
     >
       {/* Mobile Header */}
-      <header className="flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
+      <header className="md:col-[2_/_3] flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
         <div className="flex items-center space-x-2">
           {dimensions && dimensions.width < 768 && (
             <button
@@ -80,7 +80,7 @@ const AppLayout: React.FC = () => {
         appDimensions={dimensions}
       />
       {/* Main Content Area */}
-      <main className="flex-1 overflow-auto translate-y-0">
+      <main className="flex-1 md:col-[2_/_3] overflow-auto translate-y-0">
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
