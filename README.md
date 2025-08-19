@@ -1,6 +1,7 @@
 # Documentation du projet
 
 Ce dépôt contient l'interface web de NessIA, réalisée avec des outils modernes autour de React et TypeScript.
+Branche feature layout
 
 ## API n8n actuelle du projet
 
