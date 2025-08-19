@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
 import Register from "./pages/Register";
+import SettingsPage from "./pages/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import NotFound from "./shared/components/errors/NotFound";
@@ -73,8 +74,8 @@ const App: React.FC = () => {
                     />
                     <Route path="/chats/:chatId" element={<ChatAI />} />
                     <Route
-                      path="/settings"
-                      element={<div>Settings Page - Coming Soon</div>}
+                      path="/settings/*"
+                      element={<SettingsPage />}
                     />
                     <Route path="/post/new" element={<PostEditor />} />
                   </Route>
