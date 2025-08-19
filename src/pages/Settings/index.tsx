@@ -111,8 +111,8 @@ const SettingsPage: React.FC = () => {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="lg:hidden border-b border-gray-200 bg-white overflow-hidden">
-            <div className="flex overflow-x-auto scrollbar-hide px-4 pb-0">
+          <div className="lg:hidden border-b border-gray-200 bg-white">
+            <div className="flex overflow-x-auto scrollbar-hide px-4">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -121,7 +121,7 @@ const SettingsPage: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors flex-shrink-0 ${
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                       isActive
                         ? "border-[#7C3AED] text-[#7C3AED]"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
