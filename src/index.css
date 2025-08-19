@@ -40,6 +40,11 @@ body {
   display: none; /* Chrome, Safari and Opera */
 }
 
+/* Smooth scrolling for horizontal tabs */
+.scrollbar-hide {
+  scroll-behavior: smooth;
+}
+
 /* Ensure font loading */
 :root {
   font-family: "Commissioner", sans-serif;
