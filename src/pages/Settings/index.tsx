@@ -111,8 +111,8 @@ const SettingsPage: React.FC = () => {
           </div>
 
           {/* Mobile Tabs */}
-          <div className="lg:hidden border-b border-gray-200 bg-white rounded-t-xl shadow-sm">
-            <div className="flex overflow-x-auto px-4 flex-nowrap">
+          <div className="lg:hidden border-b border-gray-200 bg-white rounded-t-xl shadow-lg">
+            <div className="flex overflow-x-auto px-4 flex-nowrap custom-scrollbar">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -137,7 +137,7 @@ const SettingsPage: React.FC = () => {
 
           {/* Content Area */}
           <div className="flex-1 lg:border-l lg:border-gray-200">
-            <div className="bg-white lg:m-6 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 rounded-b-xl shadow-sm min-h-[600px]">
+            <div className="bg-white lg:m-6 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 rounded-b-xl shadow-lg min-h-[600px]">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 20 }}
