@@ -53,7 +53,7 @@ body {
 /* Custom horizontal scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -61,7 +61,7 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
   border-radius: 3px;
 }
 
