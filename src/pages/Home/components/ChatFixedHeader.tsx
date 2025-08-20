@@ -57,7 +57,8 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-sm border-b border-gray-200/50">
+    <div className="fixed top-0 left-0 right-0 z-30 bg-[#E7E9F2]/90 backdrop-blur-sm border-b border-gray-200/50">
+      <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
       <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Chat Title */}
         <div className="flex-1 min-w-0">
@@ -117,6 +118,10 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Blur gradient at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-b from-[#E7E9F2]/20 to-transparent pointer-events-none" />
+    </div>
 
       {/* Blur gradient at bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
