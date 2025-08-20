@@ -7,6 +7,7 @@ import ChatAI from "./pages/Home/components/ChatAI";
 import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
+import PrivacyPolicy from "./pages/PrivacyPolicy/index";
 import Register from "./pages/Register";
 import SettingsPage from "./pages/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -73,11 +74,9 @@ const App: React.FC = () => {
                       }
                     />
                     <Route path="/chats/:chatId" element={<ChatAI />} />
-                    <Route
-                      path="/settings/*"
-                      element={<SettingsPage />}
-                    />
+                    <Route path="/settings/*" element={<SettingsPage />} />
                     <Route path="/post/new" element={<PostEditor />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   </Route>
                 </Route>
                 {/* Add more protected routes here */}
