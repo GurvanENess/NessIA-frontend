@@ -41,7 +41,7 @@ const AppLayout: React.FC = () => {
       ref={appContainerRef}
     >
       {/* Mobile Header */}
-      <header className="md:col-[2_/_3] flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
+      <header className="md:col-[2_/_3] md:hidden flex items-center justify-between px-4 h-16 sticky top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
         <div className="flex items-center space-x-2">
           {dimensions && dimensions.width < 768 && (
             <button

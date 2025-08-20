@@ -78,7 +78,9 @@ const SettingsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Page Title */}
         <div className="p-6 pb-0">
-          <h1 className="text-3xl font-coolvetica text-gray-900">Paramètres</h1>
+          <h1 className="text-3xl font-coolvetica text-gray-900 lg:pl-5">
+            Paramètres
+          </h1>
         </div>
 
         <div className="flex flex-col lg:flex-row p-5 bg-[#E7E9F2]">
