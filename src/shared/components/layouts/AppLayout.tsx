@@ -55,9 +55,6 @@ const AppLayout: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          {fabProps && (
-            <HeaderActionButton type={fabProps.type} id={fabProps.id} />
-          )}
           <button
             className="p-2 hover:bg-[#E7E9F2] rounded-full relative"
             onClick={() => {

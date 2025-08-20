@@ -1,15 +1,20 @@
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
+import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { Message } from "../../../shared/entities/ChatTypes";
 import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
 import useJobPolling from "../../../shared/hooks/useJobPolling";
 import { db } from "../../../shared/services/db";
+import DeleteChatModal from "../../../shared/components/DeleteChatModal";
+import RenameChatModal from "../../../shared/components/RenameChatModal";
 import { AiClient } from "../services/AIClient";
 import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
 import ChatInput from "./ChatInput";
+import ChatFixedHeader from "./ChatFixedHeader";
 import MessageList from "./MessageList";
 import QuickActions from "./QuickActions";
 
@@ -32,6 +37,15 @@ const Chat: React.FC = () => {
   } = state;
   const { jobs, startPolling, stopPolling } = useJobPolling();
   const navigate = useNavigate();
+  const { conversations, fetchChats, renameChat, deleteChat } = useChatsStore();
+
+  // Modal states
+  const [isRenameModalOpen, setIsRenameModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [selectedChat, setSelectedChat] = React.useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Sur la page d'accueil, on n'a pas besoin de vérifier l'accès
   const isHomePage = !sessionIdParam;
@@ -44,6 +58,27 @@ const Chat: React.FC = () => {
   } = useCompanyResourceAccess("chat");
 
   const isFirstMessage = messages.length === 0;
+  
+  // Get current chat data
+  const currentChat = conversations.find(chat => chat.id === sessionIdParam);
+  const chatTitle = chatData?.title || currentChat?.title || "Conversation";
+
+  // Load chats when component mounts (for header functionality)
+  useEffect(() => {
+    const loadChats = async () => {
+      if (sessionIdParam && state.currentCompany?.id) {
+        try {
+          const userChats = await db.getAllChats(state.currentCompany.id);
+          const userChatsFormated = formatChatsforUi(userChats);
+          fetchChats(userChatsFormated);
+        } catch (err) {
+          console.error("Failed to load chats for header:", err);
+        }
+      }
+    };
+
+    loadChats();
+  }, [sessionIdParam, state.currentCompany?.id]);
 
   // ===== LOGIQUE DE GESTION DES SESSIONS =====
 
@@ -193,6 +228,37 @@ const Chat: React.FC = () => {
     await handleSendMessage(text, true);
   };
 
+  // ===== CHAT MANAGEMENT HANDLERS =====
+
+  const handleRenameChat = () => {
+    if (sessionIdParam) {
+      setSelectedChat({ id: sessionIdParam, title: chatTitle });
+      setIsRenameModalOpen(true);
+    }
+  };
+
+  const handleDeleteChat = () => {
+    if (sessionIdParam) {
+      setSelectedChat({ id: sessionIdParam, title: chatTitle });
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const handleRenameConfirm = (newTitle: string) => {
+    if (selectedChat) {
+      renameChat(selectedChat.id, newTitle);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedChat) {
+      deleteChat(selectedChat.id);
+      // Navigate to home after deletion
+      dispatch({ type: "RESET_CHAT" });
+      navigate("/");
+    }
+  };
+
   // ===== RENDERING =====
 
   // Si on vérifie l'accès à un chat spécifique, afficher un indicateur
@@ -216,7 +282,7 @@ const Chat: React.FC = () => {
   if (isHomePage) {
     return (
       <>
-        <div className="flex-1 pt-16 md:pb-36 pb-28 overflow-hidden">
+        <div className="flex-1 pt-20 md:pb-36 pb-28 overflow-hidden">
           <div className="max-w-3xl mx-auto px-4">
             {messages.length === 0 && (
               <div className="flex justify-center items-center min-h-[60vh]">
@@ -267,7 +333,17 @@ const Chat: React.FC = () => {
 
   return (
     <>
-      <div className="flex-1 pt-16 md:pb-36 pb-28 overflow-hidden">
+      {/* Fixed Header for Chat */}
+      {sessionIdParam && (
+        <ChatFixedHeader
+          chatId={sessionIdParam}
+          chatTitle={chatTitle}
+          onRenameChat={handleRenameChat}
+          onDeleteChat={handleDeleteChat}
+        />
+      )}
+
+      <div className="flex-1 pt-20 md:pb-36 pb-28 overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
           {messages.length === 0 && (
             <div className="flex justify-center items-center min-h-[60vh]">
@@ -312,6 +388,33 @@ const Chat: React.FC = () => {
           <QuickActions onSelect={handleQuickAction} />
         )}
       </ChatInput>
+
+      {/* Modals */}
+      {selectedChat && (
+        <>
+          <RenameChatModal
+            isOpen={isRenameModalOpen}
+            onClose={() => {
+              setIsRenameModalOpen(false);
+              setSelectedChat(null);
+            }}
+            chatId={selectedChat.id}
+            currentTitle={selectedChat.title}
+            onRenameConfirm={handleRenameConfirm}
+          />
+
+          <DeleteChatModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setSelectedChat(null);
+            }}
+            chatId={selectedChat.id}
+            chatTitle={selectedChat.title}
+            onDeleteConfirm={handleDeleteConfirm}
+          />
+        </>
+      )}
     </>
   );
 };
