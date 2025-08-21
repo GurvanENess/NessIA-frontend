@@ -224,10 +224,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         onClick={onClose}
       >
         <motion.div
-          initial={{ x: -320 }}
-          animate={{ x: isOpen ? 0 : -320 }}
+          initial={{ x: -290 }}
+          animate={{ x: isOpen ? 0 : -290 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="absolute top-0 left-0 h-full bg-white shadow-xl"
+          className="absolute top-0 left-0 h-full bg-white shadow-xl w-full"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-full flex flex-col">

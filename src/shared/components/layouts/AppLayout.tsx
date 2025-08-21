@@ -4,7 +4,6 @@ import React, { useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Outlet, useLocation } from "react-router-dom";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
-import HeaderActionButton from "../HeaderActionButton";
 import BurgerMenu from "./BurgerMenu";
 
 const AppLayout: React.FC = () => {
@@ -77,7 +76,7 @@ const AppLayout: React.FC = () => {
         appDimensions={dimensions}
       />
       {/* Main Content Area */}
-      <main className="flex-1 md:col-[2_/_3] overflow-auto translate-y-0">
+      <main className="flex-1 md:col-[2_/_3] translate-y-0">
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>

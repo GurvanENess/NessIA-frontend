@@ -1,8 +1,7 @@
-import React, { useRef, useEffect } from "react";
-import { Send, Image } from "lucide-react";
-import toast from "react-hot-toast";
-import JobStatus from "./JobStatus";
+import { Image, Send } from "lucide-react";
+import React, { useEffect, useRef } from "react";
 import { Job } from "../../../shared/entities/JobTypes";
+import JobStatus from "./JobStatus";
 
 interface ChatInputProps {
   value: string;
@@ -58,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       {/* Affichage du statut des jobs */}
       <JobStatus jobs={jobs} onSuggestionClick={handleSuggestionClick} />
 
-      <div className="fixed bottom-0 left-0 right-0 md:pb-8">
+      <div className="sticky bottom-0 left-0 right-0 md:pb-8">
         <form
           onSubmit={(e) => {
             e.preventDefault();
