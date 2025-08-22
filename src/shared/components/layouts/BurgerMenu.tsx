@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -44,10 +43,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   onOpen,
   appDimensions,
 }) => {
-  const { dispatch, state } = useApp();
+  const { dispatch, state, fetchChats, renameChat } = useApp();
   const { user } = useAuth();
-  const { conversations, fetchChats } = useChatsStore();
   const { chatId: currentChatId } = useParams();
+  const { conversations } = state.chats;
 
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [showActionsForChatId, setShowActionsForChatId] = useState<
@@ -78,8 +77,11 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       }
     };
 
-    loadRecentChats();
-  }, [isOpen, state.currentCompany?.id]);
+    // Ne charger que si le menu s'ouvre et qu'on n'a pas déjà les conversations
+    if (isOpen && state.currentCompany?.id && conversations.length === 0) {
+      loadRecentChats();
+    }
+  }, [isOpen, state.currentCompany?.id]); // ← Suppression de fetchChats des dépendances
 
   // Load companies when menu opens
   useEffect(() => {
@@ -135,7 +137,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       onClose();
       setIsMobile(true);
     }
-  });
+  }, [appDimensions, onOpen, onClose, isMobile]);
 
   const menuSections: MenuSection[] = [];
 
@@ -189,13 +191,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
   const handleRenameConfirm = (newTitle: string) => {
     if (selectedChat) {
-      // Update the local state immediately for better UX
-      const updatedConversations = conversations.map((chat) =>
-        chat.id === selectedChat.id
-          ? { ...chat, title: newTitle, updatedAt: new Date() }
-          : chat
-      );
-      fetchChats(updatedConversations);
+      // Utiliser la même logique que ChatAI
+      renameChat(selectedChat.id, newTitle);
     }
   };
 

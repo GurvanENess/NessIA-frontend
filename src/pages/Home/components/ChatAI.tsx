@@ -1,20 +1,19 @@
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
+import DeleteChatModal from "../../../shared/components/DeleteChatModal";
+import RenameChatModal from "../../../shared/components/RenameChatModal";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { Message } from "../../../shared/entities/ChatTypes";
 import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
 import useJobPolling from "../../../shared/hooks/useJobPolling";
 import { db } from "../../../shared/services/db";
-import DeleteChatModal from "../../../shared/components/DeleteChatModal";
-import RenameChatModal from "../../../shared/components/RenameChatModal";
 import { AiClient } from "../services/AIClient";
 import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
-import ChatInput from "./ChatInput";
 import ChatFixedHeader from "./ChatFixedHeader";
+import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
 import QuickActions from "./QuickActions";
 
@@ -24,20 +23,13 @@ const Chat: React.FC = () => {
   const { user } = useAuth();
   const { chatId: sessionIdParam } = useParams();
   const appContext = useApp();
-  const { dispatch, state } = appContext;
+  const { dispatch, state, fetchChats, renameChat, deleteChat } = appContext;
   const {
-    chat: {
-      sessionId,
-      messages,
-      messageInput,
-      isLoading,
-      error,
-      showQuickActions,
-    },
+    chat: { sessionId, messages, messageInput, isLoading, showQuickActions },
+    chats: { conversations },
   } = state;
   const { jobs, startPolling, stopPolling } = useJobPolling();
   const navigate = useNavigate();
-  const { conversations, fetchChats, renameChat, deleteChat } = useChatsStore();
 
   // Modal states
   const [isRenameModalOpen, setIsRenameModalOpen] = React.useState(false);
@@ -58,10 +50,11 @@ const Chat: React.FC = () => {
   } = useCompanyResourceAccess("chat");
 
   const isFirstMessage = messages.length === 0;
-  
+
   // Get current chat data
-  const currentChat = conversations.find(chat => chat.id === sessionIdParam);
-  const chatTitle = chatData?.title || currentChat?.title || "Conversation";
+  const currentChat = conversations.find((chat) => chat.id === sessionIdParam);
+  const chatTitle = currentChat?.title || chatData?.title || "Conversation";
+  const associatedPostId = currentChat?.associatedPostId;
 
   // Load chats when component mounts (for header functionality)
   useEffect(() => {
@@ -77,8 +70,15 @@ const Chat: React.FC = () => {
       }
     };
 
-    loadChats();
-  }, [sessionIdParam, state.currentCompany?.id]);
+    // Ne charger que si on n'a pas déjà les conversations ou si la company a changé
+    if (
+      sessionIdParam &&
+      state.currentCompany?.id &&
+      conversations.length === 0
+    ) {
+      loadChats();
+    }
+  }, [sessionIdParam, state.currentCompany?.id]); // ← Suppression de fetchChats des dépendances
 
   // ===== LOGIQUE DE GESTION DES SESSIONS =====
 
@@ -259,6 +259,10 @@ const Chat: React.FC = () => {
     }
   };
 
+  const handleNavigateToPost = (postId: string) => {
+    navigate(`/posts/${postId}`);
+  };
+
   // ===== RENDERING =====
 
   // Si on vérifie l'accès à un chat spécifique, afficher un indicateur
@@ -340,81 +344,85 @@ const Chat: React.FC = () => {
           chatTitle={chatTitle}
           onRenameChat={handleRenameChat}
           onDeleteChat={handleDeleteChat}
+          associatedPostId={associatedPostId}
+          onNavigateToPost={handleNavigateToPost}
         />
       )}
 
-      <div className="flex-1 pt-20 md:pb-36 pb-28 overflow-hidden">
-        <div className="max-w-3xl mx-auto px-4">
-          {messages.length === 0 && (
-            <div className="flex justify-center items-center min-h-[60vh]">
-              <div className="relative w-full">
-                <img
-                  src="/assets/green_star.svg"
-                  alt="Star Background"
-                  className="max-w-[150%] w-[150%] top-1/2 left-1/2 overflow-hidden absolute translate-x-[-50%] translate-y-[-50%] opacity-70 transform transition-opacity duration-1000 [filter:hue-rotate(235deg)_saturate(150%)]"
-                />
-                <div className="absolute inset-0 flex flex-col w-full items-center justify-center text-center p-4 sm:p-6 md:p-8">
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-coolvetica text-black mb-2">
-                    Prêt à créer des posts qui captivent ?
-                  </h2>
-                  <p className="font-coolvetica w-[60%] text-centerleading-5 text-md sm:text-base md:text-lg text-black">
-                    Dites-nous ce que vous voulez partager !
-                  </p>
+      <div className="flex-wrapper flex flex-col min-h-screen mt-[-48px]">
+        <div className="flex-1 pt-20 overflow-hidden">
+          <div className="max-w-3xl mx-auto px-4">
+            {messages.length === 0 && (
+              <div className="flex justify-center items-center min-h-[60vh]">
+                <div className="relative w-full">
+                  <img
+                    src="/assets/green_star.svg"
+                    alt="Star Background"
+                    className="max-w-[150%] w-[150%] top-1/2 left-1/2 overflow-hidden absolute translate-x-[-50%] translate-y-[-50%] opacity-70 transform transition-opacity duration-1000 [filter:hue-rotate(235deg)_saturate(150%)]"
+                  />
+                  <div className="absolute inset-0 flex flex-col w-full items-center justify-center text-center p-4 sm:p-6 md:p-8">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-coolvetica text-black mb-2">
+                      Prêt à créer des posts qui captivent ?
+                    </h2>
+                    <p className="font-coolvetica w-[60%] text-centerleading-5 text-md sm:text-base md:text-lg text-black">
+                      Dites-nous ce que vous voulez partager !
+                    </p>
+                  </div>
                 </div>
               </div>
+            )}
+            <div
+              className={`transition-opacity duration-500 ${
+                messages.length === 0 ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              <MessageList messages={messages} />
             </div>
-          )}
-          <div
-            className={`transition-opacity duration-500 ${
-              messages.length === 0 ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            <MessageList messages={messages} />
           </div>
         </div>
-      </div>
 
-      <ChatInput
-        value={messageInput}
-        onChange={(value) =>
-          dispatch({ type: "SET_MESSAGE_INPUT", payload: value })
-        }
-        onSend={handleSendMessage}
-        isLoading={isLoading}
-        jobs={jobs}
-        handleSuggestionClick={handleSuggestionClick}
-      >
-        {isFirstMessage && showQuickActions && (
-          <QuickActions onSelect={handleQuickAction} />
+        <ChatInput
+          value={messageInput}
+          onChange={(value) =>
+            dispatch({ type: "SET_MESSAGE_INPUT", payload: value })
+          }
+          onSend={handleSendMessage}
+          isLoading={isLoading}
+          jobs={jobs}
+          handleSuggestionClick={handleSuggestionClick}
+        >
+          {isFirstMessage && showQuickActions && (
+            <QuickActions onSelect={handleQuickAction} />
+          )}
+        </ChatInput>
+
+        {/* Modals */}
+        {selectedChat && (
+          <>
+            <RenameChatModal
+              isOpen={isRenameModalOpen}
+              onClose={() => {
+                setIsRenameModalOpen(false);
+                setSelectedChat(null);
+              }}
+              chatId={selectedChat.id}
+              currentTitle={selectedChat.title}
+              onRenameConfirm={handleRenameConfirm}
+            />
+
+            <DeleteChatModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => {
+                setIsDeleteModalOpen(false);
+                setSelectedChat(null);
+              }}
+              chatId={selectedChat.id}
+              chatTitle={selectedChat.title}
+              onDeleteConfirm={handleDeleteConfirm}
+            />
+          </>
         )}
-      </ChatInput>
-
-      {/* Modals */}
-      {selectedChat && (
-        <>
-          <RenameChatModal
-            isOpen={isRenameModalOpen}
-            onClose={() => {
-              setIsRenameModalOpen(false);
-              setSelectedChat(null);
-            }}
-            chatId={selectedChat.id}
-            currentTitle={selectedChat.title}
-            onRenameConfirm={handleRenameConfirm}
-          />
-
-          <DeleteChatModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => {
-              setIsDeleteModalOpen(false);
-              setSelectedChat(null);
-            }}
-            chatId={selectedChat.id}
-            chatTitle={selectedChat.title}
-            onDeleteConfirm={handleDeleteConfirm}
-          />
-        </>
-      )}
+      </div>
     </>
   );
 };

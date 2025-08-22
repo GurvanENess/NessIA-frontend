@@ -13,30 +13,12 @@ const AppLayout: React.FC = () => {
   const dimensions = useContainerDimensions(appContainerRef);
   const location = useLocation();
 
-  // Extract type and ID from current path for FAB
-  const getFABProps = () => {
-    const path = location.pathname;
-
-    // Match /posts/:id pattern
-    const postMatch = path.match(/^\/posts\/([^\/]+)$/);
-    if (postMatch) {
-      return { type: "post" as const, id: postMatch[1] };
-    }
-
-    // Match /chats/:id pattern
-    const chatMatch = path.match(/^\/chats\/([^\/]+)$/);
-    if (chatMatch) {
-      return { type: "chat" as const, id: chatMatch[1] };
-    }
-
-    return null;
-  };
-
-  const fabProps = getFABProps();
+  const path = location.pathname;
+  const isSettingsPage = path.includes("/settings");
 
   return (
     <div
-      className="grid-cols-1 md:grid-cols-[290px_1fr] md:grid-rows-[auto_1fr] min-h-screen bg-[#E7E9F2] grid"
+      className="grid-cols-1 md:grid-cols-[290px_1fr] lg:grid-cols-[290px_1fr_max-content] md:grid-rows-[auto_1fr] min-h-screen bg-[#E7E9F2] grid"
       ref={appContainerRef}
     >
       {/* Mobile Header */}
@@ -76,11 +58,21 @@ const AppLayout: React.FC = () => {
         appDimensions={dimensions}
       />
       {/* Main Content Area */}
-      <main className="flex-1 md:col-[2_/_3] translate-y-0">
+      <main
+        className={`flex-1 md:col-[2_/_3] ${
+          isSettingsPage && "overflow-x-auto"
+        }`}
+      >
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
       </main>
+
+      <div className="hidden lg:block lg:col-[3_/_4] bg-red-500 h-full p-5">
+        <div className="flex items-start justify-center h-full">
+          <p className="text-xl text-white">This is the post section</p>
+        </div>
+      </div>
 
       {/* Toast Notifications */}
       <Toaster />

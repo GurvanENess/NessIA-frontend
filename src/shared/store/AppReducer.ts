@@ -1,3 +1,7 @@
+import {
+  ChatConversation,
+  ChatsState,
+} from "../../pages/Chats/entities/ChatTypes";
 import { Message } from "../entities/ChatTypes";
 import { PostData } from "../entities/PostTypes";
 
@@ -31,6 +35,7 @@ interface ChatState {
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  chats: ChatsState; // ← Nouveau !
   currentCompany: Company | null;
   error: string | null;
 }
@@ -58,6 +63,22 @@ export type ChatAction =
   | { type: "SHOW_QUICK_ACTIONS" }
   | { type: "RESET_CHAT" };
 
+// Nouveaux types d'actions pour les chats
+export type ChatsAction =
+  | { type: "FETCH_CHATS_START" }
+  | { type: "FETCH_CHATS_SUCCESS"; payload: ChatConversation[] }
+  | { type: "FETCH_CHATS_ERROR"; payload: string }
+  | {
+      type: "SET_SORT";
+      payload: {
+        sortBy: "date" | "title" | "activity";
+        sortOrder: "asc" | "desc";
+      };
+    }
+  | { type: "DELETE_CHAT"; payload: string }
+  | { type: "ARCHIVE_CHAT"; payload: string }
+  | { type: "RENAME_CHAT"; payload: { id: string; newTitle: string } };
+
 export type CompanyAction =
   | { type: "SET_CURRENT_COMPANY"; payload: Company }
   | { type: "CLEAR_CURRENT_COMPANY" }
@@ -66,6 +87,7 @@ export type CompanyAction =
 export type AppAction =
   | PostAction
   | ChatAction
+  | ChatsAction // ← Nouveau !
   | CompanyAction
   | { type: "SET_GLOBAL_ERROR"; payload: string }
   | { type: "CLEAR_GLOBAL_ERROR" };
@@ -90,6 +112,14 @@ export const initialState: AppState = {
     isLoading: false,
     error: null,
     showQuickActions: true,
+  },
+  chats: {
+    // ← Nouveau !
+    conversations: [],
+    isLoading: false,
+    error: null,
+    sortBy: "date",
+    sortOrder: "desc",
   },
   currentCompany: null,
   error: null,
@@ -296,6 +326,98 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         error: null,
+      };
+
+    // Chats Actions - ← Nouveau !
+    case "FETCH_CHATS_START":
+      return {
+        ...state,
+        chats: { ...state.chats, isLoading: true, error: null },
+      };
+
+    case "FETCH_CHATS_SUCCESS":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          isLoading: false,
+          conversations: action.payload,
+          error: null,
+        },
+      };
+
+    case "FETCH_CHATS_ERROR":
+      return {
+        ...state,
+        chats: { ...state.chats, isLoading: false, error: action.payload },
+      };
+
+    case "SET_SORT":
+      const sortedChats = [...state.chats.conversations].sort((a, b) => {
+        let comparison = 0;
+        switch (action.payload.sortBy) {
+          case "date":
+            comparison =
+              a.lastMessageDate.getTime() - b.lastMessageDate.getTime();
+            break;
+          case "title":
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case "activity":
+            comparison = a.messageCount - b.messageCount;
+            break;
+        }
+        return action.payload.sortOrder === "asc" ? comparison : -comparison;
+      });
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: sortedChats,
+          sortBy: action.payload.sortBy,
+          sortOrder: action.payload.sortOrder,
+        },
+      };
+
+    case "DELETE_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.filter(
+            (chat) => chat.id !== action.payload
+          ),
+        },
+      };
+
+    case "ARCHIVE_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.map((chat) =>
+            chat.id === action.payload
+              ? { ...chat, isActive: false, updatedAt: new Date() }
+              : chat
+          ),
+        },
+      };
+
+    case "RENAME_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.map((chat) =>
+            chat.id === action.payload.id
+              ? {
+                  ...chat,
+                  title: action.payload.newTitle,
+                  updatedAt: new Date(),
+                }
+              : chat
+          ),
+        },
       };
 
     default:

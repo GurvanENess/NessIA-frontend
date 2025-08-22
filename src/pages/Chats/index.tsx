@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../shared/contexts/AuthContext";
-import { useChatsStore } from "./store/chatsStore";
-import { ChatsService } from "./services/chatsService";
-import { ChatConversation } from "./entities/ChatTypes";
-import { db } from "../../shared/services/db";
-import ChatsHeader from "./components/ChatsHeader";
-import ChatsGrid from "./components/ChatsGrid";
-import { formatChatsforUi } from "./utils/utils";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "../../shared/contexts/AppContext";
+import { useAuth } from "../../shared/contexts/AuthContext";
+import { db } from "../../shared/services/db";
+import ChatsGrid from "./components/ChatsGrid";
+import ChatsHeader from "./components/ChatsHeader";
+import { ChatConversation } from "./entities/ChatTypes";
+import { ChatsService } from "./services/chatsService";
+import { formatChatsforUi } from "./utils/utils";
 
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { dispatch, state } = useApp();
+  const { dispatch, state, fetchChats, setSort, deleteChat, archiveChat } =
+    useApp();
 
-  const {
-    conversations,
-    isLoading,
-    error,
-    sortBy,
-    sortOrder,
-    fetchChats,
-    setSort,
-    deleteChat,
-    archiveChat,
-  } = useChatsStore();
+  const { conversations, isLoading, error, sortBy, sortOrder } = state.chats;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredChats, setFilteredChats] = useState<ChatConversation[]>([]);
@@ -51,8 +41,11 @@ const ChatsDisplay: React.FC = () => {
       }
     };
 
-    loadChats();
-  }, [user?.id, state.currentCompany?.id]);
+    // Ne charger que si on n'a pas déjà les conversations ou si la company a changé
+    if (user?.id && state.currentCompany?.id && conversations.length === 0) {
+      loadChats();
+    }
+  }, [user?.id, state.currentCompany?.id]); // ← Suppression de fetchChats des dépendances
 
   // Filter chats based on search query
   useEffect(() => {

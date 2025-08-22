@@ -1,10 +1,12 @@
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useReducer,
 } from "react";
+import { ChatConversation } from "../../pages/Chats/entities/ChatTypes";
 import {
   AppAction,
   appReducer,
@@ -23,6 +25,16 @@ interface AppContextType {
   setCurrentCompany: (company: Company) => void;
   clearCurrentCompany: () => void;
   changeCompanyAndReset: (company: Company) => void;
+
+  // Nouveaux helpers pour les chats
+  fetchChats: (chats: ChatConversation[]) => void;
+  setSort: (
+    sortBy: "date" | "title" | "activity",
+    sortOrder: "asc" | "desc"
+  ) => void;
+  deleteChat: (chatId: string) => void;
+  archiveChat: (chatId: string) => void;
+  renameChat: (chatId: string, newTitle: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -84,6 +96,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "CHANGE_COMPANY_AND_RESET", payload: company });
   };
 
+  // Nouveaux helpers pour les chats - STABILISÉS avec useCallback
+  const fetchChats = useCallback((chats: ChatConversation[]) => {
+    dispatch({ type: "FETCH_CHATS_SUCCESS", payload: chats });
+  }, []);
+
+  const setSort = useCallback(
+    (sortBy: "date" | "title" | "activity", sortOrder: "asc" | "desc") => {
+      dispatch({ type: "SET_SORT", payload: { sortBy, sortOrder } });
+    },
+    []
+  );
+
+  const deleteChat = useCallback((chatId: string) => {
+    dispatch({ type: "DELETE_CHAT", payload: chatId });
+  }, []);
+
+  const archiveChat = useCallback((chatId: string) => {
+    dispatch({ type: "ARCHIVE_CHAT", payload: chatId });
+  }, []);
+
+  const renameChat = useCallback((chatId: string, newTitle: string) => {
+    dispatch({ type: "RENAME_CHAT", payload: { id: chatId, newTitle } });
+  }, []);
+
   const value = {
     state,
     dispatch,
@@ -92,6 +128,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     setCurrentCompany,
     clearCurrentCompany,
     changeCompanyAndReset,
+    // Nouveaux helpers
+    fetchChats,
+    setSort,
+    deleteChat,
+    archiveChat,
+    renameChat,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
