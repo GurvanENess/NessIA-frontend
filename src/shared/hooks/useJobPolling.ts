@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import { Job } from "../entities/JobTypes";
 import { db } from "../services/db";
 
 // Que fait useJobPolling ?
@@ -10,11 +11,11 @@ import { db } from "../services/db";
 const POLLING_INTERVAL = 2000;
 
 export default function useJobPolling() {
-  const [jobs, setJobs] = useState<unknown[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [isPolling, setIsPolling] = useState<boolean>(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const resolveRef = useRef<((value: unknown[]) => void) | null>(null);
+  const resolveRef = useRef<((value: Job[]) => void) | null>(null);
 
   const fetchRunningJobs = async (sessionId: string) => {
     try {
@@ -52,7 +53,7 @@ export default function useJobPolling() {
     }
   };
 
-  const startPolling = async (sessionId: string): Promise<unknown[]> => {
+  const startPolling = async (sessionId: string): Promise<Job[]> => {
     return new Promise((resolve, reject) => {
       if (isPolling) {
         reject(new Error("Polling already in progress"));

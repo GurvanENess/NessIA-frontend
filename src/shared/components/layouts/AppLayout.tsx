@@ -13,26 +13,7 @@ const AppLayout: React.FC = () => {
   const dimensions = useContainerDimensions(appContainerRef);
   const location = useLocation();
 
-  // Extract type and ID from current path for FAB
-  const getFABProps = () => {
-    const path = location.pathname;
-
-    // Match /posts/:id pattern
-    const postMatch = path.match(/^\/posts\/([^\/]+)$/);
-    if (postMatch) {
-      return { type: "post" as const, id: postMatch[1] };
-    }
-
-    // Match /chats/:id pattern
-    const chatMatch = path.match(/^\/chats\/([^\/]+)$/);
-    if (chatMatch) {
-      return { type: "chat" as const, id: chatMatch[1] };
-    }
-
-    return null;
-  };
-
-  const fabProps = getFABProps();
+  const isSettingsPage = location.pathname.includes("/settings");
 
   return (
     <div
@@ -76,7 +57,11 @@ const AppLayout: React.FC = () => {
         appDimensions={dimensions}
       />
       {/* Main Content Area */}
-      <main className="flex-1 md:col-[2_/_3] translate-y-0">
+      <main
+        className={`md:col-[2_/_3] flex flex-col h-screen ${
+          isSettingsPage && "overflow-x-auto"
+        }`}
+      >
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
