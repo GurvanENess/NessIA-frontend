@@ -238,6 +238,7 @@ export const db = {
         .in("status", ["running", "waiting_user", "error"])
         .is("finished_at", null);
 
+      console.log(data, error);
       const firstJob = data?.[0];
 
       if (error) throw error;

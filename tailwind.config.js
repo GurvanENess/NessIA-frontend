@@ -8,6 +8,9 @@ export default {
         coolvetica: ['"Coolvetica"', "sans-serif"],
         commissioner: ['"Commissioner"', "sans-serif"],
       },
+      screens: {
+        xs: "460px",
+      },
     },
   },
   plugins: [],

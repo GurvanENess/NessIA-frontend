@@ -6,8 +6,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
+import PrivacyPolicy from "./pages/PrivacyPolicy/index";
 import Register from "./pages/Register";
-import CompanyProtectedResource from "./routes/CompanyProtectedRoute";
+import SettingsPage from "./pages/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import NotFound from "./shared/components/errors/NotFound";
@@ -16,10 +17,7 @@ import AppLayout from "./shared/components/layouts/AppLayout";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { AuthProvider } from "./shared/contexts/AuthContext";
 
-// Il y a quelque chose qui est fucked ici avec les routes, et les autorisations. En gros :
-// - On ne PEUT PAS accéder aux pages de posts et de chats si on a pas : COMPANY, USER de définis
-// - On ne PEUT PAS accéder à la page de sélection de compagnie si on a pas : USER de défini
-// - On ne PEUT PAS accéder aux
+// Il y a quelque chose qui est fucked ici avec
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,11 +45,8 @@ const App: React.FC = () => {
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/posts" element={<PostsDisplay />} />
+                    <Route path="/posts/:postId" element={<PostEditor />} />
                     <Route path="/chats" element={<ChatsDisplay />} />
-                    <Route element={<CompanyProtectedResource />}>
-                      <Route path="/posts/:postId" element={<PostEditor />} />
-                      <Route path="/chats/:chatId" element={<Home />} />
-                    </Route>
                     <Route
                       path="/modal"
                       element={
@@ -77,11 +72,10 @@ const App: React.FC = () => {
                         </div>
                       }
                     />
-                    <Route
-                      path="/settings"
-                      element={<div>Settings Page - Coming Soon</div>}
-                    />
+                    <Route path="/chats/:chatId" element={<ChatAI />} />
+                    <Route path="/settings/*" element={<SettingsPage />} />
                     <Route path="/post/new" element={<PostEditor />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   </Route>
                 </Route>
                 {/* Add more protected routes here */}

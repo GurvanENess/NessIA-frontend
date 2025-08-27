@@ -1,13 +1,16 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Filter, Search, MessageCircle } from 'lucide-react';
-import { ChatsState } from '../entities/ChatTypes';
+import { motion } from "framer-motion";
+import { Filter, MessageCircle, Search } from "lucide-react";
+import React from "react";
+import { ChatsState } from "../entities/ChatTypes";
 
 interface ChatsHeaderProps {
   totalChats: number;
-  sortBy: ChatsState['sortBy'];
-  sortOrder: ChatsState['sortOrder'];
-  onSortChange: (sortBy: ChatsState['sortBy'], sortOrder: ChatsState['sortOrder']) => void;
+  sortBy: ChatsState["sortBy"];
+  sortOrder: ChatsState["sortOrder"];
+  onSortChange: (
+    sortBy: ChatsState["sortBy"],
+    sortOrder: ChatsState["sortOrder"]
+  ) => void;
   onCreateNew: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -20,7 +23,7 @@ const ChatsHeader: React.FC<ChatsHeaderProps> = ({
   onSortChange,
   onCreateNew,
   searchQuery,
-  onSearchChange
+  onSearchChange,
 }) => {
   return (
     <motion.div
@@ -30,20 +33,20 @@ const ChatsHeader: React.FC<ChatsHeaderProps> = ({
       className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
     >
       {/* Title and Create Button */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-coolvetica text-gray-900 mb-1">
+      <div className="flex flex-col items-center xs:items-center xs:flex-row xs:justify-between mb-6">
+        <div className="mb-4 xs:mt-0">
+          <h1 className="text-2xl font-coolvetica text-gray-900 xs:mb-1">
             Conversations
           </h1>
           <p className="text-sm text-gray-600">
-            {totalChats} conversation{totalChats !== 1 ? 's' : ''} au total
+            {totalChats} conversation{totalChats !== 1 ? "s" : ""} au total
           </p>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onCreateNew}
-          className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-sm"
+          className="bg-[#7C3AED] w-full xs:w-auto flex justify-center text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-sm"
         >
           <MessageCircle className="w-4 h-4" />
           Nouvelle conversation
@@ -70,7 +73,10 @@ const ChatsHeader: React.FC<ChatsHeaderProps> = ({
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
-              const [newSortBy, newSortOrder] = e.target.value.split('-') as [ChatsState['sortBy'], ChatsState['sortOrder']];
+              const [newSortBy, newSortOrder] = e.target.value.split("-") as [
+                ChatsState["sortBy"],
+                ChatsState["sortOrder"]
+              ];
               onSortChange(newSortBy, newSortOrder);
             }}
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors"

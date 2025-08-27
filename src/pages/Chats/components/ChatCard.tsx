@@ -1,16 +1,15 @@
-import React from "react";
-import { motion } from "framer-motion";
-import {
-  MessageCircle,
-  Calendar,
-  MoreVertical,
-  Eye,
-  Archive,
-  Trash2,
-  ExternalLink,
-} from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
+import { motion } from "framer-motion";
+import {
+  Archive,
+  Calendar,
+  ExternalLink,
+  Eye,
+  MoreVertical,
+  Trash2,
+} from "lucide-react";
+import React from "react";
 import { ChatConversation } from "../entities/ChatTypes";
 
 interface ChatCardProps {

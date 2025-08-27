@@ -1,13 +1,16 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Filter, Search } from 'lucide-react';
-import { PostsState } from '../entities/PostTypes';
+import { motion } from "framer-motion";
+import { Filter, Plus, Search } from "lucide-react";
+import React from "react";
+import { PostsState } from "../entities/PostTypes";
 
 interface PostsHeaderProps {
   totalPosts: number;
-  sortBy: PostsState['sortBy'];
-  sortOrder: PostsState['sortOrder'];
-  onSortChange: (sortBy: PostsState['sortBy'], sortOrder: PostsState['sortOrder']) => void;
+  sortBy: PostsState["sortBy"];
+  sortOrder: PostsState["sortOrder"];
+  onSortChange: (
+    sortBy: PostsState["sortBy"],
+    sortOrder: PostsState["sortOrder"]
+  ) => void;
   onCreateNew: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -20,10 +23,11 @@ const PostsHeader: React.FC<PostsHeaderProps> = ({
   onSortChange,
   onCreateNew,
   searchQuery,
-  onSearchChange
+  onSearchChange,
 }) => {
-  const handleSortChange = (newSortBy: PostsState['sortBy']) => {
-    const newSortOrder = sortBy === newSortBy && sortOrder === 'desc' ? 'asc' : 'desc';
+  const handleSortChange = (newSortBy: PostsState["sortBy"]) => {
+    const newSortOrder =
+      sortBy === newSortBy && sortOrder === "desc" ? "asc" : "desc";
     onSortChange(newSortBy, newSortOrder);
   };
 
@@ -35,20 +39,20 @@ const PostsHeader: React.FC<PostsHeaderProps> = ({
       className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
     >
       {/* Title and Create Button */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-col items-center xs:items-center xs:flex-row xs:justify-between mb-6">
+        <div className="mb-4 xs:mt-0">
           <h1 className="text-2xl font-coolvetica text-gray-900 mb-1">
             Publications
           </h1>
           <p className="text-sm text-gray-600">
-            {totalPosts} publication{totalPosts !== 1 ? 's' : ''} au total
+            {totalPosts} publication{totalPosts !== 1 ? "s" : ""} au total
           </p>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={onCreateNew}
-          className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-sm"
+          className="bg-[#7C3AED] w-full xs:w-auto flex justify-center text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Nouveau post
@@ -75,7 +79,10 @@ const PostsHeader: React.FC<PostsHeaderProps> = ({
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
-              const [newSortBy, newSortOrder] = e.target.value.split('-') as [PostsState['sortBy'], PostsState['sortOrder']];
+              const [newSortBy, newSortOrder] = e.target.value.split("-") as [
+                PostsState["sortBy"],
+                PostsState["sortOrder"]
+              ];
               onSortChange(newSortBy, newSortOrder);
             }}
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-colors"

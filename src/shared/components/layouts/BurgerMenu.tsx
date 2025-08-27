@@ -23,6 +23,8 @@ import UserAccountDropdown from "../UserAccountDropdown";
 interface BurgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen: () => void;
+  appDimensions: { width: number; height: number } | null;
 }
 
 interface MenuSection {
@@ -36,7 +38,12 @@ interface MenuSection {
   }[];
 }
 
-const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
+const BurgerMenu: React.FC<BurgerMenuProps> = ({
+  isOpen,
+  onClose,
+  onOpen,
+  appDimensions,
+}) => {
   const { dispatch, state } = useApp();
   const { user } = useAuth();
   const { conversations, fetchChats } = useChatsStore();
@@ -53,6 +60,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     title: string;
   } | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
 
   // Load recent chats when menu opens
@@ -115,6 +123,19 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  // Force BurgerMenu to be open when width is superior than 768px
+  useEffect(() => {
+    if (appDimensions && appDimensions.width > 767) {
+      onOpen();
+      setIsMobile(false);
+    }
+
+    if (appDimensions && appDimensions.width <= 767 && !isMobile) {
+      onClose();
+      setIsMobile(true);
+    }
+  });
+
   const menuSections: MenuSection[] = [];
 
   // Get 5 most recent chats
@@ -137,6 +158,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   };
 
   const handleItemClick = () => {
+    if (!isMobile) return;
     onClose();
   };
 
@@ -195,16 +217,16 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   return (
     <>
       <div
-        className={`burger-menu-desktop fixed inset-0 bg-opacity-50 z-50 transition-opacity ${
+        className={`md:row-span-3 md:col-span-2 md:w-[290px] md:h-screen md:transform-none md:opacity-100 md:pointer-events-auto burger-menu-desktop fixed inset-0 bg-opacity-50 z-50 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       >
         <motion.div
-          initial={{ x: -320 }}
-          animate={{ x: isOpen ? 0 : -320 }}
+          initial={{ x: -290 }}
+          animate={{ x: isOpen ? 0 : -290 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="absolute top-0 left-0 h-full w-80 bg-white shadow-xl"
+          className="absolute top-0 left-0 h-full bg-white shadow-xl w-[290px]"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-full flex flex-col">
@@ -228,12 +250,14 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                     <p className="text-xs text-purple-100">Assistant IA</p>
                   </div>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
+                {appDimensions && appDimensions.width < 768 && (
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                )}
               </div>
             </div>
 

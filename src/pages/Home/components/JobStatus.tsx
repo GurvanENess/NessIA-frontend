@@ -1,5 +1,5 @@
+import { AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import React from "react";
-import { Loader2, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Job } from "../../../shared/entities/JobTypes";
 
 interface JobStatusProps {
@@ -170,7 +170,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
   };
 
   return (
-    <div className={`fixed bottom-40 left-0 right-0 z-20 px-4 ${className}`}>
+    <div className={`sticky bottom-40 left-0 z-20 px-4 ${className}`}>
       <div className="max-w-2xl mx-auto">
         {jobs.map((job, index) => (
           <div
