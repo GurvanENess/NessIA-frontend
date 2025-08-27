@@ -3,7 +3,7 @@ import { fr } from "date-fns/locale/fr";
 import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, Edit, Eye, MessageSquare, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Post } from "../../pages/Posts/entities/PostTypes";
 import { useApp } from "../contexts/AppContext";
 import { db } from "../services/db";
@@ -16,8 +16,8 @@ interface SupabasePost {
   hashtags: string[] | null;
   created_at: string;
   status: string;
-  platform: { name: string } | null;
-  session: { id: string } | null;
+  platform: { name: string }[] | { name: string } | null;
+  session: { id: string }[] | { id: string } | null;
   media: { url: string }[] | null;
 }
 
@@ -25,12 +25,18 @@ const PostViewPanel: React.FC = () => {
   const { state, dispatch } = useApp();
   const { postPanel } = state;
   const navigate = useNavigate();
+  const location = useLocation();
+  const { chatId } = useParams<{ chatId: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Détecter si on est sur l'URL du post
+  const isOnPostURL = location.pathname.endsWith("/post/");
 
   // Detect mobile/desktop
   useEffect(() => {
@@ -46,20 +52,29 @@ const PostViewPanel: React.FC = () => {
 
   // Fonction pour convertir les données Supabase en format Post
   const convertSupabasePost = (supabasePost: SupabasePost): Post => {
+    // Gestion du platform qui peut être un objet ou un tableau
+    const platformName = Array.isArray(supabasePost.platform)
+      ? supabasePost.platform[0]?.name
+      : supabasePost.platform?.name;
+
+    // Gestion de session qui peut être un objet ou un tableau
+    const sessionId = Array.isArray(supabasePost.session)
+      ? supabasePost.session[0]?.id
+      : supabasePost.session?.id;
+
     return {
       id: supabasePost.id,
       title: supabasePost.title,
       description: supabasePost.content_text,
       status: supabasePost.status as Post["status"],
-      platform:
-        (supabasePost.platform?.name as Post["platform"]) || "instagram",
+      platform: (platformName as Post["platform"]) || "instagram",
       createdAt: new Date(supabasePost.created_at),
       imageUrl: supabasePost.media?.[0]?.url,
       hashtags: Array.isArray(supabasePost.hashtags)
         ? supabasePost.hashtags
         : [],
       userId: "", // Non disponible dans la requête actuelle
-      conversationId: supabasePost.session?.id,
+      conversationId: sessionId,
     };
   };
 
@@ -90,6 +105,55 @@ const PostViewPanel: React.FC = () => {
 
     fetchPost();
   }, [postPanel.isOpen, postPanel.postId, state.currentCompany?.id]);
+
+  // Gérer l'initialisation et la synchronisation URL
+  useEffect(() => {
+    if (!hasInitialized) {
+      setHasInitialized(true);
+
+      // Cas 1: Accès direct à l'URL post → ouvrir le panel
+      if (isOnPostURL && !postPanel.isOpen && chatId) {
+        const openPostFromChat = async () => {
+          if (!state.currentCompany?.id) return;
+
+          try {
+            const chatData = await db.getChatById(
+              chatId,
+              state.currentCompany.id
+            );
+            if (chatData?.post?.id) {
+              dispatch({ type: "OPEN_POST_PANEL", payload: chatData.post.id });
+            } else {
+              navigate(`/chats/${chatId}`, { replace: true });
+            }
+          } catch (error) {
+            console.error("Error loading chat data:", error);
+            navigate(`/chats/${chatId}`, { replace: true });
+          }
+        };
+        openPostFromChat();
+      }
+      return;
+    }
+
+    // Cas 2: Panel ouvert mais pas sur l'URL post → naviguer vers l'URL
+    if (postPanel.isOpen && chatId && !isOnPostURL) {
+      navigate(`/chats/${chatId}/post/`, { replace: true });
+    }
+
+    // Cas 3: Panel fermé mais sur l'URL post → revenir au chat
+    if (!postPanel.isOpen && isOnPostURL) {
+      navigate(`/chats/${chatId}`, { replace: true });
+    }
+  }, [
+    hasInitialized,
+    postPanel.isOpen,
+    chatId,
+    isOnPostURL,
+    navigate,
+    state.currentCompany?.id,
+    dispatch,
+  ]);
 
   // Handle escape key
   useEffect(() => {

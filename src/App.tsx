@@ -74,6 +74,7 @@ const App: React.FC = () => {
                       }
                     />
                     <Route path="/chats/:chatId" element={<ChatAI />} />
+                    <Route path="/chats/:chatId/post/" element={<ChatAI />} />
                     <Route path="/settings/*" element={<SettingsPage />} />
                     <Route path="/post/new" element={<PostEditor />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
