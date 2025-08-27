@@ -1,8 +1,8 @@
-import React from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
-import { Message as MessageType } from "../../../shared/entities/ChatTypes";
+import React from "react";
 import Markdown from "react-markdown";
+import { Message as MessageType } from "../../../shared/entities/ChatTypes";
 import markdownConfig from "../../../shared/utils/markdownConfig";
 
 const Message: React.FC<MessageType> = ({
@@ -14,8 +14,10 @@ const Message: React.FC<MessageType> = ({
   return (
     <div>
       <div
-        className={`rounded-lg shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] p-4 message-animation ${
-          isAi ? "bg-white" : "bg-[#7C3AED] text-white ml-12"
+        className={`rounded-lg shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] shadow-sm p-4 message-animation ${
+          isAi
+            ? "bg-white border border-gray-300"
+            : "bg-[#7C3AED] text-white ml-12"
         }`}
       >
         <div className="flex items-start space-x-3">

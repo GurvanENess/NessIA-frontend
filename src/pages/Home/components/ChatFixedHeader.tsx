@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Edit, Eye, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useApp } from "../../../shared/contexts/AppContext";
 
 interface ChatFixedHeaderProps {
   chatId: string;
@@ -20,7 +20,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const { dispatch } = useApp();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,12 +42,6 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
     };
   }, [showDropdown]);
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
-    console.log("Share chat:", chatId);
-    setShowDropdown(false);
-  };
-
   const handleRename = () => {
     onRenameChat();
     setShowDropdown(false);
@@ -60,7 +54,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
 
   const handleViewPost = () => {
     if (associatedPostId) {
-      navigate(`/posts/${associatedPostId}`);
+      dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
       setShowDropdown(false);
     }
   };
@@ -71,7 +65,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   };
 
   return (
-    <div className="sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2]">
+    <div className="hidden md:block sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
       <div className="px-4 flex items-center justify-between w-full">
         <div className="px-4 h-12 flex items-center justify-between w-full">
           {/* Chat Title - Clickable with dropdown */}
@@ -126,7 +120,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
             {associatedPostId && (
               <button
                 onClick={handleViewPost}
-                className="relative z-10 flex items-center gap-2 bg-[#7C3AED] text-white px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-sm"
+                className="relative z-10 flex items-center mt-1 gap-2 bg-[#7C3AED] text-white px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-sm"
                 title="Voir le post associé"
               >
                 <Eye className="w-4 h-4" />
@@ -136,9 +130,6 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Blur gradient at bottom */}
-      <div className="absolute bottom-[5px] left-0 right-0 shadow-[0px_5px_5px_8px_#e7e9f2] h-[1px] pointer-events-none" />
     </div>
   );
 };

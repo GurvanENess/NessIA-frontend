@@ -57,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       {/* Affichage du statut des jobs */}
       <JobStatus jobs={jobs} onSuggestionClick={handleSuggestionClick} />
 
-      <div className="sticky bottom-0 left-0 right-0 md:pb-8">
+      <div className="sticky bottom-0 left-0 right-0 md:pb-8 md:px-2  ">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -69,7 +69,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {children}
           </div>
 
-          <div className="relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors shadow-sm">
+          <div className="shadow relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors">
             <textarea
               ref={textareaRef}
               value={value}

@@ -28,9 +28,15 @@ interface ChatState {
   showQuickActions: boolean;
 }
 
+interface PostPanelState {
+  isOpen: boolean;
+  postId: string | null;
+}
+
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  postPanel: PostPanelState;
   currentCompany: Company | null;
   error: string | null;
 }
@@ -63,10 +69,15 @@ export type CompanyAction =
   | { type: "CLEAR_CURRENT_COMPANY" }
   | { type: "CHANGE_COMPANY_AND_RESET"; payload: Company };
 
+export type PostPanelAction =
+  | { type: "OPEN_POST_PANEL"; payload: string }
+  | { type: "CLOSE_POST_PANEL" };
+
 export type AppAction =
   | PostAction
   | ChatAction
   | CompanyAction
+  | PostPanelAction
   | { type: "SET_GLOBAL_ERROR"; payload: string }
   | { type: "CLEAR_GLOBAL_ERROR" };
 
@@ -90,6 +101,10 @@ export const initialState: AppState = {
     isLoading: false,
     error: null,
     showQuickActions: true,
+  },
+  postPanel: {
+    isOpen: false,
+    postId: null,
   },
   currentCompany: null,
   error: null,
@@ -296,6 +311,25 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         error: null,
+      };
+
+    // Post Panel Actions
+    case "OPEN_POST_PANEL":
+      return {
+        ...state,
+        postPanel: {
+          isOpen: true,
+          postId: action.payload,
+        },
+      };
+
+    case "CLOSE_POST_PANEL":
+      return {
+        ...state,
+        postPanel: {
+          isOpen: false,
+          postId: null,
+        },
       };
 
     default:

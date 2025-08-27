@@ -125,13 +125,12 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
   // Force BurgerMenu to be open when width is superior than 768px
   useEffect(() => {
-    console.log(appDimensions);
-    if (appDimensions && appDimensions.width > 768) {
+    if (appDimensions && appDimensions.width > 767) {
       onOpen();
       setIsMobile(false);
     }
 
-    if (appDimensions && appDimensions.width <= 768 && !isMobile) {
+    if (appDimensions && appDimensions.width <= 767 && !isMobile) {
       onClose();
       setIsMobile(true);
     }
@@ -227,7 +226,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
           initial={{ x: -290 }}
           animate={{ x: isOpen ? 0 : -290 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="absolute top-0 left-0 h-full bg-white shadow-xl w-full"
+          className="absolute top-0 left-0 h-full bg-white shadow-xl w-[290px]"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="h-full flex flex-col">
