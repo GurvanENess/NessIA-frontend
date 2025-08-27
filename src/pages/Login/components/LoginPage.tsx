@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../shared/contexts/AuthContext";
+import { logger } from "../../../shared/utils/logger";
 import { useLoginStore } from "../store/store";
 import validateForm from "../validator";
 import LoginForm from "./LoginForm";
@@ -29,7 +30,7 @@ const LoginPage: React.FC = () => {
       await login(email, password);
       navigate("/");
     } catch (error) {
-      console.error("Login error:", error);
+      logger.error("Login error", error);
       setErrors({
         password: "Email ou mot de passe incorrect",
       });

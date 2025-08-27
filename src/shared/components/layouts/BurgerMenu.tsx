@@ -16,6 +16,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/db";
 import { Company } from "../../store/AppReducer";
+import { logger } from "../../utils/logger";
 import DeleteChatModal from "../DeleteChatModal";
 import RenameChatModal from "../RenameChatModal";
 import UserAccountDropdown from "../UserAccountDropdown";
@@ -74,7 +75,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         const userChatsFormated = formatChatsforUi(userChats);
         fetchChats(userChatsFormated);
       } catch (err) {
-        console.error("Failed to load recent chats:", err);
+        logger.error("Failed to load recent chats", err);
       }
     };
 
@@ -89,7 +90,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
           const companies = await db.getCompaniesByUserId(user?.id!);
           setCompanies(companies);
         } catch (err) {
-          console.error("Failed to load companies:", err);
+          logger.error("Failed to load companies", err);
           // Trouver un moyen d'afficher l'erreur à l'utilisateur
         }
       }

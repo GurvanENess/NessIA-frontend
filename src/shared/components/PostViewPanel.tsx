@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Post } from "../../pages/Posts/entities/PostTypes";
 import { useApp } from "../contexts/AppContext";
 import { db } from "../services/db";
+import { logger } from "../utils/logger";
 
 // Type pour les données Supabase
 interface SupabasePost {
@@ -81,7 +82,7 @@ const PostViewPanel: React.FC = () => {
           setError("Post non trouvé");
         }
       } catch (err) {
-        console.error("Error fetching post:", err);
+        logger.error("Error fetching post", err);
         setError("Impossible de charger le post");
       } finally {
         setIsLoading(false);

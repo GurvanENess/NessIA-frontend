@@ -13,6 +13,7 @@ import {
   initialState,
 } from "../store/AppReducer";
 import { handleError } from "../utils/errorHandler";
+import { logger } from "../utils/logger";
 
 // Context
 interface AppContextType {
@@ -45,7 +46,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         dispatch({ type: "SET_CURRENT_COMPANY", payload: company });
       }
     } catch (error) {
-      console.error("Failed to load current company from localStorage:", error);
+      logger.error("Failed to load current company from localStorage", error);
     }
   }, []);
 
@@ -58,7 +59,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
           JSON.stringify(state.currentCompany)
         );
       } catch (error) {
-        console.error("Failed to save current company to localStorage:", error);
+        logger.error("Failed to save current company to localStorage", error);
       }
     } else {
       localStorage.removeItem(CURRENT_COMPANY_KEY);

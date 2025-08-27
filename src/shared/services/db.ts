@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { supabaseClient } from "./supabase";
 
 export const db = {
@@ -12,7 +13,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error fetching companies:", err);
+      logger.error("Error fetching companies", err);
       throw err; // Re-throw the error for further handling
     }
   },
@@ -30,7 +31,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error fetching chat session messages", err);
       throw err;
     }
   },
@@ -55,7 +56,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error fetching all posts", err);
       throw err; // Re-throw the error for further handling
     }
   },
@@ -80,7 +81,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error fetching post by id", err);
       throw err; // Re-throw the error for further handling
     }
   },
@@ -97,7 +98,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error deleting post by id", err);
       throw err;
     }
   },
@@ -119,7 +120,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error updating post", id, ":", err);
+      logger.error(`Error updating post ${id}`, err);
       throw err;
     }
   },
@@ -146,7 +147,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error fetching all chats", err);
       throw err; // Re-throw the error for further handling
     }
   },
@@ -187,7 +188,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error fetching chat by id", err);
       throw err;
     }
   },
@@ -206,7 +207,7 @@ export const db = {
 
       return response;
     } catch (err) {
-      console.error("Error:", err);
+      logger.error("Error deleting chat by id", err);
       throw err;
     }
   },
@@ -224,7 +225,7 @@ export const db = {
 
       return data;
     } catch (err) {
-      console.error("Error renaming chat", id, ":", err);
+      logger.error(`Error renaming chat ${id}`, err);
       throw err;
     }
   },
@@ -238,7 +239,6 @@ export const db = {
         .in("status", ["running", "waiting_user", "error"])
         .is("finished_at", null);
 
-      console.log(data, error);
       const firstJob = data?.[0];
 
       if (error) throw error;
@@ -247,7 +247,7 @@ export const db = {
       }
       return data || [];
     } catch (err) {
-      console.error(
+      logger.error(
         `Error while retrieving the jobs of session ${sessionId}`,
         err
       );

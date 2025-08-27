@@ -4,12 +4,10 @@ import React from "react";
 const ConnectorsTab: React.FC = () => {
   const handleConnect = () => {
     // Fonctionnalité à venir - pour l'instant rien ne se passe
-    console.log("Connexion Meta - fonctionnalité à venir");
   };
 
   const handleBrowseConnectors = () => {
     // Fonctionnalité à venir - pour l'instant rien ne se passe
-    console.log("Parcourir les connecteurs - fonctionnalité à venir");
   };
 
   return (

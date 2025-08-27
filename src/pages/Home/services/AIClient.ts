@@ -1,5 +1,6 @@
-import { AIRequest, AIRequestFunction, AIResponse } from "../entities/AITypes";
 import axios from "axios";
+import { logger } from "../../../shared/utils/logger";
+import { AIRequest, AIRequestFunction, AIResponse } from "../entities/AITypes";
 const n8nUrl = import.meta.env.VITE_N8N_URL_PROD; // Use the production URL for n8n
 const n8nJobsInputUrl = import.meta.env.VITE_N8N_URL_JOBS_USERINPUT;
 
@@ -74,7 +75,7 @@ class AIClient {
 
       return data;
     } catch (error) {
-      console.error("Error fetching AI response:", error);
+      logger.error("Error fetching AI response", error);
       throw error;
     }
   };

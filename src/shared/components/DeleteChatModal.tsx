@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, AlertTriangle } from "lucide-react";
-import { db } from "../services/db";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, Trash2, X } from "lucide-react";
+import React, { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { useApp } from "../contexts/AppContext";
+import { db } from "../services/db";
+import { logger } from "../utils/logger";
 
 interface DeleteChatModalProps {
   isOpen: boolean;
@@ -27,7 +28,10 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
@@ -60,14 +64,14 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
 
   const handleDelete = async () => {
     setIsLoading(true);
-    
+
     try {
       await db.deleteChatById(chatId, state.currentCompany?.id as string);
       onDeleteConfirm();
       toast.success("Conversation supprimée avec succès");
       onClose();
     } catch (error) {
-      console.error("Error deleting chat:", error);
+      logger.error("Error deleting chat", error);
       toast.error("Erreur lors de la suppression de la conversation");
     } finally {
       setIsLoading(false);
@@ -120,7 +124,8 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
                   <span className="font-medium">"{chatTitle}"</span>
                 </p>
                 <p className="text-sm text-gray-500">
-                  Cette action est irréversible. Tous les messages de cette conversation seront définitivement supprimés.
+                  Cette action est irréversible. Tous les messages de cette
+                  conversation seront définitivement supprimés.
                 </p>
               </div>
             </div>

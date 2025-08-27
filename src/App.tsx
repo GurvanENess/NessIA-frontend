@@ -3,6 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatsDisplay from "./pages/Chats";
 import CompanySelectionPage from "./pages/CompanySelection/index";
 import Home from "./pages/Home";
+import ChatAI from "./pages/Home/components/ChatAI";
 import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";

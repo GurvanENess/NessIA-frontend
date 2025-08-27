@@ -11,6 +11,7 @@ import { Message } from "../../../shared/entities/ChatTypes";
 import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
 import useJobPolling from "../../../shared/hooks/useJobPolling";
 import { db } from "../../../shared/services/db";
+import { logger } from "../../../shared/utils/logger";
 import { AiClient } from "../services/AIClient";
 import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
 import ChatFixedHeader from "./ChatFixedHeader";
@@ -73,7 +74,7 @@ const Chat: React.FC = () => {
           const userChatsFormated = formatChatsforUi(userChats);
           fetchChats(userChatsFormated);
         } catch (err) {
-          console.error("Failed to load chats for header:", err);
+          logger.error("Failed to load chats for header", err);
         }
       }
     };
@@ -111,7 +112,7 @@ const Chat: React.FC = () => {
         payload: formatMessagesFromDb(data),
       });
     } catch (err) {
-      console.error("Error fetching messages:", err);
+      logger.error("Error fetching messages", err);
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
@@ -131,7 +132,7 @@ const Chat: React.FC = () => {
 
       return userMessage;
     } catch (err) {
-      console.error("Error processing user message:", err);
+      logger.error("Error processing user message", err);
       throw err;
     }
   };
@@ -153,7 +154,7 @@ const Chat: React.FC = () => {
         navigate(`/chats/${response.sessionId}`);
       }
     } catch (err) {
-      console.error("Error processing AI response:", err);
+      logger.error("Error processing AI response", err);
       throw err;
     }
   };
@@ -174,7 +175,7 @@ const Chat: React.FC = () => {
       await processUserMessage(message);
       await processAiResponse(message);
     } catch (err) {
-      console.error("Error processing message:", err);
+      logger.error("Error processing message", err);
       dispatch({
         type: "SET_ERROR",
         payload: "Une erreur est survenue lors de l'envoie du message.",
@@ -212,7 +213,7 @@ const Chat: React.FC = () => {
       await startPolling(sessionIdParam);
       await fetchMessages(sessionIdParam);
     } catch (err) {
-      console.error("Error sending suggestion response:", err);
+      logger.error("Error sending suggestion response", err);
       toast.error("Une erreur est survenue lors de l'envoi de la réponse", {
         duration: 3000,
       });

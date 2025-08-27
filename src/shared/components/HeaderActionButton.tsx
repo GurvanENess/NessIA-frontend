@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../contexts/AppContext";
 import { db } from "../services/db";
+import { logger } from "../utils/logger";
 
 interface HeaderActionButtonProps {
   type: "post" | "chat";
@@ -60,7 +61,7 @@ const HeaderActionButton: React.FC<HeaderActionButtonProps> = ({
           }
         }
       } catch (error) {
-        console.error(`Error checking ${type} existence:`, error);
+        logger.error(`Error checking ${type} existence`, error);
         setExists(false);
       } finally {
         setIsLoading(false);

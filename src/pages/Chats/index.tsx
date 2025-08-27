@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
 import { db } from "../../shared/services/db";
+import { logger } from "../../shared/utils/logger";
 import ChatsGrid from "./components/ChatsGrid";
 import ChatsHeader from "./components/ChatsHeader";
 import { ChatConversation } from "./entities/ChatTypes";
@@ -46,7 +47,7 @@ const ChatsDisplay: React.FC = () => {
           fetchChats(userChatsFormated);
         } catch (err) {
           toast.error("Erreur lors du chargement des conversations");
-          console.error("Failed to load chats:", err);
+          logger.error("Failed to load chats", err);
         }
       }
     };
@@ -93,7 +94,7 @@ const ChatsDisplay: React.FC = () => {
         await ChatsService.archiveChat(chatId);
         archiveChat(chatId);
       } catch (err) {
-        console.error("Failed to archive chat:", err);
+        logger.error("Failed to archive chat", err);
       }
     }
   };
@@ -111,7 +112,7 @@ const ChatsDisplay: React.FC = () => {
         );
         deleteChat(chatId);
       } catch (err) {
-        console.error("Failed to delete chat:", err);
+        logger.error("Failed to delete chat", err);
       }
     }
   };

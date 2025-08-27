@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Edit } from "lucide-react";
-import { db } from "../services/db";
+import { AnimatePresence, motion } from "framer-motion";
+import { Edit, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useApp } from "../contexts/AppContext";
+import { db } from "../services/db";
+import { logger } from "../utils/logger";
 
 interface RenameChatModalProps {
   isOpen: boolean;
@@ -41,7 +42,10 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
@@ -74,7 +78,7 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newTitle.trim()) {
       toast.error("Le titre ne peut pas être vide");
       return;
@@ -86,7 +90,7 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
     }
 
     setIsLoading(true);
-    
+
     try {
       await db.renameChatById(
         chatId,
@@ -97,7 +101,7 @@ const RenameChatModal: React.FC<RenameChatModalProps> = ({
       toast.success("Conversation renommée avec succès");
       onClose();
     } catch (error) {
-      console.error("Error renaming chat:", error);
+      logger.error("Error renaming chat", error);
       toast.error("Erreur lors du renommage de la conversation");
     } finally {
       setIsLoading(false);

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../contexts/AppContext";
 import { db } from "../services/db";
+import { logger } from "../utils/logger";
 
 interface UseCompanyResourceAccessReturn {
   hasAccess: boolean;
@@ -66,7 +67,7 @@ export const useCompanyResourceAccess = (
           setError("Ressource non trouvée");
         }
       } catch (err) {
-        console.error(`Error checking ${resourceType} access:`, err);
+        logger.error(`Error checking ${resourceType} access`, err);
         setHasAccess(false);
         setError("Erreur lors de la vérification de l'accès");
       } finally {

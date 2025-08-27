@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../shared/contexts/AuthContext";
+import { logger } from "../../../shared/utils/logger";
 import { useRegisterStore } from "../store/store";
 import validateForm from "../validator";
 import RegisterForm from "./RegisterForm";
@@ -49,7 +50,7 @@ const RegisterPage: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Registration error:", error);
+      logger.error("Registration error", error);
       setErrors({
         email: "Une erreur est survenue lors de l'inscription",
       });

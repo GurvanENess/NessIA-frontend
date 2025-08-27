@@ -6,6 +6,7 @@ import { useApp } from "../../shared/contexts/AppContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
 import { db } from "../../shared/services/db";
 import { Company } from "../../shared/store/AppReducer";
+import { logger } from "../../shared/utils/logger";
 
 const CompanySelectionPage: React.FC = () => {
   const { setCurrentCompany } = useApp();
@@ -24,7 +25,7 @@ const CompanySelectionPage: React.FC = () => {
         const userCompanies = await db.getCompaniesByUserId(user.id);
         setCompanies(userCompanies);
       } catch (err) {
-        console.error("Failed to load companies:", err);
+        logger.error("Failed to load companies", err);
         setError("Impossible de charger vos compagnies. Veuillez réessayer.");
       } finally {
         setIsLoading(false);

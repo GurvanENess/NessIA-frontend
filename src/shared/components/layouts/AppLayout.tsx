@@ -8,6 +8,7 @@ import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { db } from "../../services/db";
+import { logger } from "../../utils/logger";
 import PostViewPanel from "../PostViewPanel";
 import BurgerMenu from "./BurgerMenu";
 
@@ -42,7 +43,7 @@ const AppLayout: React.FC = () => {
           const userChatsFormated = formatChatsforUi(userChats);
           fetchChats(userChatsFormated);
         } catch (err) {
-          console.error("Failed to load chats for mobile header:", err);
+          logger.error("Failed to load chats for mobile header", err);
         }
       }
     };
