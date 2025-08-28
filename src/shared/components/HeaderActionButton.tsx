@@ -1,7 +1,7 @@
 import { FileText, Loader2, MessageCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useAppStore } from "../store/appStore";
 import { db } from "../services/db";
 
 interface HeaderActionButtonProps {
@@ -17,7 +17,7 @@ const HeaderActionButton: React.FC<HeaderActionButtonProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [associatedId, setAssociatedId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { state } = useApp();
+  const currentCompanyId = useAppStore((s) => s.currentCompany?.id);
 
   useEffect(() => {
     const checkExistence = async () => {
@@ -26,7 +26,7 @@ const HeaderActionButton: React.FC<HeaderActionButtonProps> = ({
         if (type === "post") {
           const post = await db.getPostById(
             id,
-            state.currentCompany?.id as string
+            currentCompanyId as string
           );
           if (!post) {
             setExists(false);
@@ -43,7 +43,7 @@ const HeaderActionButton: React.FC<HeaderActionButtonProps> = ({
         } else if (type === "chat") {
           const chat = await db.getChatById(
             id,
-            state.currentCompany?.id as string
+            currentCompanyId as string
           );
 
           if (!chat) {
@@ -68,7 +68,7 @@ const HeaderActionButton: React.FC<HeaderActionButtonProps> = ({
     };
 
     checkExistence();
-  }, [type, id, state.currentCompany?.id]);
+  }, [type, id, currentCompanyId]);
 
   const handleClick = () => {
     if (type === "post" && associatedId) {

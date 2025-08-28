@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
-import { useAuth } from "../contexts/AuthContext";
-import { Company } from "../store/AppReducer";
+import { useAppStore } from "../store/appStore";
+import { useAuthStore } from "../store/authStore";
+import { Company } from "../entities/CompanyTypes";
 
 interface UserAccountDropdownProps {
   companies?: Array<Company>;
@@ -25,10 +25,10 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const { state, changeCompanyAndReset, clearCurrentCompany, dispatch } =
-    useApp();
+  const { currentCompany, changeCompanyAndReset, clearCurrentCompany } =
+    useAppStore();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -122,7 +122,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
             <div className="py-2">
               {companies?.map((company) => {
                 const IconComponent = company.icon || User;
-                const isActive = state.currentCompany?.id === company.id;
+                const isActive = currentCompany?.id === company.id;
 
                 return (
                   <button
@@ -204,7 +204,7 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
             {user?.name || "Utilisateur"}
           </div>
           <div className="text-xs text-gray-500 truncate">
-            {state.currentCompany?.name || "Sélectionner une compagnie"}
+            {currentCompany?.name || "Sélectionner une compagnie"}
           </div>
         </div>
 

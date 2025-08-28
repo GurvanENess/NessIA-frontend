@@ -12,10 +12,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
-import { useApp } from "../../contexts/AppContext";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAppStore } from "../../store/appStore";
+import { useAuthStore } from "../../store/authStore";
 import { db } from "../../services/db";
-import { Company } from "../../store/AppReducer";
+import { Company } from "../../entities/CompanyTypes";
 import DeleteChatModal from "../DeleteChatModal";
 import RenameChatModal from "../RenameChatModal";
 import UserAccountDropdown from "../UserAccountDropdown";
@@ -44,8 +44,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   onOpen,
   appDimensions,
 }) => {
-  const { dispatch, state } = useApp();
-  const { user } = useAuth();
+  const { resetChat, currentCompany } = useAppStore();
+  const user = useAuthStore((s) => s.user);
   const { conversations, fetchChats } = useChatsStore();
   const { chatId: currentChatId } = useParams();
 
@@ -69,7 +69,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       if (!isOpen) return;
       try {
         const userChats = await db.getAllChats(
-          state.currentCompany?.id as string
+          currentCompany?.id as string
         );
         const userChatsFormated = formatChatsforUi(userChats);
         fetchChats(userChatsFormated);
@@ -79,14 +79,15 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     };
 
     loadRecentChats();
-  }, [isOpen, state.currentCompany?.id]);
+  }, [isOpen, currentCompany?.id]);
 
   // Load companies when menu opens
   useEffect(() => {
     const loadCompanies = async () => {
       if (isOpen) {
         try {
-          const companies = await db.getCompaniesByUserId(user?.id!);
+          if (!user?.id) return;
+          const companies = await db.getCompaniesByUserId(user.id);
           setCompanies(companies);
         } catch (err) {
           console.error("Failed to load companies:", err);
@@ -119,7 +120,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   }, [showActionsForChatId]);
 
   const onNewChat = () => {
-    dispatch({ type: "RESET_CHAT" });
+    resetChat();
     onClose();
   };
 
@@ -208,7 +209,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
       // If we're currently viewing the deleted chat, navigate to home
       if (currentChatId === selectedChat.id) {
-        dispatch({ type: "RESET_CHAT" });
+        resetChat();
         onClose();
       }
     }

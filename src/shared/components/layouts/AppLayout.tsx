@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
-import { useApp } from "../../contexts/AppContext";
+import { useAppStore } from "../../store/appStore";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { db } from "../../services/db";
 import PostViewPanel from "../PostViewPanel";
@@ -18,7 +18,7 @@ const AppLayout: React.FC = () => {
   const dimensions = useContainerDimensions(appContainerRef);
   const location = useLocation();
   const { chatId } = useParams();
-  const { dispatch, state } = useApp();
+  const { openPostPanel, currentCompany } = useAppStore();
   const { conversations, fetchChats } = useChatsStore();
 
   const isSettingsPage = location.pathname.includes("/settings");
@@ -36,9 +36,9 @@ const AppLayout: React.FC = () => {
   // Charger les chats pour obtenir les données du chat actuel
   useEffect(() => {
     const loadChats = async () => {
-      if (isChatPage && state.currentCompany?.id) {
+      if (isChatPage && currentCompany?.id) {
         try {
-          const userChats = await db.getAllChats(state.currentCompany.id);
+          const userChats = await db.getAllChats(currentCompany.id);
           const userChatsFormated = formatChatsforUi(userChats);
           fetchChats(userChatsFormated);
         } catch (err) {
@@ -48,11 +48,11 @@ const AppLayout: React.FC = () => {
     };
 
     loadChats();
-  }, [isChatPage, state.currentCompany?.id, chatId]);
+  }, [isChatPage, currentCompany?.id, chatId]);
 
   const handleViewPost = () => {
     if (associatedPostId) {
-      dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
+      openPostPanel(associatedPostId);
     }
   };
 

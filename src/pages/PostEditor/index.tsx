@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostForm from "./PostForm";
 import PostPreview from "./PostPreview";
-import { useApp } from "../../shared/contexts/AppContext";
+import { useAppStore } from "../../shared/store/appStore";
 import { useParams } from "react-router-dom";
 import { db } from "../../shared/services/db";
 import { getHashtags, formatPostToDb } from "./utils/utils";
@@ -11,9 +11,20 @@ import { wait } from "../../shared/utils/utils";
 import { useCompanyResourceAccess } from "../../shared/hooks/useCompanyResourceAccess";
 
 const PostEditor: React.FC = () => {
-  const { state, dispatch } = useApp();
+  const {
+    post,
+    currentCompany,
+    updatePostData,
+    setPreviewMode,
+    savePostStart,
+    savePostSuccess,
+    savePostError,
+    publishPostStart,
+    publishPostSuccess,
+    publishPostError,
+  } = useAppStore();
   const { postId } = useParams<{ postId: string }>();
-  const { isPreviewMode, postData, isSaving, isPublishing } = state.post;
+  const { isPreviewMode, postData, isSaving, isPublishing } = post;
 
   // Vérifier l'accès au post par compagnie
   const { hasAccess, isLoading, resourceData, error } =
@@ -22,16 +33,13 @@ const PostEditor: React.FC = () => {
   // Charger les données du post si on a accès
   useEffect(() => {
     if (postId && hasAccess && resourceData) {
-      dispatch({
-        type: "UPDATE_POST_DATA",
-        payload: {
-          image: resourceData.media?.[0]?.url || "",
-          caption: resourceData.content_text,
-          hashtags: getHashtags(resourceData.hashtags || ""),
-        },
+      updatePostData({
+        image: resourceData.media?.[0]?.url || "",
+        caption: resourceData.content_text,
+        hashtags: getHashtags(resourceData.hashtags || ""),
       });
     }
-  }, [postId, hasAccess, resourceData, dispatch]);
+  }, [postId, hasAccess, resourceData, updatePostData]);
 
   // Si en cours de vérification, afficher un indicateur
   if (isLoading) {
@@ -51,38 +59,35 @@ const PostEditor: React.FC = () => {
   }
 
   const handleSave = async () => {
-    if (!postId || !state.currentCompany?.id) return;
+    if (!postId || !currentCompany?.id) return;
 
-    dispatch({ type: "SAVE_POST_START" });
+    savePostStart();
     try {
       const formatedPost = formatPostToDb(postData);
       console.log(formatedPost);
-      await db.updatePostById(postId, formatedPost, state.currentCompany.id);
+      await db.updatePostById(postId, formatedPost, currentCompany.id);
 
-      dispatch({ type: "SAVE_POST_SUCCESS" });
+      savePostSuccess();
       toast.success("Post sauvegardé avec succès");
     } catch (err) {
       toast.error("Erreur lors de la sauvegarde du post");
-      dispatch({
-        type: "SAVE_POST_ERROR",
-        payload: err instanceof Error ? err.message : "Failed to save post",
-      });
+      savePostError(
+        err instanceof Error ? err.message : "Failed to save post"
+      );
     }
   };
 
   const handlePublish = async () => {
-    dispatch({ type: "PUBLISH_POST_START" });
+    publishPostStart();
     try {
       // TODO: Implement publish functionality
       alert("Pif, paf, pouf... Publié ! (non)");
-
-      dispatch({ type: "PUBLISH_POST_SUCCESS" });
+      publishPostSuccess();
     } catch (err) {
       toast.error("Erreur lors de la publication du post");
-      dispatch({
-        type: "PUBLISH_POST_ERROR",
-        payload: err instanceof Error ? err.message : "Failed to publish post",
-      });
+      publishPostError(
+        err instanceof Error ? err.message : "Failed to publish post"
+      );
     }
   };
 
@@ -97,9 +102,7 @@ const PostEditor: React.FC = () => {
       <div className="p-5">
         <div className="flex border-b mb-5">
           <motion.button
-            onClick={() =>
-              dispatch({ type: "SET_PREVIEW_MODE", payload: true })
-            }
+            onClick={() => setPreviewMode(true)}
             className={`pb-2 px-5 text-base cursor-pointer relative ${
               isPreviewMode ? "text-purple-700 font-semibold" : "text-gray-600"
             }`}
@@ -117,9 +120,7 @@ const PostEditor: React.FC = () => {
             )}
           </motion.button>
           <motion.button
-            onClick={() =>
-              dispatch({ type: "SET_PREVIEW_MODE", payload: false })
-            }
+            onClick={() => setPreviewMode(false)}
             className={`pb-2 px-5 text-base cursor-pointer relative ${
               !isPreviewMode ? "text-purple-700 font-semibold" : "text-gray-600"
             }`}
@@ -151,9 +152,7 @@ const PostEditor: React.FC = () => {
             ) : (
               <PostForm
                 postData={postData}
-                setPostData={(data) =>
-                  dispatch({ type: "UPDATE_POST_DATA", payload: data })
-                }
+                setPostData={(data) => updatePostData(data)}
               />
             )}
           </motion.div>

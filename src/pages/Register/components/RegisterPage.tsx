@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../shared/contexts/AuthContext";
+import { useAuthStore } from "../../../shared/store/authStore";
 import { useRegisterStore } from "../store/store";
 import validateForm from "../validator";
 import RegisterForm from "./RegisterForm";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const signup = useAuthStore((s) => s.signup);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

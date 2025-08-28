@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../shared/contexts/AuthContext";
+import { useAuthStore } from "../../shared/store/authStore";
 import { useChatsStore } from "./store/chatsStore";
 import { ChatsService } from "./services/chatsService";
 import { ChatConversation } from "./entities/ChatTypes";
@@ -10,12 +10,12 @@ import ChatsHeader from "./components/ChatsHeader";
 import ChatsGrid from "./components/ChatsGrid";
 import { formatChatsforUi } from "./utils/utils";
 import toast from "react-hot-toast";
-import { useApp } from "../../shared/contexts/AppContext";
+import { useAppStore } from "../../shared/store/appStore";
 
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { dispatch, state } = useApp();
+  const user = useAuthStore((s) => s.user);
+  const { resetChat, currentCompany } = useAppStore();
 
   const {
     conversations,
@@ -39,7 +39,7 @@ const ChatsDisplay: React.FC = () => {
         fetchChats([]); // Start loading state
         try {
           const userChats = await db.getAllChats(
-            state.currentCompany?.id as string
+            currentCompany?.id as string
           );
           const userChatsFormated = formatChatsforUi(userChats); // A bouger dans les services
 
@@ -52,7 +52,7 @@ const ChatsDisplay: React.FC = () => {
     };
 
     loadChats();
-  }, [user?.id, state.currentCompany?.id]);
+  }, [user?.id, currentCompany?.id]);
 
   // Filter chats based on search query
   useEffect(() => {
@@ -69,7 +69,7 @@ const ChatsDisplay: React.FC = () => {
   }, [conversations, searchQuery]);
 
   const handleCreateNew = () => {
-    dispatch({ type: "RESET_CHAT" });
+    resetChat();
     navigate("/");
   };
 
@@ -107,7 +107,7 @@ const ChatsDisplay: React.FC = () => {
       try {
         const response = await db.deleteChatById(
           chatId,
-          state.currentCompany?.id as string
+          currentCompany?.id as string
         );
         console.log(response);
         deleteChat(chatId);

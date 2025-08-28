@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../shared/contexts/AuthContext";
+import { useAuthStore } from "../shared/store/authStore";
 import LoadingScreen from "../shared/components/LoadingScreen";
 
 interface PublicRouteProps {
@@ -8,7 +8,7 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ redirectPath = "/" }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) {
     return <LoadingScreen />;

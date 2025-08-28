@@ -17,7 +17,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Post } from "../../pages/Posts/entities/PostTypes";
-import { useApp } from "../contexts/AppContext";
+import { useAppStore } from "../store/appStore";
 import { PostData } from "../entities/PostTypes";
 import { db } from "../services/db";
 import InstagramPost from "./InstagramPost";
@@ -36,8 +36,8 @@ interface SupabasePost {
 }
 
 const PostViewPanel: React.FC = () => {
-  const { state, dispatch } = useApp();
-  const { postPanel } = state;
+  const { postPanel, currentCompany, openPostPanel, closePostPanel } =
+    useAppStore();
   const navigate = useNavigate();
   const location = useLocation();
   const { chatId } = useParams<{ chatId: string }>();
@@ -114,7 +114,7 @@ const PostViewPanel: React.FC = () => {
       try {
         const postData = await db.getPostById(
           postPanel.postId,
-          state.currentCompany?.id as string
+          currentCompany?.id as string
         );
         if (postData) {
           const convertedPost = convertSupabasePost(postData);
@@ -139,7 +139,7 @@ const PostViewPanel: React.FC = () => {
     };
 
     fetchPost();
-  }, [postPanel.isOpen, postPanel.postId, state.currentCompany?.id]);
+  }, [postPanel.isOpen, postPanel.postId, currentCompany?.id]);
 
   // Gérer l'initialisation et la synchronisation URL
   useEffect(() => {
@@ -149,15 +149,15 @@ const PostViewPanel: React.FC = () => {
       // Cas 1: Accès direct à l'URL post → ouvrir le panel
       if (isOnPostURL && !postPanel.isOpen && chatId) {
         const openPostFromChat = async () => {
-          if (!state.currentCompany?.id) return;
+          if (!currentCompany?.id) return;
 
           try {
             const chatData = await db.getChatById(
               chatId,
-              state.currentCompany.id
+              currentCompany.id
             );
             if (chatData?.post?.id) {
-              dispatch({ type: "OPEN_POST_PANEL", payload: chatData.post.id });
+              openPostPanel(chatData.post.id);
             } else {
               navigate(`/chats/${chatId}`, { replace: true });
             }
@@ -186,8 +186,8 @@ const PostViewPanel: React.FC = () => {
     chatId,
     isOnPostURL,
     navigate,
-    state.currentCompany?.id,
-    dispatch,
+    currentCompany?.id,
+    openPostPanel,
   ]);
 
   // Handle escape key
@@ -218,7 +218,7 @@ const PostViewPanel: React.FC = () => {
 
   const handleAnimationComplete = (definition: string) => {
     if (definition === "exit" && isClosing) {
-      dispatch({ type: "CLOSE_POST_PANEL" });
+      closePostPanel();
       setIsClosing(false);
     }
   };
@@ -312,7 +312,7 @@ const PostViewPanel: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!post || !state.currentCompany?.id) return;
+    if (!post || !currentCompany?.id) return;
 
     setIsSaving(true);
     try {
@@ -324,7 +324,7 @@ const PostViewPanel: React.FC = () => {
             editData.hashtags.split(" ").filter((tag) => tag.length > 0)
           ),
         },
-        state.currentCompany.id
+        currentCompany.id
       );
 
       // Mettre à jour le post local
@@ -363,7 +363,7 @@ const PostViewPanel: React.FC = () => {
 
   // Fonction de programmation
   const handleSchedule = async () => {
-    if (!post || !state.currentCompany?.id || !scheduledDate) return;
+    if (!post || !currentCompany?.id || !scheduledDate) return;
 
     setIsScheduling(true);
     try {

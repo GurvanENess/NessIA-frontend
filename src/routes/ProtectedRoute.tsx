@@ -1,8 +1,8 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import LoadingScreen from "../shared/components/LoadingScreen";
-import { useApp } from "../shared/contexts/AppContext";
-import { useAuth } from "../shared/contexts/AuthContext";
+import { useAppStore } from "../shared/store/appStore";
+import { useAuthStore } from "../shared/store/authStore";
 
 interface ProtectedRouteProps {
   redirectPath?: string;
@@ -13,8 +13,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectPath = "/login",
   requireCompany = false,
 }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { state } = useApp();
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const currentCompany = useAppStore((s) => s.currentCompany);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Si authentifié mais pas de compagnie et qu'une compagnie est requise
-  if (requireCompany && !state.currentCompany) {
+  if (requireCompany && !currentCompany) {
     return <Navigate to="/company-selection" replace />;
   }
 

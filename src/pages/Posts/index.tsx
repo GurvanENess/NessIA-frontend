@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../shared/contexts/AuthContext";
+import { useAuthStore } from "../../shared/store/authStore";
 import { usePostsStore } from "./store/postsStore";
 import { PostsService } from "./services/postsService";
 import { Post } from "./entities/PostTypes";
 import { db } from "../../shared/services/db";
-import { useApp } from "../../shared/contexts/AppContext";
+import { useAppStore } from "../../shared/store/appStore";
 import PostsHeader from "./components/PostsHeader";
 import PostsGrid from "./components/PostsGrid";
 
 const PostsDisplay: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { state } = useApp();
+  const user = useAuthStore((s) => s.user);
+  const currentCompanyId = useAppStore((s) => s.currentCompany?.id);
   const {
     posts,
     isLoading,
@@ -36,7 +36,7 @@ const PostsDisplay: React.FC = () => {
       startFetchLoading();
       try {
         const userPosts = await PostsService.fetchUserPosts(
-          state.currentCompany?.id as string
+          currentCompanyId as string
         );
         fetchPosts(userPosts);
       } catch (err) {
@@ -45,7 +45,7 @@ const PostsDisplay: React.FC = () => {
     };
 
     loadPosts();
-  }, [user?.id, state.currentCompany?.id]);
+  }, [user?.id, currentCompanyId]);
 
   // Filter posts based on search query
   useEffect(() => {
@@ -78,7 +78,7 @@ const PostsDisplay: React.FC = () => {
       window.confirm("Êtes-vous sûr de vouloir supprimer cette publication ?")
     ) {
       try {
-        await db.deletePostById(postId, state.currentCompany?.id as string);
+        await db.deletePostById(postId, currentCompanyId as string);
         deletePost(postId);
       } catch (err) {
         setError(err, "Impossible de supprimer la publication");

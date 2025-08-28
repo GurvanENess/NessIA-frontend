@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Edit, Eye, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useApp } from "../../../shared/contexts/AppContext";
+import { useAppStore } from "../../../shared/store/appStore";
 
 interface ChatFixedHeaderProps {
   chatId: string;
@@ -20,7 +20,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { dispatch } = useApp();
+  const openPostPanel = useAppStore((s) => s.openPostPanel);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -54,7 +54,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
 
   const handleViewPost = () => {
     if (associatedPostId) {
-      dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
+      openPostPanel(associatedPostId);
       setShowDropdown(false);
     }
   };

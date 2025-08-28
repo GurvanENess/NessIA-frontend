@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useAppStore } from "../store/appStore";
 import { db } from "../services/db";
 
 interface UseCompanyResourceAccessReturn {
   hasAccess: boolean;
   isLoading: boolean;
-  resourceData: any | null;
+  resourceData: unknown | null;
   error: string | null;
 }
 
@@ -17,13 +17,13 @@ interface UseCompanyResourceAccessReturn {
 export const useCompanyResourceAccess = (
   resourceType: "post" | "chat"
 ): UseCompanyResourceAccessReturn => {
-  const { state } = useApp();
+  const currentCompanyId = useAppStore((s) => s.currentCompany?.id);
   const { postId, chatId } = useParams<{ postId?: string; chatId?: string }>();
   const navigate = useNavigate();
 
   const [hasAccess, setHasAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [resourceData, setResourceData] = useState<any | null>(null);
+  const [resourceData, setResourceData] = useState<unknown | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const useCompanyResourceAccess = (
         return;
       }
 
-      if (!state.currentCompany?.id) {
+      if (!currentCompanyId) {
         setHasAccess(false);
         setError("Aucune compagnie sélectionnée");
         setIsLoading(false);
@@ -45,12 +45,12 @@ export const useCompanyResourceAccess = (
       try {
         setIsLoading(true);
         setError(null);
-        let data;
+        let data: unknown;
 
         if (resourceType === "post" && postId) {
-          data = await db.getPostById(postId, state.currentCompany.id);
+          data = await db.getPostById(postId, currentCompanyId);
         } else if (resourceType === "chat" && chatId) {
-          data = await db.getChatById(chatId, state.currentCompany.id);
+          data = await db.getChatById(chatId, currentCompanyId);
         } else {
           setError("ID de ressource manquant");
           setHasAccess(false);
@@ -75,7 +75,7 @@ export const useCompanyResourceAccess = (
     };
 
     checkResourceAccess();
-  }, [resourceType, postId, chatId, state.currentCompany?.id]);
+  }, [resourceType, postId, chatId, currentCompanyId]);
 
   // Rediriger vers 404 si pas d'accès (après le chargement)
   useEffect(() => {

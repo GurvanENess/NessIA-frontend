@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, AlertTriangle } from "lucide-react";
 import { db } from "../services/db";
 import toast from "react-hot-toast";
-import { useApp } from "../contexts/AppContext";
+import { useAppStore } from "../store/appStore";
 
 interface DeleteChatModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
   onDeleteConfirm,
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const { state } = useApp();
+  const currentCompanyId = useAppStore((s) => s.currentCompany?.id);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close modal when clicking outside
@@ -62,7 +62,7 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
     setIsLoading(true);
     
     try {
-      await db.deleteChatById(chatId, state.currentCompany?.id as string);
+      await db.deleteChatById(chatId, currentCompanyId as string);
       onDeleteConfirm();
       toast.success("Conversation supprimée avec succès");
       onClose();

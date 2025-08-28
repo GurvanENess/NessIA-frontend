@@ -15,19 +15,15 @@ import PublicRoute from "./routes/PublicRoute";
 import NotFound from "./shared/components/errors/NotFound";
 import FileSelectModal from "./shared/components/FileSelectModal";
 import AppLayout from "./shared/components/layouts/AppLayout";
-import { AppProvider } from "./shared/contexts/AppContext";
-import { AuthProvider } from "./shared/contexts/AuthContext";
 
 // Il y a quelque chose qui est fucked ici avec
 const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <AuthProvider>
-      <AppProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Routes>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -85,11 +81,9 @@ const App: React.FC = () => {
 
               {/* Fallback for unknown routes */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </Router>
-      </AppProvider>
-    </AuthProvider>
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

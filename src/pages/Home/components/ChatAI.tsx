@@ -5,8 +5,8 @@ import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import DeleteChatModal from "../../../shared/components/DeleteChatModal";
 import RenameChatModal from "../../../shared/components/RenameChatModal";
-import { useApp } from "../../../shared/contexts/AppContext";
-import { useAuth } from "../../../shared/contexts/AuthContext";
+import { useAppStore } from "../../../shared/store/appStore";
+import { useAuthStore } from "../../../shared/store/authStore";
 import { Message } from "../../../shared/entities/ChatTypes";
 import { useCompanyResourceAccess } from "../../../shared/hooks/useCompanyResourceAccess";
 import useJobPolling from "../../../shared/hooks/useJobPolling";
@@ -21,20 +21,20 @@ import QuickActions from "./QuickActions";
 const Chat: React.FC = () => {
   // ===== HOOKS & VARIABLES INITIALES =====
 
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
   const { chatId: sessionIdParam } = useParams();
-  const appContext = useApp();
-  const { dispatch, state } = appContext;
   const {
-    chat: {
-      sessionId,
-      messages,
-      messageInput,
-      isLoading,
-      error,
-      showQuickActions,
-    },
-  } = state;
+    chat: { sessionId, messages, messageInput, isLoading, error, showQuickActions },
+    currentCompany,
+    setChatSessionId,
+    setChatLoading,
+    setChatError,
+    setMessages,
+    addMessage,
+    setMessageInput,
+    hideQuickActions,
+    resetChat,
+  } = useAppStore();
   const { jobs, startPolling, stopPolling } = useJobPolling();
   const navigate = useNavigate();
   const { conversations, fetchChats, renameChat, deleteChat } = useChatsStore();
@@ -67,9 +67,9 @@ const Chat: React.FC = () => {
   // Load chats when component mounts (for header functionality)
   useEffect(() => {
     const loadChats = async () => {
-      if (sessionIdParam && state.currentCompany?.id) {
+      if (sessionIdParam && currentCompany?.id) {
         try {
-          const userChats = await db.getAllChats(state.currentCompany.id);
+          const userChats = await db.getAllChats(currentCompany.id);
           const userChatsFormated = formatChatsforUi(userChats);
           fetchChats(userChatsFormated);
         } catch (err) {
@@ -79,15 +79,15 @@ const Chat: React.FC = () => {
     };
 
     loadChats();
-  }, [sessionIdParam, state.currentCompany?.id]);
+  }, [sessionIdParam, currentCompany?.id]);
 
   // ===== LOGIQUE DE GESTION DES SESSIONS =====
 
   useEffect(() => {
     if (sessionIdParam && sessionId !== sessionIdParam) {
-      dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
+      setChatSessionId(sessionIdParam);
     }
-  }, [sessionIdParam, sessionId, dispatch]);
+  }, [sessionIdParam, sessionId, setChatSessionId]);
 
   useEffect(() => {
     if (sessionIdParam) {
@@ -104,17 +104,14 @@ const Chat: React.FC = () => {
   // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
 
   const fetchMessages = async (sessionId: string) => {
-    dispatch({ type: "SET_LOADING", payload: true });
+    setChatLoading(true);
     try {
       const data = await db.getChatSessionMessages(sessionId, user!.id);
-      dispatch({
-        type: "SET_MESSAGES",
-        payload: formatMessagesFromDb(data),
-      });
+      setMessages(formatMessagesFromDb(data));
     } catch (err) {
       console.error("Error fetching messages:", err);
     } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
+      setChatLoading(false);
     }
   };
 
@@ -127,8 +124,8 @@ const Chat: React.FC = () => {
         timestamp: new Date(),
       };
 
-      dispatch({ type: "ADD_MESSAGE", payload: userMessage });
-      dispatch({ type: "SET_MESSAGE_INPUT", payload: "" });
+      addMessage(userMessage);
+      setMessageInput("");
 
       return userMessage;
     } catch (err) {
@@ -143,7 +140,7 @@ const Chat: React.FC = () => {
         message: message,
         sessionId: sessionId,
         userToken: user?.token,
-        companyId: state.currentCompany?.id || "1",
+        companyId: currentCompany?.id || "1",
       });
 
       console.log(response);
@@ -152,7 +149,7 @@ const Chat: React.FC = () => {
       await fetchMessages(response.sessionId);
 
       if (!sessionId) {
-        dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
+        setChatSessionId(response.sessionId);
         navigate(`/chats/${response.sessionId}`);
       }
     } catch (err) {
@@ -170,18 +167,15 @@ const Chat: React.FC = () => {
     if (isLoading) return;
     if (isMessageEmpty(message)) return;
 
-    dispatch({ type: "SET_LOADING", payload: true });
-    dispatch({ type: "SET_ERROR", payload: null });
+    setChatLoading(true);
+    setChatError(null);
 
     try {
       await processUserMessage(message);
       await processAiResponse(message);
     } catch (err) {
       console.error("Error processing message:", err);
-      dispatch({
-        type: "SET_ERROR",
-        payload: "Une erreur est survenue lors de l'envoie du message.",
-      });
+      setChatError("Une erreur est survenue lors de l'envoie du message.");
       toast.error("Une erreur est survenue lors de l'envoi du message", {
         duration: 3000,
         style: {
@@ -195,7 +189,7 @@ const Chat: React.FC = () => {
       });
       return;
     } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
+      setChatLoading(false);
     }
   };
 
@@ -209,7 +203,7 @@ const Chat: React.FC = () => {
         userInput: answer,
         jobId: job.id,
         agentIndex: job.need_user_input?.agent_index,
-        companyId: state.currentCompany?.id || "1",
+        companyId: currentCompany?.id || "1",
       });
 
       console.log(response);
@@ -225,7 +219,7 @@ const Chat: React.FC = () => {
   };
 
   const handleQuickAction = async (text: string) => {
-    dispatch({ type: "HIDE_QUICK_ACTIONS" });
+    hideQuickActions();
     await handleSendMessage(text, true);
   };
 
@@ -255,7 +249,7 @@ const Chat: React.FC = () => {
     if (selectedChat) {
       deleteChat(selectedChat.id);
       // Navigate to home after deletion
-      dispatch({ type: "RESET_CHAT" });
+      resetChat();
       navigate("/");
     }
   };
@@ -316,9 +310,7 @@ const Chat: React.FC = () => {
 
         <ChatInput
           value={messageInput}
-          onChange={(value) =>
-            dispatch({ type: "SET_MESSAGE_INPUT", payload: value })
-          }
+          onChange={(value) => setMessageInput(value)}
           onSend={handleSendMessage}
           isLoading={isLoading}
           jobs={jobs}
@@ -379,9 +371,7 @@ const Chat: React.FC = () => {
 
         <ChatInput
           value={messageInput}
-          onChange={(value) =>
-            dispatch({ type: "SET_MESSAGE_INPUT", payload: value })
-          }
+          onChange={(value) => setMessageInput(value)}
           onSend={handleSendMessage}
           isLoading={isLoading}
           jobs={jobs}

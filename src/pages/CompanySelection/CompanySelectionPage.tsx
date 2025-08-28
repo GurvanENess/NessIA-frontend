@@ -2,15 +2,15 @@ import { motion } from "framer-motion";
 import { AlertCircle, Building2, Check } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../shared/contexts/AppContext";
-import { useAuth } from "../../shared/contexts/AuthContext";
+import { useAppStore } from "../../shared/store/appStore";
+import { useAuthStore } from "../../shared/store/authStore";
 import { db } from "../../shared/services/db";
-import { Company } from "../../shared/store/AppReducer";
+import { Company } from "../../shared/entities/CompanyTypes";
 
 const CompanySelectionPage: React.FC = () => {
   console.log("here");
-  const { setCurrentCompany } = useApp();
-  const { user } = useAuth();
+  const { setCurrentCompany } = useAppStore();
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
