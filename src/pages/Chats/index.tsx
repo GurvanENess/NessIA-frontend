@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../shared/contexts/AuthContext";
-import { useChatsStore } from "./store/chatsStore";
-import { ChatsService } from "./services/chatsService";
-import { ChatConversation } from "./entities/ChatTypes";
-import { db } from "../../shared/services/db";
-import ChatsHeader from "./components/ChatsHeader";
-import ChatsGrid from "./components/ChatsGrid";
-import { formatChatsforUi } from "./utils/utils";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "../../shared/contexts/AppContext";
+import { useAuth } from "../../shared/contexts/AuthContext";
+import { db } from "../../shared/services/db";
+import ChatsGrid from "./components/ChatsGrid";
+import ChatsHeader from "./components/ChatsHeader";
+import { ChatConversation } from "./entities/ChatTypes";
+import { ChatsService } from "./services/chatsService";
+import { useChatsStore } from "./store/chatsStore";
+import { formatChatsforUi } from "./utils/utils";
 
 const ChatsDisplay: React.FC = () => {
   const navigate = useNavigate();
