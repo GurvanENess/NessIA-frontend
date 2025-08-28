@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
 import { db } from "../../shared/services/db";
-import { logger } from "../../shared/utils/logger";
 import ChatsGrid from "./components/ChatsGrid";
 import ChatsHeader from "./components/ChatsHeader";
 import { ChatConversation } from "./entities/ChatTypes";
