@@ -58,9 +58,9 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   };
 
   const handleCompanySelect = (company: Company) => {
+    window.location.href = "/";
     changeCompanyAndReset(company);
     setIsOpen(false);
-    navigate(0);
   };
 
   const getUserInitial = () => {
