@@ -1,3 +1,7 @@
+import {
+  ChatConversation,
+  ChatsState,
+} from "../../pages/Chats/entities/ChatTypes";
 import { Message } from "../entities/ChatTypes";
 import { PostData } from "../entities/PostTypes";
 
@@ -36,6 +40,7 @@ interface PostPanelState {
 export interface AppState {
   post: PostState;
   chat: ChatState;
+  chats: ChatsState;
   postPanel: PostPanelState;
   currentCompany: Company | null;
   error: string | null;
@@ -73,9 +78,25 @@ export type PostPanelAction =
   | { type: "OPEN_POST_PANEL"; payload: string }
   | { type: "CLOSE_POST_PANEL" };
 
+export type ChatsAction =
+  | { type: "FETCH_CHATS_START" }
+  | { type: "FETCH_CHATS_SUCCESS"; payload: ChatConversation[] }
+  | { type: "FETCH_CHATS_ERROR"; payload: string }
+  | {
+      type: "SET_CHATS_SORT";
+      payload: {
+        sortBy: ChatsState["sortBy"];
+        sortOrder: ChatsState["sortOrder"];
+      };
+    }
+  | { type: "DELETE_CHAT"; payload: string }
+  | { type: "ARCHIVE_CHAT"; payload: string }
+  | { type: "RENAME_CHAT"; payload: { id: string; newTitle: string } };
+
 export type AppAction =
   | PostAction
   | ChatAction
+  | ChatsAction
   | CompanyAction
   | PostPanelAction
   | { type: "SET_GLOBAL_ERROR"; payload: string }
@@ -101,6 +122,13 @@ export const initialState: AppState = {
     isLoading: false,
     error: null,
     showQuickActions: true,
+  },
+  chats: {
+    conversations: [],
+    isLoading: false,
+    error: null,
+    sortBy: "date",
+    sortOrder: "desc",
   },
   postPanel: {
     isOpen: false,
@@ -329,6 +357,109 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         postPanel: {
           isOpen: false,
           postId: null,
+        },
+      };
+
+    // Chats Actions
+    case "FETCH_CHATS_START":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          isLoading: true,
+          error: null,
+        },
+      };
+
+    case "FETCH_CHATS_SUCCESS":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          isLoading: false,
+          conversations: action.payload,
+          error: null,
+        },
+      };
+
+    case "FETCH_CHATS_ERROR":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          isLoading: false,
+          error: action.payload,
+        },
+      };
+
+    case "SET_CHATS_SORT":
+      const sortedChats = [...state.chats.conversations].sort((a, b) => {
+        let comparison = 0;
+
+        switch (action.payload.sortBy) {
+          case "date":
+            comparison =
+              a.lastMessageDate.getTime() - b.lastMessageDate.getTime();
+            break;
+          case "title":
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case "activity":
+            comparison = a.messageCount - b.messageCount;
+            break;
+        }
+
+        return action.payload.sortOrder === "asc" ? comparison : -comparison;
+      });
+
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: sortedChats,
+          sortBy: action.payload.sortBy,
+          sortOrder: action.payload.sortOrder,
+        },
+      };
+
+    case "DELETE_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.filter(
+            (chat) => chat.id !== action.payload
+          ),
+        },
+      };
+
+    case "ARCHIVE_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.map((chat) =>
+            chat.id === action.payload
+              ? { ...chat, isActive: false, updatedAt: new Date() }
+              : chat
+          ),
+        },
+      };
+
+    case "RENAME_CHAT":
+      return {
+        ...state,
+        chats: {
+          ...state.chats,
+          conversations: state.chats.conversations.map((chat) =>
+            chat.id === action.payload.id
+              ? {
+                  ...chat,
+                  title: action.payload.newTitle,
+                  updatedAt: new Date(),
+                }
+              : chat
+          ),
         },
       };
 

@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { useChats } from "../../hooks/useChats";
 import { db } from "../../services/db";
 import { Company } from "../../store/AppReducer";
 import { logger } from "../../utils/logger";
@@ -47,7 +47,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 }) => {
   const { dispatch, state } = useApp();
   const { user } = useAuth();
-  const { conversations, fetchChats } = useChatsStore();
+  const { conversations, fetchChats } = useChats();
   const { chatId: currentChatId } = useParams();
 
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
@@ -187,15 +187,29 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     setShowActionsForChatId(null);
   };
 
-  const handleRenameConfirm = (newTitle: string) => {
+  const handleRenameConfirm = async (newTitle: string) => {
     if (selectedChat) {
-      // Update the local state immediately for better UX
+      // Mettre à jour le store local immédiatement pour l'UX
       const updatedConversations = conversations.map((chat) =>
         chat.id === selectedChat.id
           ? { ...chat, title: newTitle, updatedAt: new Date() }
           : chat
       );
       fetchChats(updatedConversations);
+
+      // Recharger depuis la base pour maintenir la synchronisation globale
+      if (state.currentCompany?.id) {
+        try {
+          const userChats = await db.getAllChats(state.currentCompany.id);
+          const userChatsFormated = formatChatsforUi(userChats);
+          fetchChats(userChatsFormated);
+        } catch (err) {
+          logger.error(
+            "Failed to reload chats after rename in BurgerMenu",
+            err
+          );
+        }
+      }
     }
   };
 

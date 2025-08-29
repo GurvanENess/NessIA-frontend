@@ -3,9 +3,9 @@ import { Bell, Eye } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Outlet, useLocation, useParams } from "react-router-dom";
-import { useChatsStore } from "../../../pages/Chats/store/chatsStore";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
+import { useChats } from "../../hooks/useChats";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { db } from "../../services/db";
 import { logger } from "../../utils/logger";
@@ -20,7 +20,7 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
   const { chatId } = useParams();
   const { dispatch, state } = useApp();
-  const { conversations, fetchChats } = useChatsStore();
+  const { conversations, fetchChats } = useChats();
 
   const isSettingsPage = location.pathname.includes("/settings");
 

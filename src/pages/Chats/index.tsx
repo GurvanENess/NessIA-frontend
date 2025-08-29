@@ -4,12 +4,12 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../shared/contexts/AppContext";
 import { useAuth } from "../../shared/contexts/AuthContext";
+import { useChats } from "../../shared/hooks/useChats";
 import { db } from "../../shared/services/db";
 import ChatsGrid from "./components/ChatsGrid";
 import ChatsHeader from "./components/ChatsHeader";
 import { ChatConversation } from "./entities/ChatTypes";
 import { ChatsService } from "./services/chatsService";
-import { useChatsStore } from "./store/chatsStore";
 import { formatChatsforUi } from "./utils/utils";
 
 const ChatsDisplay: React.FC = () => {
@@ -27,7 +27,7 @@ const ChatsDisplay: React.FC = () => {
     setSort,
     deleteChat,
     archiveChat,
-  } = useChatsStore();
+  } = useChats();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredChats, setFilteredChats] = useState<ChatConversation[]>([]);
