@@ -177,6 +177,7 @@ const Chat: React.FC = () => {
       await processAiResponse(message);
     } catch (err) {
       logger.error("Error processing message", err);
+      console.log(err);
       dispatch({
         type: "SET_ERROR",
         payload: "Une erreur est survenue lors de l'envoie du message.",
