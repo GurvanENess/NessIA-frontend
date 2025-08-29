@@ -147,7 +147,6 @@ const Chat: React.FC = () => {
         companyId: state.currentCompany?.id || "1",
       });
 
-      throw new Error("test");
       await startPolling(response.sessionId);
       await fetchMessages(response.sessionId);
 

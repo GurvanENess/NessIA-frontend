@@ -9,7 +9,7 @@ import { useChats } from "../../hooks/useChats";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
 import { db } from "../../services/db";
 import { logger } from "../../utils/logger";
-import PostViewPanel from "../PostViewPanel";
+import PostViewPanel from "../PostViewPanel/PostViewPanel";
 import BurgerMenu from "./BurgerMenu";
 
 const AppLayout: React.FC = () => {

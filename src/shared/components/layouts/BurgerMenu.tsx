@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -45,6 +45,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   onOpen,
   appDimensions,
 }) => {
+  const navigate = useNavigate();
   const { dispatch, state } = useApp();
   const { user } = useAuth();
   const { conversations, fetchChats } = useChats();
@@ -224,6 +225,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       // If we're currently viewing the deleted chat, navigate to home
       if (currentChatId === selectedChat.id) {
         dispatch({ type: "RESET_CHAT" });
+        navigate("/");
         onClose();
       }
     }
