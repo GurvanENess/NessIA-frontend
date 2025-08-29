@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Edit, Eye, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "../../../shared/contexts/AppContext";
 
 interface ChatFixedHeaderProps {
@@ -21,6 +22,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { dispatch } = useApp();
+  const navigate = useNavigate();
 
   // Close dropdown when clicking outside
   useEffect(() => {

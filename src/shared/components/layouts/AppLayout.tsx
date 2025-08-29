@@ -52,7 +52,7 @@ const AppLayout: React.FC = () => {
   }, [isChatPage, state.currentCompany?.id, chatId]);
 
   const handleViewPost = () => {
-    if (associatedPostId) {
+    if (associatedPostId && chatId) {
       dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
     }
   };

@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, MessageSquare, Trash2 } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Post } from "../../../pages/Posts/entities/PostTypes";
-import { PostData } from "../../entities/PostTypes";
 import { useApp } from "../../contexts/AppContext";
+import { PostData } from "../../entities/PostTypes";
 import { db } from "../../services/db";
-import PreviewTab from "./PreviewTab";
-import EditTab from "./EditTab";
-import ScheduleTab from "./ScheduleTab";
 import {
   convertSupabasePost,
   getPlatformColor,
@@ -18,13 +15,15 @@ import {
   getStatusText,
   SupabasePost,
 } from "../../utils/postUtils";
+import EditTab from "./EditTab";
+import PreviewTab from "./PreviewTab";
+import ScheduleTab from "./ScheduleTab";
 
 const PostViewPanel: React.FC = () => {
   const { state, dispatch } = useApp();
   const { postPanel } = state;
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,22 +31,9 @@ const PostViewPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"preview" | "edit" | "schedule">(
     "preview"
   );
-  const [isMobile, setIsMobile] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const isOnPostURL = location.pathname.endsWith("/post/");
-
-  // detect mobile
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // fetch post when panel opens
+  // Fetch post when panel opens
   useEffect(() => {
     const fetchPost = async () => {
       if (!postPanel.isOpen || !postPanel.postId) return;
@@ -74,71 +60,34 @@ const PostViewPanel: React.FC = () => {
     fetchPost();
   }, [postPanel.isOpen, postPanel.postId, state.currentCompany?.id]);
 
-  // url synchronisation
-  useEffect(() => {
-    if (!hasInitialized) {
-      setHasInitialized(true);
-      if (isOnPostURL && !postPanel.isOpen && chatId) {
-        const openPostFromChat = async () => {
-          if (!state.currentCompany?.id) return;
-          try {
-            const chatData = await db.getChatById(
-              chatId,
-              state.currentCompany.id
-            );
-            if (chatData?.post?.id) {
-              dispatch({ type: "OPEN_POST_PANEL", payload: chatData.post.id });
-            } else {
-              navigate(`/chats/${chatId}`, { replace: true });
-            }
-          } catch {
-            navigate(`/chats/${chatId}`, { replace: true });
-          }
-        };
-        openPostFromChat();
-      }
-      return;
-    }
-    if (postPanel.isOpen && chatId && !isOnPostURL) {
-      navigate(`/chats/${chatId}/post/`, { replace: true });
-    }
-    if (!postPanel.isOpen && isOnPostURL) {
-      navigate(`/chats/${chatId}`, { replace: true });
-    }
-  }, [
-    hasInitialized,
-    postPanel.isOpen,
-    chatId,
-    isOnPostURL,
-    navigate,
-    state.currentCompany?.id,
-    dispatch,
-  ]);
-
-  // escape key handling
+  // Escape key handling et gestion du scroll
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && postPanel.isOpen) handleClose();
+      if (event.key === "Escape" && postPanel.isOpen) {
+        handleClose();
+      }
     };
+
     if (postPanel.isOpen) {
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
+
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
   }, [postPanel.isOpen]);
 
-  const handleClose = () => setIsClosing(true);
-
-  const handleAnimationComplete = (definition: string) => {
-    if (definition === "exit" && isClosing) {
-      dispatch({ type: "CLOSE_POST_PANEL" });
-      setIsClosing(false);
-    }
+  // Fonction de fermeture simplifiée
+  const handleClose = () => {
+    dispatch({ type: "CLOSE_POST_PANEL" });
+    // Navigation après l'animation (300ms)
+    setTimeout(() => {
+      navigate(`/chats/${chatId}`, { replace: true });
+    }, 300);
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -160,9 +109,7 @@ const PostViewPanel: React.FC = () => {
     setPost({
       ...post,
       description: data.caption,
-      hashtags: data.hashtags
-        .split(" ")
-        .filter((t) => t.length > 0),
+      hashtags: data.hashtags.split(" ").filter((t) => t.length > 0),
     });
     toast.success("Post mis à jour avec succès");
     setActiveTab("preview");
@@ -188,7 +135,7 @@ const PostViewPanel: React.FC = () => {
     <AnimatePresence>
       {postPanel.isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-end"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -196,12 +143,11 @@ const PostViewPanel: React.FC = () => {
         >
           <motion.div
             ref={panelRef}
-            className="bg-white h-full flex flex-col shadow-xl"
-            initial={{ x: isMobile ? "100%" : 500 }}
-            animate={{ x: 0, width: isMobile ? "100%" : 500 }}
-            exit={{ x: isMobile ? "100%" : 500 }}
+            className="bg-white min-h-full flex flex-col shadow-xl absolute top-0 right-0 md:left-[290px] left-0"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            onAnimationComplete={handleAnimationComplete}
           >
             <div className="border-b bg-white">
               <div className="flex items-center justify-between p-6">
@@ -215,18 +161,13 @@ const PostViewPanel: React.FC = () => {
                       : "Détails du post"}
                   </h2>
                 </div>
-                {post?.conversationId && (
-                  <button
-                    onClick={() => {
-                      navigate(`/chats/${post.conversationId}`);
-                      handleClose();
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9]"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span className="font-medium">Voir le chat</span>
-                  </button>
-                )}
+                <button
+                  onClick={handleClose}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9]"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="font-medium">Voir le chat</span>
+                </button>
               </div>
               <div className="flex border-b">
                 <motion.button
@@ -245,7 +186,11 @@ const PostViewPanel: React.FC = () => {
                       layoutId="activeTabPanel"
                       className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-purple-700"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </motion.button>
@@ -265,7 +210,11 @@ const PostViewPanel: React.FC = () => {
                       layoutId="activeTabPanel"
                       className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-purple-700"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </motion.button>
@@ -285,7 +234,11 @@ const PostViewPanel: React.FC = () => {
                       layoutId="activeTabPanel"
                       className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-purple-700"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </motion.button>
