@@ -256,7 +256,7 @@ const PrivacyPolicy: React.FC = () => {
               <div className="text-center">
                 <Mail className="w-8 h-8 text-[#7C3AED] mx-auto mb-3" />
                 <h4 className="font-medium text-gray-900 mb-2">Email</h4>
-                <p className="text-gray-600 text-sm">eness@nessia.com</p>
+                <p className="text-gray-600 text-sm">contact@nessia.com</p>
               </div>
 
               <div className="text-center">

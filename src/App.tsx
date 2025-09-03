@@ -28,6 +28,7 @@ const App: React.FC = () => {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Routes>
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -77,7 +78,6 @@ const App: React.FC = () => {
                     <Route path="/chats/:chatId/post/" element={<ChatAI />} />
                     <Route path="/settings/*" element={<SettingsPage />} />
                     <Route path="/post/new" element={<PostEditor />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   </Route>
                 </Route>
                 {/* Add more protected routes here */}
