@@ -30,6 +30,7 @@ export default function useJobPolling() {
     try {
       const runningJobs = await fetchRunningJobs(sessionId);
       setJobs(runningJobs);
+      console.log("runningJobs", runningJobs);
 
       if (
         runningJobs.length === 0 ||

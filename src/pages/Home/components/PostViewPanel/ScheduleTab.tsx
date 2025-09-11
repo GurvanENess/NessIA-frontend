@@ -19,7 +19,10 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({ onSchedule, onCancel }) => {
 
   return (
     <div className="space-y-6">
-      <DateTimePicker selectedDate={selectedDate} onDateTimeChange={setSelectedDate} />
+      <DateTimePicker
+        selectedDate={selectedDate}
+        onDateTimeChange={setSelectedDate}
+      />
       <div className="flex justify-end gap-3">
         <button
           onClick={onCancel}

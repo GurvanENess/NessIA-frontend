@@ -1,15 +1,9 @@
 import { AnimatePresence } from "framer-motion";
-import { Bell, Eye } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { Bell } from "lucide-react";
+import React, { useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Outlet, useLocation, useParams } from "react-router-dom";
-import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
-import { useApp } from "../../contexts/AppContext";
-import { useChats } from "../../hooks/useChats";
+import { Outlet, useLocation } from "react-router-dom";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
-import { db } from "../../services/db";
-import { logger } from "../../utils/logger";
-import PostViewPanel from "../PostViewPanel/PostViewPanel";
 import BurgerMenu from "./BurgerMenu";
 
 const AppLayout: React.FC = () => {
@@ -18,44 +12,8 @@ const AppLayout: React.FC = () => {
   const appContainerRef = useRef<HTMLDivElement>(null);
   const dimensions = useContainerDimensions(appContainerRef);
   const location = useLocation();
-  const { chatId } = useParams();
-  const { dispatch, state } = useApp();
-  const { conversations, fetchChats } = useChats();
 
   const isSettingsPage = location.pathname.includes("/settings");
-
-  // Détecter si nous sommes sur une page de chat
-  const isChatPage = location.pathname.includes("/chats/") && chatId;
-
-  // Trouver le chat actuel et son post associé
-  const currentChat = conversations.find((chat) => chat.id === chatId);
-  const associatedPostId = currentChat?.associatedPostId;
-
-  // Condition pour afficher le bouton : page de chat ET post associé
-  const shouldShowPostButton = isChatPage && associatedPostId;
-
-  // Charger les chats pour obtenir les données du chat actuel
-  useEffect(() => {
-    const loadChats = async () => {
-      if (isChatPage && state.currentCompany?.id) {
-        try {
-          const userChats = await db.getAllChats(state.currentCompany.id);
-          const userChatsFormated = formatChatsforUi(userChats);
-          fetchChats(userChatsFormated);
-        } catch (err) {
-          logger.error("Failed to load chats for mobile header", err);
-        }
-      }
-    };
-
-    loadChats();
-  }, [isChatPage, state.currentCompany?.id, chatId]);
-
-  const handleViewPost = () => {
-    if (associatedPostId && chatId) {
-      dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
-    }
-  };
 
   return (
     <div
@@ -77,17 +35,6 @@ const AppLayout: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Bouton pour voir le post associé - Seulement en mobile et si conditions remplies */}
-          {shouldShowPostButton && (
-            <button
-              onClick={handleViewPost}
-              className="p-2 hover:bg-[#E7E9F2] rounded-full relative"
-              title="Voir le post associé"
-            >
-              <Eye className="w-5 text-[#7C3AED]" />
-            </button>
-          )}
-
           <button
             className="p-2 hover:bg-[#E7E9F2] rounded-full relative"
             onClick={() => {
@@ -109,9 +56,6 @@ const AppLayout: React.FC = () => {
         onOpen={() => setIsMenuOpen(true)}
         appDimensions={dimensions}
       />
-
-      {/* Post View Panel */}
-      <PostViewPanel />
 
       {/* Main Content Area */}
       <main

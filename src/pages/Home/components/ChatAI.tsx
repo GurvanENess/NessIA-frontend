@@ -17,6 +17,7 @@ import { formatMessagesFromDb, isMessageEmpty } from "../utils/utils";
 import ChatFixedHeader from "./ChatFixedHeader";
 import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
+import PostViewPanel from "./PostViewPanel/PostViewPanel";
 import QuickActions from "./QuickActions";
 
 const Chat: React.FC = () => {
@@ -102,8 +103,6 @@ const Chat: React.FC = () => {
     };
   }, [sessionIdParam]);
 
-  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
-
   const fetchMessages = async (sessionId: string) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
@@ -118,6 +117,20 @@ const Chat: React.FC = () => {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
+
+  const refreshConversations = async () => {
+    if (!state.currentCompany) return;
+
+    try {
+      const conversations = await db.getAllChats(state.currentCompany.id);
+      const chatsFormated = formatChatsforUi(conversations);
+      fetchChats(chatsFormated);
+    } catch (err) {
+      logger.error("Failed to refresh conversations", err);
+    }
+  };
+
+  // ===== LOGIQUE DE TRAITEMENT DES MESSAGES =====
 
   const processUserMessage = async (message: string) => {
     try {
@@ -149,6 +162,7 @@ const Chat: React.FC = () => {
 
       await startPolling(response.sessionId);
       await fetchMessages(response.sessionId);
+      await refreshConversations();
 
       if (!sessionId) {
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
@@ -354,6 +368,9 @@ const Chat: React.FC = () => {
           )}
         </ChatInput>
       </div>
+
+      {/* Post View Panel */}
+      <PostViewPanel />
 
       {/* Modals */}
       {selectedChat && (

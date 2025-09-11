@@ -1,7 +1,7 @@
+import { Hash, Image as ImageIcon, Pen, Pencil } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Pen, Pencil, Image as ImageIcon, Hash } from "lucide-react";
-import { Post } from "../../../pages/Posts/entities/PostTypes";
-import { PostData } from "../../entities/PostTypes";
+import { PostData } from "../../../../shared/entities/PostTypes";
+import { Post } from "../../../Posts/entities/PostTypes";
 
 interface EditTabProps {
   post: Post;
@@ -93,7 +93,9 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
           placeholder="Décrivez votre post..."
           rows={4}
           value={formData.caption}
-          onChange={(e) => setFormData((p) => ({ ...p, caption: e.target.value }))}
+          onChange={(e) =>
+            setFormData((p) => ({ ...p, caption: e.target.value }))
+          }
         />
       </div>
 
@@ -107,7 +109,9 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
           placeholder="#marketing #socialmedia"
           value={formData.hashtags}
-          onChange={(e) => setFormData((p) => ({ ...p, hashtags: e.target.value }))}
+          onChange={(e) =>
+            setFormData((p) => ({ ...p, hashtags: e.target.value }))
+          }
         />
       </div>
 

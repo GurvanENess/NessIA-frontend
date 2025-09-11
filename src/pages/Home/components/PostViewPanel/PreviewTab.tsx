@@ -1,6 +1,6 @@
 import React from "react";
-import InstagramPost from "../InstagramPost";
-import { Post } from "../../../pages/Posts/entities/PostTypes";
+import InstagramPost from "../../../../shared/components/InstagramPost";
+import { Post } from "../../../Posts/entities/PostTypes";
 
 interface PreviewTabProps {
   post: Post;
@@ -8,7 +8,11 @@ interface PreviewTabProps {
   onSchedule: () => void;
 }
 
-const PreviewTab: React.FC<PreviewTabProps> = ({ post, onEdit, onSchedule }) => {
+const PreviewTab: React.FC<PreviewTabProps> = ({
+  post,
+  onEdit,
+  onSchedule,
+}) => {
   return (
     <div className="flex flex-col items-center">
       <InstagramPost

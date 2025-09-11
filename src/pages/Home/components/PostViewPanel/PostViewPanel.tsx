@@ -3,10 +3,9 @@ import { Eye, MessageSquare, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { Post } from "../../../pages/Posts/entities/PostTypes";
-import { useApp } from "../../contexts/AppContext";
-import { PostData } from "../../entities/PostTypes";
-import { db } from "../../services/db";
+import { useApp } from "../../../../shared/contexts/AppContext";
+import { PostData } from "../../../../shared/entities/PostTypes";
+import { db } from "../../../../shared/services/db";
 import {
   convertSupabasePost,
   getPlatformColor,
@@ -14,7 +13,8 @@ import {
   getStatusColor,
   getStatusText,
   SupabasePost,
-} from "../../utils/postUtils";
+} from "../../../../shared/utils/postUtils";
+import { Post } from "../../../Posts/entities/PostTypes";
 import EditTab from "./EditTab";
 import PreviewTab from "./PreviewTab";
 import ScheduleTab from "./ScheduleTab";
@@ -143,7 +143,7 @@ const PostViewPanel: React.FC = () => {
         >
           <motion.div
             ref={panelRef}
-            className="bg-white min-h-full flex flex-col shadow-xl absolute top-0 right-0 md:left-[290px] left-0"
+            className="bg-white min-h-full max-h-full flex flex-col shadow-xl absolute top-0 right-0 md:left-[290px] left-0"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
