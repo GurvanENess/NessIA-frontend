@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Edit, Eye, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../../shared/contexts/AppContext";
+import { useApp } from "../../../../shared/contexts/AppContext";
 
 interface ChatFixedHeaderProps {
   chatId: string;

@@ -3,7 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ChatsDisplay from "./pages/Chats";
 import CompanySelectionPage from "./pages/CompanySelection/index";
 import Home from "./pages/Home";
-import ChatAI from "./pages/Home/components/ChatAI";
+import ChatPage from "./pages/Home/components/ChatPage";
 import Login from "./pages/Login";
 import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
@@ -74,8 +74,8 @@ const App: React.FC = () => {
                         </div>
                       }
                     />
-                    <Route path="/chats/:chatId" element={<ChatAI />} />
-                    <Route path="/chats/:chatId/post/" element={<ChatAI />} />
+                    <Route path="/chats/:chatId" element={<ChatPage />} />
+                    <Route path="/chats/:chatId/post/" element={<ChatPage />} />
                     <Route path="/settings/*" element={<SettingsPage />} />
                     <Route path="/post/new" element={<PostEditor />} />
                   </Route>

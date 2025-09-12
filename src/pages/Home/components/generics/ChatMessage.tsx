@@ -2,8 +2,8 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import React from "react";
 import Markdown from "react-markdown";
-import { Message as MessageType } from "../../../shared/entities/ChatTypes";
-import markdownConfig from "../../../shared/utils/markdownConfig";
+import { Message as MessageType } from "../../../../shared/entities/ChatTypes";
+import markdownConfig from "../../../../shared/utils/markdownConfig";
 
 const Message: React.FC<MessageType> = ({
   isAi,

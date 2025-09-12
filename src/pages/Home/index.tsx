@@ -1,6 +1,6 @@
-import React from "react";
-import Chat from "./components/ChatAI";
 import { motion } from "framer-motion";
+import React from "react";
+import ChatPage from "./components/ChatPage";
 
 const Home: React.FC = () => {
   return (
@@ -10,7 +10,7 @@ const Home: React.FC = () => {
       exit={{ opacity: 0, x: 20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      <Chat />
+      <ChatPage />
     </motion.div>
   );
 };

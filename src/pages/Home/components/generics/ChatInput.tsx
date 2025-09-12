@@ -1,6 +1,6 @@
 import { Image, Send } from "lucide-react";
 import React, { useEffect, useRef } from "react";
-import { Job } from "../../../shared/entities/JobTypes";
+import { Job } from "../../../../shared/entities/JobTypes";
 import JobStatus from "./JobStatus";
 
 interface ChatInputProps {

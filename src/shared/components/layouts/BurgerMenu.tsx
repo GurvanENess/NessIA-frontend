@@ -13,6 +13,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { useChatModals } from "../../hooks/useChatModals";
 import { useChats } from "../../hooks/useChats";
 import { db } from "../../services/db";
 import { Company } from "../../store/AppReducer";
@@ -55,12 +56,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   const [showActionsForChatId, setShowActionsForChatId] = useState<
     string | null
   >(null);
-  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<{
-    id: string;
-    title: string;
-  } | null>(null);
+  // Utiliser le hook global pour les modales
+  const modals = useChatModals();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -173,8 +170,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   const handleRename = (chatId: string) => {
     const chat = conversations.find((c) => c.id === chatId);
     if (chat) {
-      setSelectedChat({ id: chat.id, title: chat.title });
-      setIsRenameModalOpen(true);
+      modals.openRenameModal(chat.id, chat.title);
     }
     setShowActionsForChatId(null);
   };
@@ -182,54 +178,12 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   const handleDelete = (chatId: string) => {
     const chat = conversations.find((c) => c.id === chatId);
     if (chat) {
-      setSelectedChat({ id: chat.id, title: chat.title });
-      setIsDeleteModalOpen(true);
+      modals.openDeleteModal(chat.id, chat.title);
     }
     setShowActionsForChatId(null);
   };
 
-  const handleRenameConfirm = async (newTitle: string) => {
-    if (selectedChat) {
-      // Mettre à jour le store local immédiatement pour l'UX
-      const updatedConversations = conversations.map((chat) =>
-        chat.id === selectedChat.id
-          ? { ...chat, title: newTitle, updatedAt: new Date() }
-          : chat
-      );
-      fetchChats(updatedConversations);
-
-      // Recharger depuis la base pour maintenir la synchronisation globale
-      if (state.currentCompany?.id) {
-        try {
-          const userChats = await db.getAllChats(state.currentCompany.id);
-          const userChatsFormated = formatChatsforUi(userChats);
-          fetchChats(userChatsFormated);
-        } catch (err) {
-          logger.error(
-            "Failed to reload chats after rename in BurgerMenu",
-            err
-          );
-        }
-      }
-    }
-  };
-
-  const handleDeleteConfirm = () => {
-    if (selectedChat) {
-      // Update the local state immediately for better UX
-      const updatedConversations = conversations.filter(
-        (chat) => chat.id !== selectedChat.id
-      );
-      fetchChats(updatedConversations);
-
-      // If we're currently viewing the deleted chat, navigate to home
-      if (currentChatId === selectedChat.id) {
-        dispatch({ type: "RESET_CHAT" });
-        navigate("/");
-        onClose();
-      }
-    }
-  };
+  // Handlers supprimés - maintenant gérés par le hook global useChatModals
 
   return (
     <>
@@ -455,28 +409,22 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       </div>
 
       {/* Modals */}
-      {selectedChat && (
+      {modals.selectedChat && (
         <>
           <RenameChatModal
-            isOpen={isRenameModalOpen}
-            onClose={() => {
-              setIsRenameModalOpen(false);
-              setSelectedChat(null);
-            }}
-            chatId={selectedChat.id}
-            currentTitle={selectedChat.title}
-            onRenameConfirm={handleRenameConfirm}
+            isOpen={modals.isRenameModalOpen}
+            onClose={modals.closeModals}
+            chatId={modals.selectedChat.id}
+            currentTitle={modals.selectedChat.title}
+            onRenameConfirm={modals.handleRenameConfirm}
           />
 
           <DeleteChatModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => {
-              setIsDeleteModalOpen(false);
-              setSelectedChat(null);
-            }}
-            chatId={selectedChat.id}
-            chatTitle={selectedChat.title}
-            onDeleteConfirm={handleDeleteConfirm}
+            isOpen={modals.isDeleteModalOpen}
+            onClose={modals.closeModals}
+            chatId={modals.selectedChat.id}
+            chatTitle={modals.selectedChat.title}
+            onDeleteConfirm={() => modals.handleDeleteConfirm(false)}
           />
         </>
       )}

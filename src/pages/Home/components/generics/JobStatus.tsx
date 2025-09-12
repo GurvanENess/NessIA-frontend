@@ -1,6 +1,6 @@
 import { AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import React from "react";
-import { Job } from "../../../shared/entities/JobTypes";
+import { Job } from "../../../../shared/entities/JobTypes";
 
 interface JobStatusProps {
   jobs: Job[];
