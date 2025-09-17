@@ -2,6 +2,41 @@ import { logger } from "../utils/logger";
 import { supabaseClient } from "./supabase";
 
 export const db = {
+  async getLastMediaOfChat(id: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("media")
+        .select("*")
+        .eq("session_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error fetching images of session", err);
+      throw err;
+    }
+  },
+
+  async getAllMediasOfChat(id: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("media")
+        .select("*")
+        .eq("session_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error fetching images of session", err);
+      throw err;
+    }
+  },
+
   async getCompaniesByUserId(userId: string) {
     try {
       const { data, error } = await supabaseClient
@@ -14,7 +49,7 @@ export const db = {
       return data;
     } catch (err) {
       logger.error("Error fetching companies", err);
-      throw err; // Re-throw the error for further handling
+      throw err;
     }
   },
 
@@ -61,20 +96,21 @@ export const db = {
     }
   },
 
-  async getPostById(id: string, companyId: string) {
+  async getPostById(sessionId: string, companyId: string) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
         .select(
           `title, content_text, hashtags, created_at, id, status,
             platform( name ),
-            session!post_session_id_fkey ( id ),
-            media ( url )
+            session!post_session_id_fkey ( 
+              id,
+              media( url, created_at )
+            )
             `
         )
-        .eq("id", id)
+        .eq("id", sessionId)
         .eq("company_id", companyId)
-        .order("url", { ascending: false, referencedTable: "media" })
         .maybeSingle();
 
       if (error) throw error;

@@ -1,15 +1,15 @@
 import React from "react";
 import InstagramPost from "../../shared/components/InstagramPost";
-import { BasePostData } from "../../shared/entities/PostType";
+import { PostData } from "../../shared/entities/PostTypes";
 
 interface PostPreviewProps {
-  postData: BasePostData;
+  postData: PostData;
 }
 
 const PostPreview: React.FC<PostPreviewProps> = ({ postData }) => {
   return (
     <InstagramPost
-      image={postData.image}
+      images={postData.images}
       caption={postData.caption}
       hashtags={postData.hashtags}
     />

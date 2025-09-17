@@ -8,8 +8,7 @@ export interface SupabasePost {
   created_at: string;
   status: string;
   platform: { name: string }[] | { name: string } | null;
-  session: { id: string }[] | { id: string } | null;
-  media: { url: string }[] | null;
+  session: { id: string; images: { url: string; created_at: Date }[] };
 }
 
 export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
@@ -21,6 +20,21 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     ? supabasePost.session[0]?.id
     : supabasePost.session?.id;
 
+  // Récupération des URLs des images depuis la session.images, triées par date de création
+  const imageUrls =
+    Array.isArray(supabasePost.session?.media) &&
+    supabasePost.session.media.length > 0
+      ? supabasePost.session.media
+          .sort(
+            (a, b) =>
+              new Date(a.created_at).getTime() -
+              new Date(b.created_at).getTime()
+          )
+          .map((image) => image.url)
+      : [];
+
+  console.log("Images URLs:", imageUrls);
+
   return {
     id: supabasePost.id,
     title: supabasePost.title,
@@ -28,10 +42,8 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     status: supabasePost.status as Post["status"],
     platform: (platformName as Post["platform"]) || "instagram",
     createdAt: new Date(supabasePost.created_at),
-    imageUrl: supabasePost.media?.[0]?.url,
-    hashtags: Array.isArray(supabasePost.hashtags)
-      ? supabasePost.hashtags
-      : [],
+    imageUrls,
+    hashtags: Array.isArray(supabasePost.hashtags) ? supabasePost.hashtags : [],
     userId: "",
     conversationId: sessionId,
   };

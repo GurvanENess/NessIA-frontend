@@ -58,11 +58,16 @@ export const useChatSession = (sessionIdParam?: string) => {
 
   // Fetch messages and start polling
   useEffect(() => {
-    if (sessionIdParam) {
-      fetchMessages(sessionIdParam);
-      startPolling(sessionIdParam);
-    }
-    return () => stopPolling();
+    const fetchMessagesAndStartPolling = async () => {
+      if (sessionIdParam) {
+        await fetchMessages(sessionIdParam);
+        await startPolling(sessionIdParam);
+      }
+    };
+    fetchMessagesAndStartPolling();
+    return () => {
+      stopPolling();
+    };
   }, [sessionIdParam]);
 
   const fetchMessages = async (sessionId: string) => {

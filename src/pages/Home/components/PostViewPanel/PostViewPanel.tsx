@@ -46,6 +46,7 @@ const PostViewPanel: React.FC = () => {
         )) as SupabasePost | null;
         if (postData) {
           const converted = convertSupabasePost(postData);
+          console.log(converted);
           setPost(converted);
         } else {
           setError("Post non trouvé");

@@ -22,7 +22,8 @@ export default function useJobPolling() {
       const data = await db.getRunningJobs(sessionId);
       return data;
     } catch (err) {
-      return [];
+      console.error("Error fetching jobs:", err);
+      throw err; // Relancer l'erreur au lieu de la masquer
     }
   };
 
@@ -30,7 +31,7 @@ export default function useJobPolling() {
     try {
       const runningJobs = await fetchRunningJobs(sessionId);
       setJobs(runningJobs);
-      console.log("runningJobs", runningJobs);
+      console.log("runningJobs", jobs);
 
       if (
         runningJobs.length === 0 ||

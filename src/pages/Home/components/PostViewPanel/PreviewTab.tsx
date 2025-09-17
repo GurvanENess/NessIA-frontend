@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import InstagramPost from "../../../../shared/components/InstagramPost";
 import { Post } from "../../../Posts/entities/PostTypes";
 
@@ -13,10 +13,13 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
   onEdit,
   onSchedule,
 }) => {
+  useEffect(() => {});
   return (
     <div className="flex flex-col items-center">
       <InstagramPost
-        image={post.imageUrl || ""}
+        images={
+          post.imageUrls && post.imageUrls.length > 0 ? post.imageUrls : []
+        }
         caption={post.description}
         hashtags={(post.hashtags || []).join(" ")}
         className="max-w-[400px]"

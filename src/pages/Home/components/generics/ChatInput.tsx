@@ -24,6 +24,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    console.log("💡 Jobs received in ChatInput:", jobs);
+    console.log("💡 Jobs length in ChatInput:", jobs.length);
+  }, [jobs]);
+
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {

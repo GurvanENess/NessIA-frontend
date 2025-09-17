@@ -51,6 +51,7 @@ const ChatPage: React.FC = () => {
           chatTitle={chatLogic.chatTitle}
           associatedPostId={chatLogic.associatedPostId}
           messages={chatLogic.messages}
+          jobs={chatLogic.jobs}
           isFirstMessage={chatLogic.isFirstMessage}
           onMessageInputChange={chatLogic.onMessageInputChange}
           onSendMessage={chatLogic.handleSendMessage}

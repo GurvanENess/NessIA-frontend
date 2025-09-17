@@ -1,5 +1,5 @@
 export interface PostData {
-  image: string;
+  images: string[];
   caption: string;
   hashtags: string;
 }
