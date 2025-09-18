@@ -3,7 +3,6 @@ import {
   ChatsState,
 } from "../../pages/Chats/entities/ChatTypes";
 import { Message } from "../entities/ChatTypes";
-import { PostData } from "../entities/PostTypes";
 
 // Types
 export interface Company {
@@ -13,14 +12,6 @@ export interface Company {
   isActive?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
   color?: string;
-}
-
-export interface PostState {
-  isPreviewMode: boolean;
-  postData: PostData;
-  isSaving: boolean;
-  isPublishing: boolean;
-  error: string | null;
 }
 
 interface ChatState {
@@ -38,7 +29,6 @@ interface PostPanelState {
 }
 
 export interface AppState {
-  post: PostState;
   chat: ChatState;
   chats: ChatsState;
   postPanel: PostPanelState;
@@ -47,19 +37,10 @@ export interface AppState {
 }
 
 // Action Types
-export type PostAction =
-  | { type: "SET_CHAT_SESSION_ID"; payload: string }
-  | { type: "CLEAR_CHAT_SESSION_ID" }
-  | { type: "SET_PREVIEW_MODE"; payload: boolean }
-  | { type: "UPDATE_POST_DATA"; payload: Partial<PostData> }
-  | { type: "SAVE_POST_START" }
-  | { type: "SAVE_POST_SUCCESS" }
-  | { type: "SAVE_POST_ERROR"; payload: string }
-  | { type: "PUBLISH_POST_START" }
-  | { type: "PUBLISH_POST_SUCCESS" }
-  | { type: "PUBLISH_POST_ERROR"; payload: string };
 
 export type ChatAction =
+  | { type: "SET_CHAT_SESSION_ID"; payload: string }
+  | { type: "CLEAR_CHAT_SESSION_ID" }
   | { type: "SET_MESSAGE_INPUT"; payload: string }
   | { type: "ADD_MESSAGE"; payload: Message }
   | { type: "SET_MESSAGES"; payload: Message[] }
@@ -94,7 +75,6 @@ export type ChatsAction =
   | { type: "RENAME_CHAT"; payload: { id: string; newTitle: string } };
 
 export type AppAction =
-  | PostAction
   | ChatAction
   | ChatsAction
   | CompanyAction
@@ -104,17 +84,6 @@ export type AppAction =
 
 // Initial State
 export const initialState: AppState = {
-  post: {
-    isPreviewMode: false,
-    postData: {
-      image: "",
-      caption: "",
-      hashtags: "",
-    },
-    isSaving: false,
-    isPublishing: false,
-    error: null,
-  },
   chat: {
     sessionId: null,
     messages: [],
@@ -141,7 +110,7 @@ export const initialState: AppState = {
 // Reducer
 export const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
-    // Post Actions
+    // Chat Actions
     case "SET_CHAT_SESSION_ID":
       return {
         ...state,
@@ -156,86 +125,6 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         chat: {
           ...state.chat,
           sessionId: "",
-        },
-      };
-    case "SET_PREVIEW_MODE":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isPreviewMode: action.payload,
-        },
-      };
-
-    case "UPDATE_POST_DATA":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          postData: {
-            ...state.post.postData,
-            ...action.payload,
-          },
-        },
-      };
-
-    case "SAVE_POST_START":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isSaving: true,
-          error: null,
-        },
-      };
-
-    case "SAVE_POST_SUCCESS":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isSaving: false,
-          error: null,
-        },
-      };
-
-    case "SAVE_POST_ERROR":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isSaving: false,
-          error: action.payload,
-        },
-      };
-
-    case "PUBLISH_POST_START":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isPublishing: true,
-          error: null,
-        },
-      };
-
-    case "PUBLISH_POST_SUCCESS":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isPublishing: false,
-          error: null,
-        },
-      };
-
-    case "PUBLISH_POST_ERROR":
-      return {
-        ...state,
-        post: {
-          ...state.post,
-          isPublishing: false,
-          error: action.payload,
         },
       };
 

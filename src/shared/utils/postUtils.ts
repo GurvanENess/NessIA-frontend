@@ -8,7 +8,7 @@ export interface SupabasePost {
   created_at: string;
   status: string;
   platform: { name: string }[] | { name: string } | null;
-  session: { id: string; images: { url: string; created_at: Date }[] };
+  session: { id: string; media: { url: string; created_at: Date }[] };
 }
 
 export const convertSupabasePost = (supabasePost: SupabasePost): Post => {

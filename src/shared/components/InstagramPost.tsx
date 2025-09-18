@@ -71,6 +71,7 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
   }, [goToPrevious, goToNext, hasMultipleImages]);
+
   return (
     <div
       className={`max-w-[470px] mx-auto bg-white rounded-lg shadow-lg overflow-hidden instagram-post-carousel ${className}`}
@@ -176,7 +177,7 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
         {/* Caption */}
         <div className="text-sm mb-2">
           <span className="font-semibold mr-2">{username}</span>
-          <span className="whitespace-pre-wrap">{caption}</span>
+          {caption}
         </div>
 
         {/* Hashtags */}
