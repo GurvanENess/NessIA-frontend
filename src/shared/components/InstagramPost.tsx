@@ -176,7 +176,7 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
         {/* Caption */}
         <div className="text-sm mb-2">
           <span className="font-semibold mr-2">{username}</span>
-          {caption}
+          <span className="whitespace-pre-wrap">{caption}</span>
         </div>
 
         {/* Hashtags */}

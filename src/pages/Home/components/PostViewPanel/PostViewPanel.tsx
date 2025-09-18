@@ -97,7 +97,8 @@ const PostViewPanel: React.FC = () => {
 
   const handleSave = async (data: PostData) => {
     if (!post || !state.currentCompany?.id) return;
-    await db.updatePostById(
+
+    const res = await db.updatePostById(
       post.id,
       {
         content: data.caption,
@@ -107,6 +108,7 @@ const PostViewPanel: React.FC = () => {
       },
       state.currentCompany.id
     );
+    console.log("res", res);
     setPost({
       ...post,
       description: data.caption,

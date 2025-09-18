@@ -4,7 +4,7 @@ export interface SupabasePost {
   id: string;
   title: string;
   content_text: string;
-  hashtags: string[] | null;
+  hashtags: string | null;
   created_at: string;
   status: string;
   platform: { name: string }[] | { name: string } | null;
@@ -33,7 +33,13 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
           .map((image) => image.url)
       : [];
 
-  console.log("Images URLs:", imageUrls);
+  let hashtags: string[] = [];
+  try {
+    hashtags = JSON.parse(supabasePost.hashtags || "[]");
+  } catch (e) {
+    console.error(e);
+    hashtags = [];
+  }
 
   return {
     id: supabasePost.id,
@@ -43,7 +49,7 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     platform: (platformName as Post["platform"]) || "instagram",
     createdAt: new Date(supabasePost.created_at),
     imageUrls,
-    hashtags: Array.isArray(supabasePost.hashtags) ? supabasePost.hashtags : [],
+    hashtags,
     userId: "",
     conversationId: sessionId,
   };

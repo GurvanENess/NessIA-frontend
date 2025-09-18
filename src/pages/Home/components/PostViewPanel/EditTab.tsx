@@ -19,6 +19,7 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    console.log("post.hashtags", post.hashtags?.join(" "));
     setFormData({
       images: post.imageUrls || [],
       caption: post.description,
@@ -27,6 +28,7 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
   }, [post]);
 
   const handleSave = async () => {
+    console.log("formData", formData);
     setIsSaving(true);
     await onSave(formData);
     setIsSaving(false);
@@ -67,12 +69,15 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
         <input
           type="text"
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
-          placeholder="#marketing #socialmedia"
+          placeholder="marketing socialmedia"
           value={formData.hashtags}
           onChange={(e) =>
             setFormData((p) => ({ ...p, hashtags: e.target.value }))
           }
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Séparez les hashtags par des espaces
+        </p>
       </div>
 
       <MediaSection
