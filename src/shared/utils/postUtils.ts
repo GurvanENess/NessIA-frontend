@@ -8,7 +8,10 @@ export interface SupabasePost {
   created_at: string;
   status: string;
   platform: { name: string }[] | { name: string } | null;
-  session: { id: string; media: { url: string; created_at: Date }[] };
+  session: {
+    id: string;
+    media: { id: string; url: string; created_at: string }[];
+  };
 }
 
 export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
@@ -21,7 +24,7 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     : supabasePost.session?.id;
 
   // Récupération des URLs des images depuis la session.images, triées par date de création
-  const imageUrls =
+  const images =
     Array.isArray(supabasePost.session?.media) &&
     supabasePost.session.media.length > 0
       ? supabasePost.session.media
@@ -30,7 +33,7 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
               new Date(a.created_at).getTime() -
               new Date(b.created_at).getTime()
           )
-          .map((image) => image.url)
+          .map((image) => ({ id: image.id, url: image.url }))
       : [];
 
   let hashtags: string[] = [];
@@ -48,7 +51,7 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     status: supabasePost.status as Post["status"],
     platform: (platformName as Post["platform"]) || "instagram",
     createdAt: new Date(supabasePost.created_at),
-    imageUrls,
+    images,
     hashtags,
     userId: "",
     conversationId: sessionId,

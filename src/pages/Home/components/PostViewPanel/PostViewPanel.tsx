@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../../../../shared/contexts/AppContext";
 import { PostData } from "../../../../shared/entities/PostTypes";
 import { db } from "../../../../shared/services/db";
+import { logger } from "../../../../shared/utils/logger";
 import {
   convertSupabasePost,
   getPlatformColor,
@@ -115,7 +116,6 @@ const PostViewPanel: React.FC = () => {
       hashtags: data.hashtags.split(" ").filter((t) => t.length > 0),
     });
     toast.success("Post mis à jour avec succès");
-    setActiveTab("preview");
   };
 
   const handleSchedule = async (date: Date) => {
@@ -131,7 +131,21 @@ const PostViewPanel: React.FC = () => {
         minute: "2-digit",
       })}`
     );
-    setActiveTab("preview");
+  };
+
+  const handleDeleteImage = async (imageId: string) => {
+    if (!post) return;
+    try {
+      await db.deleteMediaById(imageId, state.currentCompany?.id as string);
+      setPost({
+        ...post,
+        images: post.images?.filter((image) => image.id !== imageId),
+      });
+      toast.success("Image supprimée avec succès");
+    } catch (err) {
+      logger.error("Error deleting image", err);
+      toast.error("Erreur lors de la suppression de l'image");
+    }
   };
 
   return (
@@ -279,6 +293,7 @@ const PostViewPanel: React.FC = () => {
                     {activeTab === "edit" && (
                       <EditTab
                         post={post}
+                        onDeleteImage={handleDeleteImage}
                         onSave={handleSave}
                         onCancel={() => setActiveTab("preview")}
                       />

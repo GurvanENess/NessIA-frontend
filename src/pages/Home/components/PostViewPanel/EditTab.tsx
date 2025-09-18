@@ -8,11 +8,17 @@ interface EditTabProps {
   post: Post;
   onSave: (data: PostData) => Promise<void>;
   onCancel: () => void;
+  onDeleteImage: (imageId: string) => Promise<void>;
 }
 
-const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
+const EditTab: React.FC<EditTabProps> = ({
+  post,
+  onSave,
+  onCancel,
+  onDeleteImage,
+}) => {
   const [formData, setFormData] = useState<PostData>({
-    images: post.imageUrls || [],
+    images: post.images || [],
     caption: post.description,
     hashtags: (post.hashtags || []).join(" "),
   });
@@ -21,7 +27,7 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
   useEffect(() => {
     console.log("post.hashtags", post.hashtags?.join(" "));
     setFormData({
-      images: post.imageUrls || [],
+      images: post.images || [],
       caption: post.description,
       hashtags: (post.hashtags || []).join(" "),
     });
@@ -36,7 +42,7 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
 
   const handleCancel = () => {
     setFormData({
-      images: post.imageUrls || [],
+      images: post.images || [],
       caption: post.description,
       hashtags: (post.hashtags || []).join(" "),
     });
@@ -82,9 +88,10 @@ const EditTab: React.FC<EditTabProps> = ({ post, onSave, onCancel }) => {
 
       <MediaSection
         images={formData.images}
-        onImagesChange={(images: string[]) =>
-          setFormData((prev) => ({ ...prev, images }))
+        onImagesChange={(images: { id: string; url: string }[]) =>
+          setFormData((prev) => ({ ...prev, images: images }))
         }
+        onDeleteImage={onDeleteImage}
       />
 
       <div className="flex justify-end gap-3">

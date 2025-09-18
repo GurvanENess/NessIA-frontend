@@ -40,15 +40,20 @@ const modalStyles = `
 `;
 
 interface MediaSectionProps {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
+  images: { id: string; url: string }[];
+  onImagesChange: (images: { id: string; url: string }[]) => void;
+  onDeleteImage: (imageId: string) => Promise<void>;
 }
 
 const MediaSection: React.FC<MediaSectionProps> = ({
   images,
   onImagesChange,
+  onDeleteImage,
 }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{
+    id: string;
+    url: string;
+  } | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -57,7 +62,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
 
-    const newImages: string[] = [];
+    const newImages: { id: string; url: string }[] = [];
     const fileArray = Array.from(files);
 
     let processed = 0;
@@ -65,7 +70,10 @@ const MediaSection: React.FC<MediaSectionProps> = ({
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
-          newImages.push(reader.result as string);
+          newImages.push({
+            id: crypto.randomUUID(),
+            url: reader.result as string,
+          });
           processed++;
           if (processed === fileArray.length) {
             onImagesChange([...images, ...newImages]);
@@ -103,7 +111,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     handleFileSelect(e.dataTransfer.files);
   };
 
-  const handleImageClick = (image: string) => {
+  const handleImageClick = (image: { id: string; url: string }) => {
     setSelectedImage(image);
   };
 
@@ -111,10 +119,25 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     setSelectedImage(null);
   };
 
-  const handleRemoveImage = (indexToRemove: number, e: React.MouseEvent) => {
+  const handleRemoveImage = async (
+    indexToRemove: number,
+    e: React.MouseEvent
+  ) => {
     e.stopPropagation();
-    // Pour l'instant, juste un placeholder - fonctionnalité à implémenter plus tard
-    console.log("Supprimer image à l'index:", indexToRemove);
+    if (typeof onDeleteImage !== "function") {
+      console.error("onDeleteImage is not a function:", onDeleteImage);
+      return;
+    }
+    try {
+      await onDeleteImage(images[indexToRemove].id);
+      // Mise à jour locale de la liste des images après suppression
+      const updatedImages = images.filter(
+        (_, index) => index !== indexToRemove
+      );
+      onImagesChange(updatedImages);
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'image:", error);
+    }
   };
 
   // Fonctions de drag & drop pour réorganiser les images
@@ -229,7 +252,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
                     }}
                   >
                     <img
-                      src={image}
+                      src={image.url}
                       alt={`Média ${index + 1}`}
                       className="w-full h-full object-cover rounded-lg border-2 border-gray-200 group-hover:border-[#7C3AED] transition-colors pointer-events-none"
                     />
@@ -289,7 +312,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
             }}
           >
             <img
-              src={selectedImage}
+              src={selectedImage.url}
               alt="Image agrandie"
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}

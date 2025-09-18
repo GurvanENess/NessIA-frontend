@@ -17,9 +17,7 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
   return (
     <div className="flex flex-col items-center">
       <InstagramPost
-        images={
-          post.imageUrls && post.imageUrls.length > 0 ? post.imageUrls : []
-        }
+        images={post.images && post.images.length > 0 ? post.images : []}
         caption={post.description}
         hashtags={(post.hashtags || []).join(" ")}
         className="max-w-[400px]"

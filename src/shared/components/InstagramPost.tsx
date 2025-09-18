@@ -23,7 +23,9 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // S'assurer qu'on a au moins une image par défaut
-  const imageList = images?.length ? images : ["/assets/default.jpg"];
+  const imageList = images?.length
+    ? images.map((image) => image.url)
+    : ["/assets/default.jpg"];
   const hasMultipleImages = imageList.length > 1;
 
   const goToPrevious = useCallback(() => {

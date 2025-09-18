@@ -11,7 +11,7 @@ export interface Post {
   updatedAt?: Date;
   scheduledAt?: Date;
   publishedAt?: Date;
-  imageUrls?: string[];
+  images?: { id: string; url: string }[];
   hashtags?: string[];
   userId: string;
   conversationId?: string;

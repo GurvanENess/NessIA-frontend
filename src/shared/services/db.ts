@@ -20,6 +20,23 @@ export const db = {
     }
   },
 
+  async deleteMediaById(id: string) {
+    console.log("deleteMediaById", id);
+    try {
+      const { data, error } = await supabaseClient
+        .from("media")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error deleting media by id", err);
+      throw err;
+    }
+  },
+
   async getAllMediasOfChat(id: string) {
     try {
       const { data, error } = await supabaseClient
@@ -105,7 +122,7 @@ export const db = {
             platform( name ),
             session!post_session_id_fkey ( 
               id,
-              media( url, created_at )
+              media( id, url, created_at )
             )
             `
         )
