@@ -184,6 +184,7 @@ const PostViewPanel: React.FC = () => {
                     )}
                     {activeTab === "schedule" && (
                       <ScheduleTab
+                        post={post}
                         onSchedule={handleSchedule}
                         onCancel={() => setActiveTab("preview")}
                       />

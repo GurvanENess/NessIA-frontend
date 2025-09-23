@@ -96,7 +96,7 @@ export const db = {
         .from("post")
         .select(
           `
-                id, title, content_text, created_at, status,
+                id, title, content_text, created_at, status, scheduled_at,
                 platform ( name ),
                 session!post_session_id_fkey ( 
                 id,
@@ -121,7 +121,7 @@ export const db = {
       const { data, error } = await supabaseClient
         .from("post")
         .select(
-          `title, content_text, hashtags, created_at, id, status,
+          `title, content_text, hashtags, created_at, id, status, scheduled_at,
             platform( name ),
             session!post_session_id_fkey ( 
               id,
@@ -177,6 +177,27 @@ export const db = {
       return data;
     } catch (err) {
       logger.error(`Error updating post ${id}`, err);
+      throw err;
+    }
+  },
+
+  async updatePostScheduledAtById(
+    id: string,
+    scheduledAt: Date,
+    companyId: string
+  ) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("post")
+        .update({ scheduled_at: scheduledAt })
+        .eq("id", id)
+        .eq("company_id", companyId);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error(`Error updating post scheduled at ${id}`, err);
       throw err;
     }
   },
@@ -294,6 +315,8 @@ export const db = {
         .eq("session_id", sessionId)
         .in("status", ["running", "waiting_user", "error"])
         .is("finished_at", null);
+
+      if (error) throw error;
 
       return data || [];
     } catch (err) {

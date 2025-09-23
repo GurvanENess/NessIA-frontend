@@ -156,8 +156,25 @@ export const usePostViewPanel = () => {
       return;
     }
 
+    if (!state.currentCompany?.id) {
+      toast.error("Aucune entreprise sélectionnée");
+      return;
+    }
+
+    // Validation : empêcher les dates du passé
+    const now = new Date();
+    if (date.getTime() <= now.getTime()) {
+      toast.error("Impossible de programmer un post dans le passé");
+      return;
+    }
+
     try {
-      // TODO: Ajouter l'appel API pour programmer le post
+      // Appel API pour programmer le post
+      await db.updatePostScheduledAtById(
+        post.id,
+        date,
+        state.currentCompany.id
+      );
 
       // Mise à jour optimiste de l'état local
       setPost((prevPost) => ({

@@ -66,7 +66,7 @@ const PostsDisplay: React.FC = () => {
 
   const handleEdit = (post: Post) => {
     // Navigate to edit page with post data
-    navigate(`/post/edit/${post.id}`, { state: { post } });
+    navigate(`/chats/${post.conversationId}/post`, { state: { post } });
   };
 
   const handleDelete = async (postId: string) => {

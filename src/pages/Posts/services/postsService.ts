@@ -10,6 +10,7 @@ const mapPost = (data: any): Post => {
     platform: data.platform?.name || "Instagram",
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
+    scheduledAt: data.scheduled_at ? new Date(data.scheduled_at) : undefined,
     publishedAt: data.published_at ? new Date(data.published_at) : undefined,
     images: data.session?.media || [],
     userId: data.user_id,

@@ -6,6 +6,7 @@ export interface SupabasePost {
   content_text: string;
   hashtags: string | null;
   created_at: string;
+  scheduled_at?: string | null;
   status: string;
   platform: { name: string }[] | { name: string } | null;
   session: {
@@ -51,6 +52,9 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     status: supabasePost.status as Post["status"],
     platform: (platformName as Post["platform"]) || "instagram",
     createdAt: new Date(supabasePost.created_at),
+    scheduledAt: supabasePost.scheduled_at
+      ? new Date(supabasePost.scheduled_at)
+      : undefined,
     images,
     hashtags,
     userId: "",
