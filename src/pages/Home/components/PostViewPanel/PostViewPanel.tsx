@@ -32,8 +32,6 @@ const PostViewPanel: React.FC = () => {
     handleDeleteImage,
   } = usePostViewPanel();
 
-  console.log(postPanel);
-
   return (
     <AnimatePresence>
       {postPanel.isOpen && (

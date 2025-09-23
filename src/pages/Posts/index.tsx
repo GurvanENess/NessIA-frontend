@@ -64,10 +64,6 @@ const PostsDisplay: React.FC = () => {
     }
   }, [posts, searchQuery]);
 
-  const handleCreateNew = () => {
-    navigate("/post/new");
-  };
-
   const handleEdit = (post: Post) => {
     // Navigate to edit page with post data
     navigate(`/post/edit/${post.id}`, { state: { post } });
@@ -90,8 +86,8 @@ const PostsDisplay: React.FC = () => {
     navigate(`/chats/${chatId}`);
   };
 
-  const handlePostClick = (postId: string) => {
-    navigate(`/posts/${postId}`);
+  const handlePostClick = (chatId: string) => {
+    navigate(`/chats/${chatId}/post`);
   };
   const handleSortChange = (
     newSortBy: typeof sortBy,
@@ -114,7 +110,6 @@ const PostsDisplay: React.FC = () => {
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
-          onCreateNew={handleCreateNew}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />

@@ -18,7 +18,7 @@ interface PostCardProps {
   onEdit?: (post: Post) => void;
   onDelete?: (postId: string) => void;
   onViewChat?: (chatId: string) => void;
-  onPostClick?: (postId: string) => void;
+  onPostClick?: (chatId: string) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -92,7 +92,7 @@ const PostCard: React.FC<PostCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
-      onClick={() => onPostClick?.(post.id)}
+      onClick={() => onPostClick?.(post.conversationId!)}
     >
       {/* Post Image */}
 
@@ -157,7 +157,7 @@ const PostCard: React.FC<PostCardProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
 
-                    onViewChat?.(post.conversationId);
+                    onViewChat?.(post.conversationId!);
                     setShowActions(false);
                   }}
                   className="w-full px-3 py-2 text-left text-sm text-white bg-purple-700 hover:bg-purple-800 flex items-center gap-2"
@@ -223,17 +223,19 @@ const PostCard: React.FC<PostCardProps> = ({
             </span>
           </div>
           {post.conversationId && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
+            <div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
 
-                onViewChat?.(post.conversationId);
-              }}
-              className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-700 text-white hover:bg-purple-800 transition-colors text-xs"
-            >
-              <MessageSquare className="w-3 h-3" />
-              <span>Chat associé</span>
-            </button>
+                  onViewChat?.(post.conversationId!);
+                }}
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-700 text-white hover:bg-purple-800 transition-colors text-xs"
+              >
+                <MessageSquare className="w-3 h-3" />
+                <span>Chat associé</span>
+              </button>
+            </div>
           )}
         </div>
       </div>

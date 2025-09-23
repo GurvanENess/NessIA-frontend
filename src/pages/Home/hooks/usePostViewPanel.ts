@@ -52,9 +52,24 @@ export const usePostViewPanel = () => {
   useEffect(() => {
     const fetchPost = async () => {
       // Utiliser postId de l'URL ou celui du state en fallback
-      const targetPostId = state.postPanel.postId;
+      let targetPostId = state.postPanel.postId;
 
-      if (!targetPostId || (!state.postPanel.isOpen && !shouldPanelBeOpen)) {
+      if (!targetPostId && chatId && isPostRoute) {
+        try {
+          const chatData = await db.getChatById(
+            chatId,
+            state.currentCompany?.id as string
+          );
+          if (chatData) {
+            targetPostId = chatData.post?.id;
+          }
+        } catch (e) {
+          logger.error("Erreur lors de la récupération du post", e);
+          setError("Impossible de charger le post");
+        }
+      }
+
+      if (!state.postPanel.isOpen && !shouldPanelBeOpen) {
         return;
       }
 
@@ -63,7 +78,7 @@ export const usePostViewPanel = () => {
 
       try {
         const postData = (await db.getPostById(
-          targetPostId,
+          targetPostId!,
           state.currentCompany?.id as string
         )) as SupabasePost | null;
 

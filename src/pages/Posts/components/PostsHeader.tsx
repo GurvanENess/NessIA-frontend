@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Filter, Plus, Search } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import React from "react";
 import { PostsState } from "../entities/PostTypes";
 
@@ -11,7 +11,6 @@ interface PostsHeaderProps {
     sortBy: PostsState["sortBy"],
     sortOrder: PostsState["sortOrder"]
   ) => void;
-  onCreateNew: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -21,7 +20,6 @@ const PostsHeader: React.FC<PostsHeaderProps> = ({
   sortBy,
   sortOrder,
   onSortChange,
-  onCreateNew,
   searchQuery,
   onSearchChange,
 }) => {
@@ -38,25 +36,14 @@ const PostsHeader: React.FC<PostsHeaderProps> = ({
       transition={{ duration: 0.3 }}
       className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
     >
-      {/* Title and Create Button */}
-      <div className="flex flex-col items-center xs:items-center xs:flex-row xs:justify-between mb-6">
-        <div className="mb-4 xs:mt-0">
-          <h1 className="text-2xl font-coolvetica text-gray-900 mb-1">
-            Publications
-          </h1>
-          <p className="text-sm text-gray-600">
-            {totalPosts} publication{totalPosts !== 1 ? "s" : ""} au total
-          </p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onCreateNew}
-          className="bg-[#7C3AED] w-full xs:w-auto flex justify-center text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#6D28D9] transition-colors flex items-center gap-2 shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Nouveau post
-        </motion.button>
+      {/* Title */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-coolvetica text-gray-900 mb-1">
+          Publications
+        </h1>
+        <p className="text-sm text-gray-600">
+          {totalPosts} publication{totalPosts !== 1 ? "s" : ""} au total
+        </p>
       </div>
 
       {/* Search and Filters */}
