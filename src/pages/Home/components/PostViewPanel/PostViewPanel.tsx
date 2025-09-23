@@ -1,152 +1,38 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, MessageSquare, Trash2 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useRef } from "react";
 import { useApp } from "../../../../shared/contexts/AppContext";
-import { PostData } from "../../../../shared/entities/PostTypes";
-import { db } from "../../../../shared/services/db";
-import { logger } from "../../../../shared/utils/logger";
 import {
-  convertSupabasePost,
   getPlatformColor,
   getPlatformText,
   getStatusColor,
   getStatusText,
-  SupabasePost,
 } from "../../../../shared/utils/postUtils";
-import { Post } from "../../../Posts/entities/PostTypes";
+import { usePostViewPanel } from "../../hooks/usePostViewPanel";
 import EditTab from "./EditTab";
 import PreviewTab from "./PreviewTab";
 import ScheduleTab from "./ScheduleTab";
 
 const PostViewPanel: React.FC = () => {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const { postPanel } = state;
-  const { chatId } = useParams<{ chatId: string }>();
-  const navigate = useNavigate();
-
-  const [post, setPost] = useState<Post | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"preview" | "edit" | "schedule">(
-    "preview"
-  );
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Fetch post when panel opens
-  useEffect(() => {
-    const fetchPost = async () => {
-      if (!postPanel.isOpen || !postPanel.postId) return;
-      setIsLoading(true);
-      setError(null);
-      try {
-        const postData = (await db.getPostById(
-          postPanel.postId,
-          state.currentCompany?.id as string
-        )) as SupabasePost | null;
-        if (postData) {
-          const converted = convertSupabasePost(postData);
-          console.log(converted);
-          setPost(converted);
-        } else {
-          setError("Post non trouvé");
-        }
-      } catch (e) {
-        console.error(e);
-        setError("Impossible de charger le post");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPost();
-  }, [postPanel.isOpen, postPanel.postId, state.currentCompany?.id]);
+  // Utilisation du hook personnalisé pour toute la logique
+  const {
+    post,
+    isLoading,
+    error,
+    activeTab,
+    setActiveTab,
+    handleClose,
+    handleOverlayClick,
+    handleSave,
+    handleSchedule,
+    handleDeleteImage,
+  } = usePostViewPanel();
 
-  // Escape key handling et gestion du scroll
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && postPanel.isOpen) {
-        handleClose();
-      }
-    };
-
-    if (postPanel.isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
-  }, [postPanel.isOpen]);
-
-  // Fonction de fermeture simplifiée
-  const handleClose = () => {
-    dispatch({ type: "CLOSE_POST_PANEL" });
-    // Navigation après l'animation (300ms)
-    setTimeout(() => {
-      navigate(`/chats/${chatId}`, { replace: true });
-    }, 300);
-  };
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) handleClose();
-  };
-
-  const handleSave = async (data: PostData) => {
-    if (!post || !state.currentCompany?.id) return;
-
-    const res = await db.updatePostById(
-      post.id,
-      {
-        content: data.caption,
-        hashtags: JSON.stringify(
-          data.hashtags.split(" ").filter((t) => t.length > 0)
-        ),
-      },
-      state.currentCompany.id
-    );
-    console.log("res", res);
-    setPost({
-      ...post,
-      description: data.caption,
-      hashtags: data.hashtags.split(" ").filter((t) => t.length > 0),
-    });
-    toast.success("Post mis à jour avec succès");
-  };
-
-  const handleSchedule = async (date: Date) => {
-    if (!post) return;
-    setPost({ ...post, status: "scheduled", scheduledAt: date });
-    toast.success(
-      `Post programmé pour le ${date.toLocaleDateString("fr-FR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })} à ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`
-    );
-  };
-
-  const handleDeleteImage = async (imageId: string) => {
-    if (!post) return;
-    try {
-      await db.deleteMediaById(imageId, state.currentCompany?.id as string);
-      setPost({
-        ...post,
-        images: post.images?.filter((image) => image.id !== imageId),
-      });
-      toast.success("Image supprimée avec succès");
-    } catch (err) {
-      logger.error("Error deleting image", err);
-      toast.error("Erreur lors de la suppression de l'image");
-    }
-  };
+  console.log(postPanel);
 
   return (
     <AnimatePresence>

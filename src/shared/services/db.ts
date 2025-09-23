@@ -74,12 +74,14 @@ export const db = {
     try {
       const { data, error } = await supabaseClient
         .from("message")
-        .select("*")
+        .select("*, media( id, url )")
         .eq("session_id", sessionId)
         .eq("user_id", companyId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
+
+      console.log("data", data);
 
       return data;
     } catch (err) {
@@ -96,13 +98,14 @@ export const db = {
           `
                 id, title, content_text, created_at, status,
                 platform ( name ),
-                session!post_session_id_fkey ( id ),
-                media ( url )
+                session!post_session_id_fkey ( 
+                id,
+                media( id, url )
+                )
             `
         )
         .eq("company_id", companyId)
-        .order("created_at", { ascending: false })
-        .order("url", { ascending: false, referencedTable: "media" });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
@@ -292,12 +295,6 @@ export const db = {
         .in("status", ["running", "waiting_user", "error"])
         .is("finished_at", null);
 
-      const firstJob = data?.[0];
-
-      if (error) throw error;
-      if (firstJob?.status === "error") {
-        throw new Error(firstJob.error_msg);
-      }
       return data || [];
     } catch (err) {
       logger.error(

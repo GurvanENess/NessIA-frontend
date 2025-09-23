@@ -11,6 +11,7 @@ const formatMessagesFromDb = (messages: unknown[]): Message[] => {
     content: message.content,
     timestamp: new Date(message.created_at),
     postData: undefined,
+    media: message.media || [], // Ajout des médias récupérés de la DB
   }));
 };
 

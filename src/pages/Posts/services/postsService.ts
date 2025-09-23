@@ -1,5 +1,5 @@
-import { Post } from "../entities/PostTypes";
 import { db } from "../../../shared/services/db";
+import { Post } from "../entities/PostTypes";
 
 const mapPost = (data: any): Post => {
   return {
@@ -11,7 +11,7 @@ const mapPost = (data: any): Post => {
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
     publishedAt: data.published_at ? new Date(data.published_at) : undefined,
-    imageUrl: data.media?.[0]?.url || "",
+    images: data.session?.media || [],
     userId: data.user_id,
     conversationId: data.session?.id || "",
   };

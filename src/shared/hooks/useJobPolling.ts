@@ -33,6 +33,11 @@ export default function useJobPolling() {
       setJobs(runningJobs);
       console.log("runningJobs", jobs);
 
+      if (runningJobs.length > 0 && runningJobs[0].status === "error") {
+        stopPolling();
+        throw new Error("Job error");
+      }
+
       if (
         runningJobs.length === 0 ||
         !resolveRef.current ||

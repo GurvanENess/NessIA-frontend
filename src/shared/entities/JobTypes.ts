@@ -5,7 +5,7 @@ export interface NeedUserInput {
 
 export interface Job {
   id: string;
-  status: "waiting_user" | "running" | "completed" | "failed";
+  status: "waiting_user" | "running" | "completed" | "error";
   type?: string;
   message?: string;
   created_at?: string;

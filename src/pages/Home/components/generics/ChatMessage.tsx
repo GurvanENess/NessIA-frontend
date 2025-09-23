@@ -4,17 +4,53 @@ import React from "react";
 import Markdown from "react-markdown";
 import { Message as MessageType } from "../../../../shared/entities/ChatTypes";
 import markdownConfig from "../../../../shared/utils/markdownConfig";
+import ChatImageMessage from "./ChatImageMessage";
 
 const Message: React.FC<MessageType> = ({
   isAi,
   content,
   timestamp,
-  postData,
+  media,
 }) => {
+  // Vérifier si le message est vide (seulement des espaces ou vide)
+  const isContentEmpty = !content || content.trim().length === 0;
+  const hasMedia = media && media.length > 0;
+
+  // Pour les messages utilisateur sans contenu mais avec des médias, affichage simplifié
+  if (!isAi && isContentEmpty && hasMedia) {
+    return (
+      <div>
+        {/* Indicateur simplifié pour message utilisateur avec seulement des images */}
+        <div className="flex justify-end items-center mb-2 ml-12">
+          <span className="text-sm text-gray-500 mr-2">Vous</span>
+          <span className="text-xs text-gray-400">
+            {format(timestamp, "d MMM 'à' HH:mm", {
+              locale: fr,
+            })}
+          </span>
+        </div>
+
+        {/* Affichage des images */}
+        <div className="ml-12">
+          <ChatImageMessage
+            images={media.map((m) => ({
+              id: m.id,
+              url: m.url,
+              alt: `Image du message`,
+            }))}
+            compact={media.length > 3}
+            className=""
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Affichage normal pour tous les autres cas
   return (
     <div>
       <div
-        className={`rounded-lg shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] shadow-sm p-4 message-animation ${
+        className={`rounded-lg shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] p-4 message-animation ${
           isAi
             ? "bg-white border border-gray-300"
             : "bg-[#7C3AED] text-white ml-12"
@@ -43,16 +79,36 @@ const Message: React.FC<MessageType> = ({
                 })}
               </span>
             </div>
-            <div className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}>
-              {isAi ? (
-                <Markdown {...markdownConfig}>{content}</Markdown>
-              ) : (
-                content
-              )}
-            </div>
+            {!isContentEmpty && (
+              <div
+                className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}
+              >
+                {isAi ? (
+                  <Markdown {...markdownConfig}>{content}</Markdown>
+                ) : (
+                  content
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Affichage des images si présentes - en dehors de la bulle */}
+      {/* Seulement si ce n'est pas le cas spécial (message utilisateur vide avec images) */}
+      {media && media.length > 0 && !(!isAi && isContentEmpty && hasMedia) && (
+        <div className={`mt-3 ${isAi ? "ml-13" : "ml-12"}`}>
+          <ChatImageMessage
+            images={media.map((m) => ({
+              id: m.id,
+              url: m.url,
+              alt: `Image du message`,
+            }))}
+            compact={media.length > 3}
+            className=""
+          />
+        </div>
+      )}
 
       {
         // postData && (

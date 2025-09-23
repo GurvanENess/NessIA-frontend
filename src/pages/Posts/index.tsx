@@ -38,6 +38,7 @@ const PostsDisplay: React.FC = () => {
         const userPosts = await PostsService.fetchUserPosts(
           state.currentCompany?.id as string
         );
+        console.log("userPosts", userPosts);
         fetchPosts(userPosts);
       } catch (err) {
         setError(err, "Impossible de charger les publications");

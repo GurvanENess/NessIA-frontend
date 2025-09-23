@@ -1,15 +1,16 @@
-import React from "react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale/fr";
 import { motion } from "framer-motion";
 import {
   Calendar,
+  Edit,
+  Eye,
   MessageSquare,
   MoreVertical,
-  Eye,
-  Edit,
   Trash2,
 } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale/fr";
+import React from "react";
+import NoImage from "../../../../public/assets/no_image.jpg";
 import { Post } from "../entities/PostTypes";
 
 interface PostCardProps {
@@ -94,10 +95,20 @@ const PostCard: React.FC<PostCardProps> = ({
       onClick={() => onPostClick?.(post.id)}
     >
       {/* Post Image */}
-      {post.imageUrl && (
+
+      {post.images && post.images.length > 0 ? (
         <div className="aspect-video w-full overflow-hidden">
           <img
-            src={post.imageUrl}
+            src={post.images[0].url}
+            alt={post.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <div className="aspect-video w-full overflow-hidden">
+          <img
+            src={NoImage}
             alt={post.title}
             className="w-full h-full object-cover"
             loading="lazy"

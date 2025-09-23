@@ -36,7 +36,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
         return <Clock className="w-4 h-4 text-amber-500" />;
       case "completed":
         return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case "failed":
+      case "error":
         return <AlertCircle className="w-4 h-4 text-red-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
@@ -51,8 +51,8 @@ const JobStatus: React.FC<JobStatusProps> = ({
         return "En attente de votre réponse...";
       case "completed":
         return "Tâche terminée";
-      case "failed":
-        return "Erreur lors du traitement";
+      case "error":
+        return "Erreur lors du traitement du message.";
       default:
         return "En cours...";
     }
@@ -66,7 +66,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
         return "border-amber-200 bg-amber-50/90";
       case "completed":
         return "border-green-200 bg-green-50/90";
-      case "failed":
+      case "error":
         return "border-red-200 bg-red-50/90";
       default:
         return "border-gray-200 bg-gray-50/90";
@@ -168,6 +168,8 @@ const JobStatus: React.FC<JobStatusProps> = ({
       </div>
     );
   };
+
+  if (jobs.some((job) => job.status === "error")) return null;
 
   return (
     <div className={`sticky bottom-40 left-0 z-20 px-4 ${className}`}>

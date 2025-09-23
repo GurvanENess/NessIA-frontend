@@ -57,6 +57,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   const handleViewPost = () => {
     if (associatedPostId) {
       dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
+      navigate(`/chats/${chatId}/post/`);
       setShowDropdown(false);
     }
   };
