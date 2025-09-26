@@ -1,14 +1,12 @@
 import { Paperclip, Send } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import ImagePreview from "../../../../shared/components/ImagePreview";
+import { useApp } from "../../../../shared/contexts/AppContext";
+import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { Job } from "../../../../shared/entities/JobTypes";
+import { MediaWithUploadState } from "../../entities/media";
+import { useSimpleImageUpload } from "../../hooks/useImageUpload";
 import JobStatus from "./JobStatus";
-
-interface UploadedImage {
-  id: string;
-  url: string;
-  file: File;
-}
 
 interface ChatInputProps {
   value: string;
@@ -16,12 +14,13 @@ interface ChatInputProps {
   onSend: (
     messageToSend: string,
     hideUserMessage: boolean,
-    images?: UploadedImage[]
+    images?: MediaWithUploadState[]
   ) => void;
   handleSuggestionClick: (job: unknown, answer: string) => Promise<void>;
   isLoading: boolean;
   jobs?: Job[];
   children?: React.ReactNode;
+  sessionId?: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -32,10 +31,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
   isLoading,
   children,
   jobs = [],
+  sessionId,
 }) => {
+  const { user } = useAuth();
+  const { state } = useApp();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
+  const { images, addImages, removeImage, uploadError, setImages } =
+    useSimpleImageUpload(
+      sessionId,
+      user?.token,
+      state.currentCompany?.id || "1"
+    );
 
   useEffect(() => {
     console.log("💡 Jobs received in ChatInput:", jobs);
@@ -74,25 +82,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      const newImages: UploadedImage[] = [];
-
-      Array.from(files).forEach((file) => {
-        // Vérifier que c'est bien une image
-        if (file.type.startsWith("image/")) {
-          const imageUrl = URL.createObjectURL(file);
-          const newImage: UploadedImage = {
-            id: `${Date.now()}-${Math.random()}`,
-            url: imageUrl,
-            file: file,
-          };
-          newImages.push(newImage);
-        }
-      });
-
-      setUploadedImages((prev) => [...prev, ...newImages]);
+      await addImages(files);
     }
 
     // Reset input file pour permettre de sélectionner les mêmes fichiers
@@ -102,14 +97,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   const handleDeleteImage = (imageId: string) => {
-    setUploadedImages((prev) => {
-      const imageToDelete = prev.find((img) => img.id === imageId);
-      if (imageToDelete) {
-        // Libérer l'URL blob pour éviter les fuites mémoire
-        URL.revokeObjectURL(imageToDelete.url);
-      }
-      return prev.filter((img) => img.id !== imageId);
-    });
+    removeImage(imageId);
   };
 
   return (
@@ -121,8 +109,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onSend(value, false, uploadedImages);
-            setUploadedImages([]); // Nettoyer les images après envoi
+            onSend(value, false, images);
+            // Effacer les images après l'envoi
+            setImages([]);
           }}
           className="sm:max-w-full md:max-w-2xl mx-auto"
         >
@@ -132,22 +121,41 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
           <div className="shadow relative w-full md:mx-auto bg-white md:rounded-2xl border border-gray-300 transition-colors">
             {/* Section d'affichage des images uploadées */}
-            {uploadedImages.length > 0 && (
+            {images.length > 0 && (
               <div className="px-4 pt-4 pb-2 border-b border-gray-200">
                 <div className="flex flex-wrap gap-2">
-                  {uploadedImages.map((image) => (
-                    <ImagePreview
-                      key={image.id}
-                      src={image.url}
-                      alt={`Image uploadée`}
-                      size="sm"
-                      showDeleteButton={true}
-                      onDelete={() => handleDeleteImage(image.id)}
-                      disableModal={false}
-                      className="rounded-lg"
-                    />
+                  {images.map((image) => (
+                    <div key={image.id} className="relative">
+                      <ImagePreview
+                        src={image.url}
+                        alt={`Image uploadée`}
+                        size="sm"
+                        showDeleteButton={true}
+                        onDelete={() => handleDeleteImage(image.id)}
+                        disableModal={false}
+                        className="rounded-lg"
+                      />
+                      {/* Indicateur de statut d'upload */}
+                      {image.uploadState === "uploading" && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                      {image.uploadState === "error" && (
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            !
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
+                {uploadError && (
+                  <div className="mt-2 text-sm text-red-600 bg-red-50 px-2 py-1 rounded">
+                    {uploadError}
+                  </div>
+                )}
               </div>
             )}
 
@@ -185,7 +193,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
               />
               <button
                 type="submit"
-                disabled={isLoading || hasActiveJobs || !value.trim()}
+                disabled={
+                  isLoading ||
+                  hasActiveJobs ||
+                  !value.trim() ||
+                  images.some((img) => img.uploadState === "uploading")
+                }
                 className="bg-[#7C3AED] text-white p-[5px] rounded-md hover:bg-[#6D28D9] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7C3AED]"
               >
                 {isLoading ? (

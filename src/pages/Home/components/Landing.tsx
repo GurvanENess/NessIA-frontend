@@ -69,6 +69,7 @@ const Landing: React.FC<LandingProps> = ({
           isLoading={isLoading}
           jobs={jobs}
           handleSuggestionClick={onSuggestionClick}
+          sessionId={undefined}
         >
           {showQuickActions && <QuickActions onSelect={onQuickAction} />}
         </ChatInput>

@@ -1,10 +1,7 @@
 ﻿import axios from "axios";
 import { logger } from "../../../shared/utils/logger";
 import { AIRequest, AIRequestFunction, AIResponse } from "../entities/AITypes";
-import {
-  MediaUploadRequest,
-  MediaUploadResponse,
-} from "../entities/media";
+import { MediaUploadRequest, MediaUploadResponse } from "../entities/media";
 
 const n8nUrl = import.meta.env.VITE_N8N_URL_PROD;
 const n8nMediasUrl = import.meta.env.VITE_N8N_URL_MEDIA;
@@ -81,7 +78,7 @@ class AIClient {
   getResponse: AIRequestFunction = async (
     request: AIRequest
   ): Promise<AIResponse> => {
-    const { sessionId, userToken } = request;
+    const { sessionId, userToken, medias, ...requestData } = request;
 
     const headers: Record<string, string | undefined> = {
       "Content-Type": "multipart/form-data",
@@ -94,11 +91,33 @@ class AIClient {
       headers["x-user-session"] = "";
     }
 
+    // Préparer les données pour FormData si on a des médias
+    let data: FormData | AIRequest;
+
+    if (medias && medias.length > 0) {
+      const formData = new FormData();
+
+      // Ajouter les données textuelles
+      Object.entries(requestData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
+
+      // Ajouter les identifiants des médias uploadés
+      const mediaIds = medias.map((media) => media.id);
+      formData.append("mediaIds", JSON.stringify(mediaIds));
+
+      data = formData;
+    } else {
+      data = requestData;
+    }
+
     const options = {
       method: "POST",
       url: n8nUrl,
       headers,
-      data: request,
+      data,
     };
 
     try {
@@ -123,8 +142,3 @@ function isAIResponse(data: any): data is AIResponse {
 }
 
 export const AiClient = new AIClient();
-
-
-
-
-

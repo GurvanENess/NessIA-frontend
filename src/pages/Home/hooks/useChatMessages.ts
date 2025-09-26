@@ -4,6 +4,7 @@ import { useApp } from "../../../shared/contexts/AppContext";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 import { Message } from "../../../shared/entities/ChatTypes";
 import { logger } from "../../../shared/utils/logger";
+import { MediaWithUploadState } from "../entities/media";
 import { AiClient } from "../services/AIClient";
 import { isMessageEmpty } from "../utils/utils";
 
@@ -42,13 +43,20 @@ export const useChatMessages = (
     }
   };
 
-  const processAiResponse = async (message: string) => {
+  const processAiResponse = async (
+    message: string,
+    images?: MediaWithUploadState[]
+  ) => {
     try {
+      const uploadedImages =
+        images?.filter((img) => img.uploadState === "uploaded") || [];
+
       const response = await AiClient.getResponse({
         message: message,
         sessionId: sessionId,
         userToken: user?.token,
         companyId: state.currentCompany?.id || "1",
+        medias: uploadedImages.length > 0 ? uploadedImages : undefined,
       });
 
       if (startPolling) await startPolling(response.sessionId);
@@ -67,16 +75,25 @@ export const useChatMessages = (
 
   const handleSendMessage = async (
     message: string,
-    hideUserMessage?: boolean
+    hideUserMessage?: boolean,
+    images?: MediaWithUploadState[]
   ) => {
     if (isLoading || isMessageEmpty(message)) return;
+
+    // Vérifier que toutes les images sont bien uploadées
+    if (images && images.some((img) => img.uploadState !== "uploaded")) {
+      toast.error("Veuillez attendre que toutes les images soient uploadées", {
+        duration: 3000,
+      });
+      return;
+    }
 
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
     try {
       await processUserMessage(message);
-      await processAiResponse(message);
+      await processAiResponse(message, images);
     } catch (err) {
       logger.error("Error processing message", err);
       dispatch({

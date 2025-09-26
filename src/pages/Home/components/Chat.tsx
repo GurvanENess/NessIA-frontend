@@ -72,6 +72,7 @@ const Chat: React.FC<ChatProps> = ({
             isLoading={isLoading}
             jobs={jobs}
             handleSuggestionClick={onSuggestionClick}
+            sessionId={sessionIdParam}
           >
             {isFirstMessage && showQuickActions && (
               <QuickActions onSelect={onQuickAction} />
