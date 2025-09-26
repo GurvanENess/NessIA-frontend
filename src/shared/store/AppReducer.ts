@@ -194,8 +194,16 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
 
     case "RESET_CHAT":
       return {
-        ...initialState,
-        currentCompany: state.currentCompany, // Preserve current company on chat reset
+        ...state,
+        chat: {
+          sessionId: null,
+          messages: [],
+          messageInput: "",
+          isLoading: false,
+          error: null,
+          showQuickActions: true,
+        },
+        // On préserve les chats existants et les autres états
       };
 
     // Company Actions

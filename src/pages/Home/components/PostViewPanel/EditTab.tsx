@@ -1,11 +1,16 @@
-import { Hash, Pencil } from "lucide-react";
+﻿import { Hash, Pencil } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useApp } from "../../../../shared/contexts/AppContext";
+import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { PostData } from "../../../../shared/entities/PostTypes";
 import { Post } from "../../../Posts/entities/PostTypes";
+import { MediaWithUploadState } from "../../entities/media";
 import MediaSection from "./MediaSection";
 
 interface EditTabProps {
   post: Post;
+  images: MediaWithUploadState[];
+  onImagesChange: (images: MediaWithUploadState[]) => void;
   onSave: (data: PostData) => Promise<void>;
   onCancel: () => void;
   onDeleteImage: (imageId: string) => Promise<void>;
@@ -13,39 +18,45 @@ interface EditTabProps {
 
 const EditTab: React.FC<EditTabProps> = ({
   post,
+  images,
+  onImagesChange,
   onSave,
   onCancel,
   onDeleteImage,
 }) => {
-  const [formData, setFormData] = useState<PostData>({
-    images: post.images || [],
-    caption: post.description,
-    hashtags: (post.hashtags || []).join(" "),
-  });
+  const { state } = useApp();
+  const { user } = useAuth();
+
+  const [caption, setCaption] = useState(post.description);
+  const [hashtags, setHashtags] = useState((post.hashtags || []).join(" "));
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    console.log("post.hashtags", post.hashtags?.join(" "));
-    setFormData({
-      images: post.images || [],
-      caption: post.description,
-      hashtags: (post.hashtags || []).join(" "),
-    });
+    setCaption(post.description);
+    setHashtags((post.hashtags || []).join(" "));
   }, [post]);
 
   const handleSave = async () => {
-    console.log("formData", formData);
     setIsSaving(true);
+
+    // Calculer les images uploadées depuis l'état parent
+    const uploadedImages = images
+      .filter((image) => image.uploadState === "uploaded")
+      .map((image) => ({ id: image.id, url: image.url }));
+
+    const formData: PostData = {
+      images: uploadedImages,
+      caption,
+      hashtags,
+    };
+
     await onSave(formData);
     setIsSaving(false);
   };
 
   const handleCancel = () => {
-    setFormData({
-      images: post.images || [],
-      caption: post.description,
-      hashtags: (post.hashtags || []).join(" "),
-    });
+    setCaption(post.description);
+    setHashtags((post.hashtags || []).join(" "));
     onCancel();
   };
 
@@ -54,16 +65,14 @@ const EditTab: React.FC<EditTabProps> = ({
       <div className="rounded-lg">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-800">Légende</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Legende</h3>
         </div>
         <textarea
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
-          placeholder="Décrivez votre post..."
+          placeholder="Decrivez votre post..."
           rows={4}
-          value={formData.caption}
-          onChange={(e) =>
-            setFormData((p) => ({ ...p, caption: e.target.value }))
-          }
+          value={caption}
+          onChange={(event) => setCaption(event.target.value)}
         />
       </div>
 
@@ -76,22 +85,21 @@ const EditTab: React.FC<EditTabProps> = ({
           type="text"
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
           placeholder="marketing socialmedia"
-          value={formData.hashtags}
-          onChange={(e) =>
-            setFormData((p) => ({ ...p, hashtags: e.target.value }))
-          }
+          value={hashtags}
+          onChange={(event) => setHashtags(event.target.value)}
         />
         <p className="text-xs text-gray-500 mt-1">
-          Séparez les hashtags par des espaces
+          Separez les hashtags par des espaces
         </p>
       </div>
 
       <MediaSection
-        images={formData.images}
-        onImagesChange={(images: { id: string; url: string }[]) =>
-          setFormData((prev) => ({ ...prev, images: images }))
-        }
+        images={images}
+        onImagesChange={onImagesChange}
         onDeleteImage={onDeleteImage}
+        sessionId={state.chat.sessionId || undefined}
+        userToken={user?.token}
+        companyId={state.currentCompany?.id}
       />
 
       <div className="flex justify-end gap-3">

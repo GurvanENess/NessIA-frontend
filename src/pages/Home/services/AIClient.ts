@@ -1,10 +1,47 @@
-import axios from "axios";
+﻿import axios from "axios";
 import { logger } from "../../../shared/utils/logger";
 import { AIRequest, AIRequestFunction, AIResponse } from "../entities/AITypes";
-const n8nUrl = import.meta.env.VITE_N8N_URL_PROD; // Use the production URL for n8n
+import {
+  MediaUploadRequest,
+  MediaUploadResponse,
+} from "../entities/media";
+
+const n8nUrl = import.meta.env.VITE_N8N_URL_PROD;
+const n8nMediasUrl = import.meta.env.VITE_N8N_URL_MEDIA;
 const n8nJobsInputUrl = import.meta.env.VITE_N8N_URL_JOBS_USERINPUT;
 
 class AIClient {
+  sendMedias = async ({
+    sessionId,
+    userToken,
+    medias,
+    companyId,
+  }: MediaUploadRequest): Promise<MediaUploadResponse> => {
+    const data = new FormData();
+    data.append("companyId", companyId);
+
+    medias.forEach((media) => {
+      if (media.file) {
+        data.append(media.id, media.file);
+      }
+    });
+
+    const options = {
+      method: "POST",
+      url: n8nMediasUrl,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: import.meta.env.VITE_N8N_AUTH,
+        "x-user-auth": userToken,
+        "x-user-session": sessionId,
+      },
+      data,
+    };
+
+    const response = await axios.request<MediaUploadResponse>(options);
+    return response.data;
+  };
+
   sendAnswerToSuggestion = async ({
     sessionId,
     userToken,
@@ -86,3 +123,8 @@ function isAIResponse(data: any): data is AIResponse {
 }
 
 export const AiClient = new AIClient();
+
+
+
+
+

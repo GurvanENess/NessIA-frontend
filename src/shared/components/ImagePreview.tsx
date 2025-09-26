@@ -1,4 +1,4 @@
-import { X, ZoomIn } from "lucide-react";
+import { Loader2, X, ZoomIn } from "lucide-react";
 import React, { useState } from "react";
 
 // Styles CSS pour les animations du modal
@@ -78,6 +78,8 @@ interface ImagePreviewProps {
   isDragging?: boolean;
   /** Indiquer si l'élément est survolé pendant un drag */
   isDragOver?: boolean;
+  /** Indiquer si l'image est en cours d'upload */
+  isUploading?: boolean;
 }
 
 const sizeClasses = {
@@ -107,6 +109,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   onDragEnd,
   isDragging = false,
   isDragOver = false,
+  isUploading = false,
 }) => {
   const [selectedImage, setSelectedImage] = useState<ImagePreviewData | null>(
     null
@@ -168,8 +171,15 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
           </div>
         )}
 
+        {/* Overlay de loading pour l'upload */}
+        {isUploading && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
+          </div>
+        )}
+
         {/* Bouton de suppression avec animation */}
-        {showDeleteButton && onDelete && (
+        {showDeleteButton && onDelete && !isUploading && (
           <button
             onClick={handleDelete}
             className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 ease-out hover:bg-red-600 hover:scale-110 shadow-lg"
@@ -182,7 +192,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       {/* Modal d'agrandissement avec animations */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-0 flex items-center justify-center z-50 !mt-auto animate-fade-in backdrop-blur-0"
+          className="fixed inset-0 bg-black bg-opacity-0 flex items-center justify-center z-[100] !mt-auto animate-fade-in backdrop-blur-0"
           style={{
             animation: "fadeInBackdrop 0.3s ease-out forwards",
           }}
@@ -217,5 +227,3 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
 };
 
 export default ImagePreview;
-
-

@@ -21,6 +21,7 @@ const PostViewPanel: React.FC = () => {
   // Utilisation du hook personnalisé pour toute la logique
   const {
     post,
+    images,
     isLoading,
     error,
     activeTab,
@@ -30,13 +31,14 @@ const PostViewPanel: React.FC = () => {
     handleSave,
     handleSchedule,
     handleDeleteImage,
+    handleImagesChange,
   } = usePostViewPanel();
 
   return (
     <AnimatePresence>
       {postPanel.isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -177,6 +179,8 @@ const PostViewPanel: React.FC = () => {
                     {activeTab === "edit" && (
                       <EditTab
                         post={post}
+                        images={images}
+                        onImagesChange={handleImagesChange}
                         onDeleteImage={handleDeleteImage}
                         onSave={handleSave}
                         onCancel={() => setActiveTab("preview")}

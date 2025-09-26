@@ -119,7 +119,9 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
   const onNewChat = () => {
     dispatch({ type: "RESET_CHAT" });
-    onClose();
+    if (isMobile) {
+      onClose();
+    }
   };
 
   // Force BurgerMenu to be open when width is superior than 768px
@@ -188,7 +190,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   return (
     <>
       <div
-        className={`md:row-span-3 md:col-span-2 md:w-[290px] md:h-screen md:transform-none md:opacity-100 md:pointer-events-auto burger-menu-desktop fixed inset-0 bg-opacity-50 z-30 transition-opacity ${
+        className={`md:row-span-3 md:col-span-2 md:w-[290px] md:h-screen md:transform-none md:opacity-100 md:pointer-events-auto burger-menu-desktop fixed inset-0 bg-opacity-50 z-50 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}

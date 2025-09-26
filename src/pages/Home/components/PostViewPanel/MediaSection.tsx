@@ -1,76 +1,70 @@
-import { Images, Plus } from "lucide-react";
+﻿import { Images, Plus } from "lucide-react";
 import React, { useRef, useState } from "react";
 import ImagePreview from "../../../../shared/components/ImagePreview";
-
-// TODO: Fonctionnalités de suppression, d'ajout et de repositionnement des images à implémenter.
+import { MediaWithUploadState } from "../../entities/media";
+import { useImageUpload } from "../../hooks/useImageUpload";
 
 interface MediaSectionProps {
-  images: { id: string; url: string }[];
-  onImagesChange: (images: { id: string; url: string }[]) => void;
+  images: MediaWithUploadState[];
+  onImagesChange: (images: MediaWithUploadState[]) => void;
   onDeleteImage: (imageId: string) => Promise<void>;
+  sessionId?: string;
+  userToken?: string;
+  companyId?: string;
 }
 
 const MediaSection: React.FC<MediaSectionProps> = ({
   images,
   onImagesChange,
   onDeleteImage,
+  sessionId,
+  userToken,
+  companyId,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (files: FileList | null) => {
-    if (!files) return;
+  const { addFilesToUpload, uploadError } = useImageUpload({
+    sessionId,
+    userToken,
+    companyId,
+    onImagesChange,
+    onError: (error) => {
+      console.error("Upload error in MediaSection:", error);
+    },
+  });
 
-    const newImages: { id: string; url: string }[] = [];
-    const fileArray = Array.from(files);
-
-    let processed = 0;
-    console.log(fileArray);
-    fileArray.forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newImages.push({
-            id: crypto.randomUUID(),
-            url: reader.result as string,
-          });
-          processed++;
-          if (processed === fileArray.length) {
-            onImagesChange([...images, ...newImages]);
-          }
-        };
-        reader.readAsDataURL(file);
-      } else {
-        processed++;
-        if (processed === fileArray.length) {
-          onImagesChange([...images, ...newImages]);
-        }
-      }
-    });
+  const handleFileSelect = async (files: FileList | null) => {
+    if (!files) {
+      return;
+    }
+    await addFilesToUpload(files, images);
   };
 
   const handleUploadClick = () => fileInputRef.current?.click();
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileSelect(e.target.files);
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    handleFileSelect(event.target.files);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDrop = async (event: React.DragEvent) => {
+    event.preventDefault();
     setIsDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
+    await handleFileSelect(event.dataTransfer.files);
   };
 
   const handleRemoveImage = async (index: number) => {
@@ -78,26 +72,25 @@ const MediaSection: React.FC<MediaSectionProps> = ({
       console.error("onDeleteImage is not a function:", onDeleteImage);
       return;
     }
+
     try {
       await onDeleteImage(images[index].id);
-      // Mise à jour locale de la liste des images après suppression
-      const updatedImages = images.filter((_, i) => i !== index);
+      const updatedImages = images.filter((_, position) => position !== index);
       onImagesChange(updatedImages);
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'image:", error);
+      console.error("Error while deleting image:", error);
     }
   };
 
-  // Fonctions de drag & drop pour réorganiser les images
-  const handleImageDragStart = (e: React.DragEvent, index: number) => {
+  const handleImageDragStart = (event: React.DragEvent, index: number) => {
     setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.currentTarget.outerHTML);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/html", event.currentTarget.outerHTML);
   };
 
-  const handleImageDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+  const handleImageDragOver = (event: React.DragEvent, index: number) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
     setDragOverIndex(index);
   };
 
@@ -105,8 +98,8 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     setDragOverIndex(null);
   };
 
-  const handleImageDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
+  const handleImageDrop = (event: React.DragEvent, dropIndex: number) => {
+    event.preventDefault();
 
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null);
@@ -114,16 +107,12 @@ const MediaSection: React.FC<MediaSectionProps> = ({
       return;
     }
 
-    const newImages = [...images];
-    const draggedImage = newImages[draggedIndex];
+    const updatedImages = [...images];
+    const draggedImage = updatedImages[draggedIndex];
+    updatedImages.splice(draggedIndex, 1);
+    updatedImages.splice(dropIndex, 0, draggedImage);
 
-    // Supprimer l'image de sa position actuelle
-    newImages.splice(draggedIndex, 1);
-
-    // L'insérer à la nouvelle position
-    newImages.splice(dropIndex, 0, draggedImage);
-
-    onImagesChange(newImages);
+    onImagesChange(updatedImages);
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -137,10 +126,17 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     <div className="rounded-lg">
       <div className="flex items-center mb-4">
         <Images className="w-5 h-5 text-gray-600 mr-2" />
-        <h3 className="text-lg font-semibold text-gray-800">Médias</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Medias</h3>
       </div>
 
-      {/* Zone de dépôt et grille d'images */}
+      {uploadError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">
+            Erreur d'upload : {uploadError}
+          </p>
+        </div>
+      )}
+
       <div
         className={`border-2 border-gray-200 rounded-md bg-white p-3 transition-colors ${
           isDragOver ? "bg-purple-50" : ""
@@ -150,7 +146,6 @@ const MediaSection: React.FC<MediaSectionProps> = ({
         onDrop={handleDrop}
       >
         {images.length === 0 ? (
-          // Zone vide avec bouton d'upload
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
             <div className="flex flex-col items-center justify-center py-8">
               <Images className="w-12 h-12 text-gray-400 mb-4" />
@@ -167,18 +162,17 @@ const MediaSection: React.FC<MediaSectionProps> = ({
             </div>
           </div>
         ) : (
-          // Grille d'images avec bouton d'ajout
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
               {images.map((image, index) => (
                 <ImagePreview
-                  key={index}
+                  key={image.id}
                   src={image.url}
-                  alt={`Média ${index + 1}`}
+                  alt={`Media ${index + 1}`}
                   size="md"
-                  showDeleteButton={true}
+                  showDeleteButton
                   onDelete={() => handleRemoveImage(index)}
-                  draggable={true}
+                  draggable
                   dragIndex={index}
                   onDragStart={handleImageDragStart}
                   onDragOver={handleImageDragOver}
@@ -187,8 +181,8 @@ const MediaSection: React.FC<MediaSectionProps> = ({
                   onDragEnd={handleImageDragEnd}
                   isDragging={draggedIndex === index}
                   isDragOver={dragOverIndex === index}
+                  isUploading={image.uploadState === "uploading"}
                   onClick={() => {
-                    // Empêcher le clic si on vient de faire un drag
                     if (draggedIndex !== null) {
                       return;
                     }
@@ -200,16 +194,14 @@ const MediaSection: React.FC<MediaSectionProps> = ({
         )}
       </div>
 
-      {/* Bouton d'ajout de médias */}
       <button
         onClick={handleUploadClick}
         className="mt-4 flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Ajouter des médias
+        Ajouter des medias
       </button>
 
-      {/* Input file caché */}
       <input
         type="file"
         ref={fileInputRef}

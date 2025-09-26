@@ -10,6 +10,7 @@ import {
   SupabasePost,
 } from "../../../shared/utils/postUtils";
 import { Post } from "../../Posts/entities/PostTypes";
+import { MediaWithUploadState } from "../entities/media";
 
 /**
  * Hook pour gérer l'état et les actions du panneau de visualisation des posts
@@ -28,6 +29,7 @@ export const usePostViewPanel = () => {
 
   // === ÉTATS LOCAUX ===
   const [post, setPost] = useState<Post | null>(null);
+  const [images, setImages] = useState<MediaWithUploadState[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"preview" | "edit" | "schedule">(
@@ -38,6 +40,15 @@ export const usePostViewPanel = () => {
   const postId = state.postPanel.postId || "";
   const isPostRoute = location.pathname.includes("/post");
   const shouldPanelBeOpen = isPostRoute;
+
+  // === FONCTIONS UTILITAIRES ===
+  const convertToMediaWithUploadState = (
+    postImages: { id: string; url: string }[] = []
+  ): MediaWithUploadState[] =>
+    postImages.map((image) => ({
+      ...image,
+      uploadState: "uploaded" as const,
+    }));
 
   // === SYNCHRONISATION URL ↔ ÉTAT ===
   useEffect(() => {
@@ -85,6 +96,8 @@ export const usePostViewPanel = () => {
         if (postData) {
           const converted = convertSupabasePost(postData);
           setPost(converted);
+          // Initialiser l'état des images
+          setImages(convertToMediaWithUploadState(converted.images));
         } else {
           setError("Post non trouvé");
         }
@@ -217,6 +230,11 @@ export const usePostViewPanel = () => {
         images: prevPost!.images?.filter((image) => image.id !== imageId),
       }));
 
+      // Mettre à jour aussi l'état des images dans l'éditeur
+      setImages((prevImages) =>
+        prevImages.filter((image) => image.id !== imageId)
+      );
+
       toast.success("Image supprimée avec succès");
     } catch (error) {
       logger.error("Erreur lors de la suppression de l'image", error);
@@ -224,10 +242,25 @@ export const usePostViewPanel = () => {
     }
   };
 
+  // Handler pour les changements d'images
+  const handleImagesChange = (newImages: MediaWithUploadState[]) => {
+    setImages(newImages);
+
+    // Synchroniser avec l'état du post
+    const uploadedImages = newImages
+      .filter((image) => image.uploadState === "uploaded")
+      .map((image) => ({ id: image.id, url: image.url }));
+
+    setPost((prevPost) =>
+      prevPost ? { ...prevPost, images: uploadedImages } : null
+    );
+  };
+
   // === INTERFACE PUBLIQUE ===
   return {
     // États en lecture seule
     post,
+    images,
     isLoading,
     error,
     activeTab,
@@ -239,5 +272,6 @@ export const usePostViewPanel = () => {
     handleSave,
     handleSchedule,
     handleDeleteImage,
+    handleImagesChange,
   } as const;
 };
