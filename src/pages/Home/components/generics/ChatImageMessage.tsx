@@ -1,13 +1,16 @@
 import React from "react";
 import ImagePreview from "../../../../shared/components/ImagePreview";
+import { MediaWithMetadata } from "../../../../shared/entities/MediaTypes";
 
 interface ChatImageMessageProps {
   /** Images à afficher dans le message */
-  images: { id: string; url: string; alt?: string }[];
+  images: MediaWithMetadata[];
   /** Classe CSS pour le conteneur */
   className?: string;
   /** Afficher en mode compact (plus petites images) */
   compact?: boolean;
+  /** Indique si les images sont en cours d'upload */
+  isLoading?: boolean;
 }
 
 /**
@@ -18,6 +21,7 @@ const ChatImageMessage: React.FC<ChatImageMessageProps> = ({
   images,
   className = "",
   compact = false,
+  isLoading = false,
 }) => {
   if (!images || images.length === 0) {
     return null;
@@ -56,6 +60,7 @@ const ChatImageMessage: React.FC<ChatImageMessageProps> = ({
             alt={image.alt || `Image ${index + 1}`}
             size={imageSize}
             showZoomIcon={true}
+            isUploading={isLoading}
             containerClassName="shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
           />
         ))}

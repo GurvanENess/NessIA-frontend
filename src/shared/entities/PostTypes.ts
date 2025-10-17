@@ -1,5 +1,7 @@
+import { Media } from "./MediaTypes";
+
 export interface PostData {
-  images: { id: string; url: string }[];
+  images: Media[];
   caption: string;
   hashtags: string;
 }

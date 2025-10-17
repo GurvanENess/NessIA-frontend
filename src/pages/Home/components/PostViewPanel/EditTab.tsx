@@ -31,6 +31,8 @@ const EditTab: React.FC<EditTabProps> = ({
   const [hashtags, setHashtags] = useState((post.hashtags || []).join(" "));
   const [isSaving, setIsSaving] = useState(false);
 
+  console.log("post", post);
+
   useEffect(() => {
     setCaption(post.description);
     setHashtags((post.hashtags || []).join(" "));

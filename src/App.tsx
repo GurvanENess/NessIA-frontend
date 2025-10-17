@@ -5,7 +5,6 @@ import CompanySelectionPage from "./pages/CompanySelection/index";
 import Home from "./pages/Home";
 import ChatPage from "./pages/Home/components/ChatPage";
 import Login from "./pages/Login";
-import PostEditor from "./pages/PostEditor";
 import PostsDisplay from "./pages/Posts";
 import PrivacyPolicy from "./pages/PrivacyPolicy/index";
 import Register from "./pages/Register";
@@ -47,7 +46,6 @@ const App: React.FC = () => {
                   <Route element={<AppLayout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/posts" element={<PostsDisplay />} />
-                    <Route path="/posts/:postId" element={<PostEditor />} />
                     <Route path="/chats" element={<ChatsDisplay />} />
                     <Route
                       path="/modal"
@@ -77,7 +75,6 @@ const App: React.FC = () => {
                     <Route path="/chats/:chatId" element={<ChatPage />} />
                     <Route path="/chats/:chatId/post/" element={<ChatPage />} />
                     <Route path="/settings/*" element={<SettingsPage />} />
-                    <Route path="/post/new" element={<PostEditor />} />
                   </Route>
                 </Route>
                 {/* Add more protected routes here */}

@@ -1,13 +1,37 @@
-import { ExternalLink, Facebook } from "lucide-react";
-import React from "react";
+import { ExternalLink, Facebook, Instagram } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useApp } from "../../../shared/contexts/AppContext";
+import { useAuth } from "../../../shared/contexts/AuthContext";
+import { PlatformsService } from "../services/platformsService";
 
 const ConnectorsTab: React.FC = () => {
-  const handleConnect = () => {
-    // Fonctionnalité à venir - pour l'instant rien ne se passe
-  };
+  const { state } = useApp();
+  const { currentCompany } = state;
+  const { user } = useAuth();
 
-  const handleBrowseConnectors = () => {
-    // Fonctionnalité à venir - pour l'instant rien ne se passe
+  const [connectedPlatforms, setConnectedPlatforms] = useState<
+    { platform_name: string; account_name: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (currentCompany) {
+      PlatformsService.getConnectedPlatforms(currentCompany.id).then((data) =>
+        setConnectedPlatforms(data)
+      );
+    }
+  }, [currentCompany]);
+
+  const handleConnect = async () => {
+    const url = await PlatformsService.getConnectionUrl(
+      currentCompany?.id || "",
+      user?.token || ""
+    );
+    if (url) {
+      window.location.href = url;
+    } else {
+      toast.error("Impossible de se connecter à cette plateforme");
+    }
   };
 
   return (
@@ -33,38 +57,88 @@ const ConnectorsTab: React.FC = () => {
                 <Facebook className="w-6 h-6 text-gray-600" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-900">Meta</h3>
-                <p className="text-sm text-gray-500">Déconnecté</p>
+                <h3 className="text-lg font-medium text-gray-900">Facebook</h3>
+                <p className="text-sm text-gray-500">
+                  {connectedPlatforms.find(
+                    (platform) => platform.platform_name === "facebook"
+                  )?.account_name || "Déconnecté"}
+                </p>
               </div>
             </div>
-            <button
-              onClick={handleConnect}
-              className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Connecter
-            </button>
+            {connectedPlatforms.find(
+              (platform) => platform.platform_name === "facebook"
+            ) ? (
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
+                <svg
+                  className="w-4 h-4 text-[#7C3AED]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Connecté
+              </span>
+            ) : (
+              <button
+                onClick={handleConnect}
+                className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Connecter
+              </button>
+            )}
           </div>
-
-          {/* Additional connectors can be added here */}
-          <div className="text-center py-8">
-            <button
-              onClick={handleBrowseConnectors}
-              className="px-6 py-3 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors font-medium"
-            >
-              Parcourir les connecteurs
-            </button>
+          {/* Instagram Connector */}
+          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Instagram className="w-6 h-6 text-gray-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">Instagram</h3>
+                <p className="text-sm text-gray-500">
+                  {connectedPlatforms.find(
+                    (platform) => platform.platform_name === "instagram"
+                  )?.account_name || "Déconnecté"}
+                </p>
+              </div>
+            </div>
+            {connectedPlatforms.find(
+              (platform) => platform.platform_name === "instagram"
+            ) ? (
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
+                <svg
+                  className="w-4 h-4 text-[#7C3AED]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Connecté
+              </span>
+            ) : (
+              <button
+                onClick={handleConnect}
+                className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Connecter
+              </button>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Info Section */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-blue-800 text-sm">
-          <strong>Note :</strong> La fonctionnalité de connexion OAuth sera
-          implémentée prochainement. Les boutons sont cliquables mais n'ont pas
-          encore de logique.
-        </p>
       </div>
     </div>
   );

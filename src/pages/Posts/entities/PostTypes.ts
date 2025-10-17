@@ -1,3 +1,5 @@
+import { Media } from "../../../shared/entities/MediaTypes";
+
 export type PostStatus = "draft" | "published" | "scheduled";
 export type PostPlatform = "instagram" | "facebook" | "tiktok" | "twitter";
 
@@ -11,7 +13,7 @@ export interface Post {
   updatedAt?: Date;
   scheduledAt?: Date;
   publishedAt?: Date;
-  images?: { id: string; url: string }[];
+  images?: Media[];
   hashtags?: string[];
   userId: string;
   conversationId?: string;

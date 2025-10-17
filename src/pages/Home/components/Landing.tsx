@@ -8,7 +8,7 @@ interface LandingProps {
   showQuickActions: boolean;
   jobs: any[];
   onMessageInputChange: (value: string) => void;
-  onSendMessage: (message: string, hideUserMessage?: boolean) => void;
+  onSendMessage: (message: string, images?: any[]) => Promise<void>;
   onSuggestionClick: (job: any, answer: string) => Promise<void>;
   onQuickAction: (text: string) => Promise<void>;
 }

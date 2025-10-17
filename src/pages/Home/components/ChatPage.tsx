@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import DeleteChatModal from "../../../shared/components/DeleteChatModal";
 import RenameChatModal from "../../../shared/components/RenameChatModal";
 import { useChatLogic } from "../hooks/useChatLogic";
@@ -10,6 +10,8 @@ import Landing from "./Landing";
 const ChatPage: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
   const isHomePage = !sessionIdParam;
+  const { toggleMenu } = useOutletContext<{ toggleMenu: () => void }>();
+  console.log("toggleMenu", toggleMenu);
 
   // Logique commune (Landing + Chat)
   const commonLogic = useCommonLogic();
@@ -59,6 +61,7 @@ const ChatPage: React.FC = () => {
           onQuickAction={chatLogic.handleQuickAction}
           onRenameChat={chatLogic.handleRenameChat}
           onDeleteChat={chatLogic.handleDeleteChat}
+          onToggleSidebar={toggleMenu}
         />
       )}
 

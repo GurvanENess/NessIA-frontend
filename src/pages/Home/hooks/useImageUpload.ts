@@ -173,3 +173,41 @@ export const useSimpleImageUpload = (
     setImages,
   } as const;
 };
+
+/**
+ * Hook pour gérer les images localement sans upload automatique
+ * Utile pour le ChatInput où l'upload se fait au moment de l'envoi du message
+ */
+export const useLocalImageUpload = () => {
+  const [images, setImages] = useState<MediaWithUploadState[]>([]);
+
+  const addImages = useCallback(async (newFiles: File[] | FileList) => {
+    const fileArray = Array.isArray(newFiles) ? newFiles : Array.from(newFiles);
+    if (fileArray.length === 0) {
+      return;
+    }
+
+    try {
+      const newMediaItems = await createMediaFromFiles(fileArray);
+      setImages((prev) => [...prev, ...newMediaItems]);
+    } catch (error) {
+      console.error("Erreur lors de la préparation des images:", error);
+    }
+  }, []);
+
+  const removeImage = useCallback((imageId: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
+  }, []);
+
+  const clearImages = useCallback(() => {
+    setImages([]);
+  }, []);
+
+  return {
+    images,
+    addImages,
+    removeImage,
+    clearImages,
+    setImages,
+  } as const;
+};

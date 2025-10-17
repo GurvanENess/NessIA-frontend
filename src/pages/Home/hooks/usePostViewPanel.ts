@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useApp } from "../../../shared/contexts/AppContext";
+import { useAuth } from "../../../shared/contexts/AuthContext";
+import { Media } from "../../../shared/entities/MediaTypes";
 import { PostData } from "../../../shared/entities/PostTypes";
 import { db } from "../../../shared/services/db";
 import { logger } from "../../../shared/utils/logger";
@@ -11,6 +13,7 @@ import {
 } from "../../../shared/utils/postUtils";
 import { Post } from "../../Posts/entities/PostTypes";
 import { MediaWithUploadState } from "../entities/media";
+import { PublicationService } from "../services/publicationService";
 
 /**
  * Hook pour gérer l'état et les actions du panneau de visualisation des posts
@@ -23,6 +26,7 @@ import { MediaWithUploadState } from "../entities/media";
  */
 export const usePostViewPanel = () => {
   const { state, dispatch } = useApp();
+  const { user } = useAuth();
   const { chatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,18 +36,36 @@ export const usePostViewPanel = () => {
   const [images, setImages] = useState<MediaWithUploadState[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"preview" | "edit" | "schedule">(
-    "preview"
-  );
+  const [activeTab, setActiveTabState] = useState<
+    "preview" | "edit" | "schedule"
+  >("preview");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
 
   // === COMPUTED VALUES ===
   const postId = state.postPanel.postId || "";
   const isPostRoute = location.pathname.includes("/post");
   const shouldPanelBeOpen = isPostRoute;
 
+  const getTabFromHash = (): "preview" | "edit" | "schedule" => {
+    const hash = location.hash.replace("#", "");
+    if (hash === "edit" || hash === "preview" || hash === "schedule") {
+      return hash;
+    }
+    return "preview";
+  };
+
+  // Fonction publique pour changer d'onglet (met à jour l'état ET l'URL)
+  const setActiveTab = (tab: "preview" | "edit" | "schedule") => {
+    setActiveTabState(tab);
+
+    const currentPath = location.pathname + location.search;
+    navigate(`${currentPath}#${tab}`, { replace: true });
+  };
+
   // === FONCTIONS UTILITAIRES ===
   const convertToMediaWithUploadState = (
-    postImages: { id: string; url: string }[] = []
+    postImages: Media[] = []
   ): MediaWithUploadState[] =>
     postImages.map((image) => ({
       ...image,
@@ -57,7 +79,19 @@ export const usePostViewPanel = () => {
     } else if (!shouldPanelBeOpen && state.postPanel.isOpen) {
       dispatch({ type: "CLOSE_POST_PANEL" });
     }
-  }, [shouldPanelBeOpen, state.postPanel.isOpen, dispatch]);
+  }, [shouldPanelBeOpen, state.postPanel.isOpen, dispatch, postId]);
+
+  // === SYNCHRONISATION HASH ↔ ÉTAT (séparé) ===
+  useEffect(() => {
+    const hash = getTabFromHash();
+
+    // Mettre à jour SEULEMENT l'état local, pas l'URL
+    if (hash !== activeTab) {
+      setActiveTabState(hash);
+      const currentPath = location.pathname + location.search;
+      navigate(`${currentPath}#${hash}`, { replace: true });
+    }
+  }, [location.hash]); // Ne pas inclure activeTab dans les dépendances
 
   // === RÉCUPÉRATION DES DONNÉES ===
   useEffect(() => {
@@ -256,6 +290,87 @@ export const usePostViewPanel = () => {
     );
   };
 
+  // Handler pour la suppression de post
+  const handleDeletePost = async () => {
+    if (!post || !state.currentCompany?.id) {
+      toast.error("Impossible de supprimer le post : données manquantes");
+      return;
+    }
+
+    try {
+      await db.deletePostById(post.id, state.currentCompany.id);
+
+      // Fermer le panel et naviguer vers le chat
+      dispatch({ type: "CLOSE_POST_PANEL" });
+      navigate(`/chats/${chatId}`, { replace: true });
+
+      toast.success("Post supprimé avec succès");
+    } catch (error) {
+      logger.error("Erreur lors de la suppression du post", error);
+      toast.error("Erreur lors de la suppression du post");
+    }
+  };
+
+  // Handler pour ouvrir la modale de suppression
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handler pour fermer la modale de suppression
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  // Handler pour ouvrir la modale de publication
+  const handleOpenPublishModal = () => {
+    setIsPublishModalOpen(true);
+  };
+
+  // Handler pour fermer la modale de publication
+  const handleClosePublishModal = () => {
+    setIsPublishModalOpen(false);
+  };
+
+  // Handler pour la publication de post
+  const handlePublish = () => {
+    handleOpenPublishModal();
+  };
+
+  // Handler pour confirmer la publication
+  const handlePublishConfirm = async () => {
+    if (
+      !post ||
+      !state.currentCompany?.id ||
+      !user?.token ||
+      !state.chat.sessionId
+    ) {
+      toast.error("Impossible de publier le post : données manquantes");
+      return;
+    }
+
+    try {
+      // Utiliser le service de publication
+      await PublicationService.publishPost(
+        post.id,
+        state.currentCompany.id,
+        user.token,
+        state.chat.sessionId
+      );
+
+      // Mise à jour optimiste de l'état local
+      setPost((prevPost) => ({
+        ...prevPost!,
+        status: "published",
+        publishedAt: new Date(),
+      }));
+
+      toast.success("Post publié avec succès");
+    } catch (error) {
+      logger.error("Erreur lors de la publication du post", error);
+      toast.error("Erreur lors de la publication du post");
+    }
+  };
+
   // === INTERFACE PUBLIQUE ===
   return {
     // États en lecture seule
@@ -264,6 +379,8 @@ export const usePostViewPanel = () => {
     isLoading,
     error,
     activeTab,
+    isDeleteModalOpen,
+    isPublishModalOpen,
 
     // Actions
     setActiveTab,
@@ -273,5 +390,12 @@ export const usePostViewPanel = () => {
     handleSchedule,
     handleDeleteImage,
     handleImagesChange,
+    handleDeletePost,
+    handleOpenDeleteModal,
+    handleCloseDeleteModal,
+    handlePublish,
+    handleOpenPublishModal,
+    handleClosePublishModal,
+    handlePublishConfirm,
   } as const;
 };

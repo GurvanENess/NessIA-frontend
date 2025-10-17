@@ -207,13 +207,16 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             <div className="h-[65px] p-4 border-b border-gray-100 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                  <button
+                    onClick={onClose}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center"
+                  >
                     <img
                       src="/assets/nessia_logo.svg"
                       alt="Nessia"
                       className="w-5 h-5"
                     />
-                  </div>
+                  </button>
                   <div>
                     <img
                       src="/assets/nessia_title.svg"

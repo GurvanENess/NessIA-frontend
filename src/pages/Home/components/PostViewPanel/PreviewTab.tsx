@@ -15,7 +15,7 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
 }) => {
   useEffect(() => {});
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" id="preview-tab">
       <InstagramPost
         images={post.images && post.images.length > 0 ? post.images : []}
         caption={post.description}

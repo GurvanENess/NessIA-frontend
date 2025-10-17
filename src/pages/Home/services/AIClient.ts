@@ -104,9 +104,12 @@ class AIClient {
         }
       });
 
-      // Ajouter les identifiants des médias uploadés
-      const mediaIds = medias.map((media) => media.id);
-      formData.append("mediaIds", JSON.stringify(mediaIds));
+      // Ajouter les fichiers directement
+      medias.forEach((media, index) => {
+        if (media.file) {
+          formData.append(`file_${index}`, media.file);
+        }
+      });
 
       data = formData;
     } else {

@@ -5,17 +5,13 @@ import { useApp } from "../../../../shared/contexts/AppContext";
 import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { Job } from "../../../../shared/entities/JobTypes";
 import { MediaWithUploadState } from "../../entities/media";
-import { useSimpleImageUpload } from "../../hooks/useImageUpload";
+import { useLocalImageUpload } from "../../hooks/useImageUpload";
 import JobStatus from "./JobStatus";
 
 interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSend: (
-    messageToSend: string,
-    hideUserMessage: boolean,
-    images?: MediaWithUploadState[]
-  ) => void;
+  onSend: (messageToSend: string, images?: MediaWithUploadState[]) => void;
   handleSuggestionClick: (job: unknown, answer: string) => Promise<void>;
   isLoading: boolean;
   jobs?: Job[];
@@ -38,12 +34,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { images, addImages, removeImage, uploadError, setImages } =
-    useSimpleImageUpload(
-      sessionId,
-      user?.token,
-      state.currentCompany?.id || "1"
-    );
+  const { images, addImages, removeImage, clearImages } = useLocalImageUpload();
 
   useEffect(() => {
     console.log("💡 Jobs received in ChatInput:", jobs);
@@ -69,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         onChange(value);
       } else {
         e.preventDefault();
-        onSend(value, false);
+        onSend(value, images);
       }
     }
   };
@@ -109,9 +100,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onSend(value, false, images);
+            onSend(value, images);
             // Effacer les images après l'envoi
-            setImages([]);
+            clearImages();
           }}
           className="sm:max-w-full md:max-w-2xl mx-auto"
         >
@@ -135,27 +126,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         disableModal={false}
                         className="rounded-lg"
                       />
-                      {/* Indicateur de statut d'upload */}
-                      {image.uploadState === "uploading" && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        </div>
-                      )}
-                      {image.uploadState === "error" && (
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">
-                            !
-                          </span>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
-                {uploadError && (
-                  <div className="mt-2 text-sm text-red-600 bg-red-50 px-2 py-1 rounded">
-                    {uploadError}
-                  </div>
-                )}
               </div>
             )}
 
@@ -193,12 +166,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               />
               <button
                 type="submit"
-                disabled={
-                  isLoading ||
-                  hasActiveJobs ||
-                  !value.trim() ||
-                  images.some((img) => img.uploadState === "uploading")
-                }
+                disabled={isLoading || hasActiveJobs || !value.trim()}
                 className="bg-[#7C3AED] text-white p-[5px] rounded-md hover:bg-[#6D28D9] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#7C3AED]"
               >
                 {isLoading ? (

@@ -216,7 +216,6 @@ export const db = {
           `
         )
         .eq("company_id", companyId)
-        .not("summary", "is", null)
         .limit(20)
         .order("created_at", { ascending: false });
 
@@ -313,7 +312,7 @@ export const db = {
         .from("job_state")
         .select("*")
         .eq("session_id", sessionId)
-        .in("status", ["running", "waiting_user", "error"])
+        .in("status", ["running", "waiting_user"])
         .is("finished_at", null);
 
       if (error) throw error;
@@ -324,6 +323,22 @@ export const db = {
         `Error while retrieving the jobs of session ${sessionId}`,
         err
       );
+      throw err;
+    }
+  },
+
+  async getConnectedPlatforms(companyId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("v_company_platforms")
+        .select("platform_name, account_name")
+        .eq("company_id", companyId);
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error fetching connected platforms", err);
       throw err;
     }
   },

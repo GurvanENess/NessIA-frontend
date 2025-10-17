@@ -48,6 +48,11 @@ export type ChatAction =
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "HIDE_QUICK_ACTIONS" }
   | { type: "SHOW_QUICK_ACTIONS" }
+  // Nouvelle action pour les messages
+  | {
+      type: "SET_MESSAGE_LOADING";
+      payload: { messageId: string; isLoading: boolean };
+    }
   | { type: "RESET_CHAT" };
 
 export type CompanyAction =
@@ -144,6 +149,19 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         chat: {
           ...state.chat,
           messages: [...state.chat.messages, action.payload],
+        },
+      };
+
+    case "SET_MESSAGE_LOADING":
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          messages: state.chat.messages.map((msg) =>
+            msg.id === action.payload.messageId
+              ? { ...msg, isLoading: action.payload.isLoading }
+              : msg
+          ),
         },
       };
 

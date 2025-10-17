@@ -25,13 +25,25 @@ export const useChatMessages = (
   const { sessionId, isLoading } = state.chat;
   const navigate = useNavigate();
 
-  const processUserMessage = async (message: string) => {
+  const processUserMessage = async (
+    message: string,
+    images?: MediaWithUploadState[]
+  ) => {
     try {
+      const messageId = crypto.randomUUID();
       const userMessage: Message = {
-        id: crypto.randomUUID(),
+        id: messageId,
         isAi: false,
         content: message,
         timestamp: new Date(),
+        isLoading: true, // Message en loading
+        media:
+          images && images.length > 0
+            ? images.map((img) => ({
+                id: img.id,
+                url: img.url,
+              }))
+            : undefined,
       };
 
       dispatch({ type: "ADD_MESSAGE", payload: userMessage });
@@ -48,15 +60,13 @@ export const useChatMessages = (
     images?: MediaWithUploadState[]
   ) => {
     try {
-      const uploadedImages =
-        images?.filter((img) => img.uploadState === "uploaded") || [];
-
+      console.log(message, images);
       const response = await AiClient.getResponse({
         message: message,
         sessionId: sessionId,
         userToken: user?.token,
         companyId: state.currentCompany?.id || "1",
-        medias: uploadedImages.length > 0 ? uploadedImages : undefined,
+        medias: images && images.length > 0 ? images : undefined,
       });
 
       if (startPolling) await startPolling(response.sessionId);
@@ -75,14 +85,13 @@ export const useChatMessages = (
 
   const handleSendMessage = async (
     message: string,
-    hideUserMessage?: boolean,
     images?: MediaWithUploadState[]
   ) => {
     if (isLoading || isMessageEmpty(message)) return;
 
-    // Vérifier que toutes les images sont bien uploadées
-    if (images && images.some((img) => img.uploadState !== "uploaded")) {
-      toast.error("Veuillez attendre que toutes les images soient uploadées", {
+    // Vérifier que toutes les images sont en état local (prêtes à être uploadées)
+    if (images && images.some((img) => img.uploadState !== "local")) {
+      toast.error("Toutes les images doivent être en état local", {
         duration: 3000,
       });
       return;
@@ -91,10 +100,29 @@ export const useChatMessages = (
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
+    let userMessage: Message | null = null;
+
     try {
-      await processUserMessage(message);
+      console.log(images);
+      userMessage = await processUserMessage(message, images);
       await processAiResponse(message, images);
+
+      // Marquer le message comme terminé
+      if (userMessage.id) {
+        dispatch({
+          type: "SET_MESSAGE_LOADING",
+          payload: { messageId: userMessage.id, isLoading: false },
+        });
+      }
     } catch (err) {
+      // Marquer le message comme terminé même en cas d'erreur
+      if (userMessage?.id) {
+        dispatch({
+          type: "SET_MESSAGE_LOADING",
+          payload: { messageId: userMessage.id, isLoading: false },
+        });
+      }
+
       logger.error("Error processing message", err);
       dispatch({
         type: "SET_ERROR",
@@ -135,7 +163,7 @@ export const useChatMessages = (
 
   const handleQuickAction = async (text: string) => {
     dispatch({ type: "HIDE_QUICK_ACTIONS" });
-    await handleSendMessage(text, true);
+    await handleSendMessage(text, []);
   };
 
   return {

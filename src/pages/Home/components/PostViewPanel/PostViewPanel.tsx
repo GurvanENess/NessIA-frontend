@@ -1,6 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, MessageSquare, Trash2 } from "lucide-react";
+import {
+  Eye,
+  FacebookIcon,
+  InstagramIcon,
+  MessageSquare,
+  Trash2,
+} from "lucide-react";
 import React, { useRef } from "react";
+import DeletePostModal from "../../../../shared/components/DeletePostModal";
+import PublishPostModal from "../../../../shared/components/PublishPostModal";
 import { useApp } from "../../../../shared/contexts/AppContext";
 import {
   getPlatformColor,
@@ -17,7 +25,6 @@ const PostViewPanel: React.FC = () => {
   const { state } = useApp();
   const { postPanel } = state;
   const panelRef = useRef<HTMLDivElement>(null);
-
   // Utilisation du hook personnalisé pour toute la logique
   const {
     post,
@@ -25,6 +32,8 @@ const PostViewPanel: React.FC = () => {
     isLoading,
     error,
     activeTab,
+    isDeleteModalOpen,
+    isPublishModalOpen,
     setActiveTab,
     handleClose,
     handleOverlayClick,
@@ -32,7 +41,24 @@ const PostViewPanel: React.FC = () => {
     handleSchedule,
     handleDeleteImage,
     handleImagesChange,
+    handleDeletePost,
+    handleOpenDeleteModal,
+    handleCloseDeleteModal,
+    handlePublish,
+    handleClosePublishModal,
+    handlePublishConfirm,
   } = usePostViewPanel();
+
+  const platformIcon = (platform: string) => {
+    switch (platform) {
+      case "instagram":
+        return <InstagramIcon className="w-5 h-5 text-[#7C3AED] " />;
+      case "facebook":
+        return <FacebookIcon className="w-5 h-5 text-[#7C3AED] " />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -56,7 +82,7 @@ const PostViewPanel: React.FC = () => {
               <div className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-3">
                   <Eye className="w-5 h-5 text-[#7C3AED]" />
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="md:text-xl text-base font-semibold text-gray-900">
                     {activeTab === "edit"
                       ? "Modifier le post"
                       : activeTab === "schedule"
@@ -66,7 +92,7 @@ const PostViewPanel: React.FC = () => {
                 </div>
                 <button
                   onClick={handleClose}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9]"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] large:text-base text-sm"
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span className="font-medium">Voir le chat</span>
@@ -199,8 +225,8 @@ const PostViewPanel: React.FC = () => {
             </div>
 
             {post && (
-              <div className="border-t border-gray-200 p-6 bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className="border-t border-gray-200 p-6 bg-gray-50 flex items-center justify-between large:text-base text-sm md:text-sm">
+                <div className="items-center gap-3 hidden lg:flex-row md:flex md:flex-col ">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                       post.status
@@ -216,7 +242,17 @@ const PostViewPanel: React.FC = () => {
                     {getPlatformText(post.platform)}
                   </span>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <button
+                  onClick={handlePublish}
+                  className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                >
+                  {platformIcon(post.platform)}
+                  <span>Publier maintenant</span>
+                </button>
+                <button
+                  onClick={handleOpenDeleteModal}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                >
                   <Trash2 className="w-4 h-4" />
                   <span>Supprimer</span>
                 </button>
@@ -224,6 +260,29 @@ const PostViewPanel: React.FC = () => {
             )}
           </motion.div>
         </motion.div>
+      )}
+
+      {/* Modale de suppression de post */}
+      {post && (
+        <DeletePostModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          postId={post.id}
+          postTitle={post.title}
+          onDeleteConfirm={handleDeletePost}
+        />
+      )}
+
+      {/* Modale de publication de post */}
+      {post && (
+        <PublishPostModal
+          isOpen={isPublishModalOpen}
+          onClose={handleClosePublishModal}
+          postId={post.id}
+          postTitle={post.title}
+          platform={post.platform}
+          onPublishConfirm={handlePublishConfirm}
+        />
       )}
     </AnimatePresence>
   );

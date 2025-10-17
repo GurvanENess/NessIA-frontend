@@ -56,6 +56,14 @@ export const useChatSession = (sessionIdParam?: string) => {
     }
   }, [sessionIdParam, sessionId, dispatch]);
 
+  // Open post panel if a post is created
+  useEffect(() => {
+    console.log("associatedPostId", associatedPostId);
+    if (associatedPostId) {
+      dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
+    }
+  }, [associatedPostId, dispatch]);
+
   // Fetch messages and start polling
   useEffect(() => {
     const fetchMessagesAndStartPolling = async () => {

@@ -11,6 +11,7 @@ const Message: React.FC<MessageType> = ({
   content,
   timestamp,
   media,
+  isLoading: messageLoading,
 }) => {
   // Vérifier si le message est vide (seulement des espaces ou vide)
   const isContentEmpty = !content || content.trim().length === 0;
@@ -40,6 +41,7 @@ const Message: React.FC<MessageType> = ({
             }))}
             compact={media.length > 3}
             className=""
+            isLoading={messageLoading}
           />
         </div>
       </div>
@@ -54,7 +56,7 @@ const Message: React.FC<MessageType> = ({
           isAi
             ? "bg-white border border-gray-300"
             : "bg-[#7C3AED] text-white ml-12"
-        }`}
+        } ${messageLoading ? "opacity-70" : ""}`}
       >
         <div className="flex items-start space-x-3">
           {isAi && (
@@ -79,6 +81,7 @@ const Message: React.FC<MessageType> = ({
                 })}
               </span>
             </div>
+
             {!isContentEmpty && (
               <div
                 className={`mt-2 ${isAi ? "text-gray-700" : "text-white/90"}`}
@@ -106,6 +109,7 @@ const Message: React.FC<MessageType> = ({
             }))}
             compact={media.length > 3}
             className=""
+            isLoading={messageLoading}
           />
         </div>
       )}

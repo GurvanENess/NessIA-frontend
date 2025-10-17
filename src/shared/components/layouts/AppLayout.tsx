@@ -1,5 +1,4 @@
 import { AnimatePresence } from "framer-motion";
-import { Bell } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Outlet, useLocation } from "react-router-dom";
@@ -14,41 +13,15 @@ const AppLayout: React.FC = () => {
   const location = useLocation();
 
   const isSettingsPage = location.pathname.includes("/settings");
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div
       className="grid-cols-1 md:grid-cols-[290px_1fr] md:grid-rows-[auto_1fr] min-h-screen bg-[#E7E9F2] grid"
       ref={appContainerRef}
     >
-      {/* Mobile Header */}
-      <header className="md:col-[2_/_3] md:hidden flex items-center justify-between px-4 h-16 fixed top-0 z-50 bg-[#E7E9F2] w-full border-b border-[rgb(0,0,0,.4)]">
-        <div className="flex items-center space-x-2">
-          {dimensions && dimensions.width < 768 && (
-            <button
-              onClick={() => setIsMenuOpen(true)}
-              className="p2 hover:bg-[#E7E9F2] rounded-full"
-            >
-              <img src="/assets/align-center.svg" alt="Menu" className="w-9" />
-            </button>
-          )}
-          <img src="/assets/nessia_title.svg" alt="Nessia" className="" />
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <button
-            className="p-2 hover:bg-[#E7E9F2] rounded-full relative"
-            onClick={() => {
-              setHasNotifications(!hasNotifications);
-            }}
-          >
-            <Bell className="w-5 text-[#1A201B]" />
-            {hasNotifications && (
-              <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
-            )}
-          </button>
-        </div>
-      </header>
-
       {/* Burger Menu */}
       <BurgerMenu
         isOpen={isMenuOpen}
@@ -59,12 +32,12 @@ const AppLayout: React.FC = () => {
 
       {/* Main Content Area */}
       <main
-        className={`md:col-[2_/_3] flex flex-col h-screen overflow-y-auto custom-scrollbar pt-16 md:pt-0 ${
+        className={`md:col-[2_/_3] flex flex-col h-screen overflow-y-auto custom-scrollbar md:pt-0 ${
           isSettingsPage && "overflow-x-auto"
         }`}
       >
         <AnimatePresence mode="wait">
-          <Outlet />
+          <Outlet context={{ toggleMenu }} />
         </AnimatePresence>
       </main>
 

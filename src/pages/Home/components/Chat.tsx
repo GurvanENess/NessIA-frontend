@@ -17,11 +17,12 @@ interface ChatProps {
   isFirstMessage: boolean;
   jobs: any[];
   onMessageInputChange: (value: string) => void;
-  onSendMessage: (message: string, hideUserMessage?: boolean) => void;
+  onSendMessage: (message: string, images?: any[]) => Promise<void>;
   onSuggestionClick: (job: any, answer: string) => Promise<void>;
   onQuickAction: (text: string) => Promise<void>;
   onRenameChat: () => void;
   onDeleteChat: () => void;
+  onToggleSidebar: () => void;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -40,6 +41,7 @@ const Chat: React.FC<ChatProps> = ({
   onQuickAction,
   onRenameChat,
   onDeleteChat,
+  onToggleSidebar,
 }) => {
   return (
     <>
@@ -50,6 +52,7 @@ const Chat: React.FC<ChatProps> = ({
           associatedPostId={associatedPostId}
           onRenameChat={onRenameChat}
           onDeleteChat={onDeleteChat}
+          onToggleSidebar={onToggleSidebar}
         />
 
         <div className="flex-wrapper flex-1 flex flex-col h-full">

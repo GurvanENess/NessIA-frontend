@@ -1,9 +1,8 @@
+import { Media } from "./MediaTypes";
 import { PostData } from "./PostTypes";
 
-export interface MessageMedia {
-  id: string;
-  url: string;
-}
+/** Alias pour la compatibilité - utilise le type de base Media */
+export type MessageMedia = Media;
 
 export interface Message {
   id?: string;
@@ -11,5 +10,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   postData?: PostData;
-  media?: MessageMedia[];
+  media?: Media[];
+  // Nouveau champ pour le state
+  isLoading?: boolean; // Message en cours de traitement
 }

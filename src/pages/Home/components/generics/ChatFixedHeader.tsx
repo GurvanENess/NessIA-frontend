@@ -10,6 +10,7 @@ interface ChatFixedHeaderProps {
   associatedPostId?: string;
   onRenameChat: () => void;
   onDeleteChat: () => void;
+  onToggleSidebar?: () => void;
 }
 
 const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
@@ -18,6 +19,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   associatedPostId,
   onRenameChat,
   onDeleteChat,
+  onToggleSidebar,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -68,17 +70,54 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   };
 
   return (
-    <div className="hidden md:block sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
+    <div className="block sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
       <div className="px-4 flex items-center justify-between w-full">
-        <div className="px-4 h-12 flex items-center justify-between w-full">
+        <div className="h-12 flex items-center justify-between w-full">
+          <button
+            onClick={onToggleSidebar}
+            className="md:hidden flex items-center justify-center w-8 h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+            title="Ouvrir le menu"
+          >
+            <img
+              src="/assets/align-center.svg"
+              alt="Menu"
+              className="w-12 h-12"
+            />
+          </button>
           {/* Chat Title - Clickable with dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="flex-1 md:flex-none" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 text-gray-900 hover:text-gray-700 transition-colors cursor-pointer group"
+              className="flex justify-center relative items-center gap-2 text-gray-900 hover:text-gray-700 transition-colors cursor-pointer group w-full md:w-auto"
               title="Cliquer pour les options"
             >
-              <h1 className="font-medium truncate max-w-[300px]">
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-6 transform mt-2 bg-white rounded-xl shadow-lg border border-gray-300 z-50 min-w-[180px] py-2"
+                  >
+                    <button
+                      onClick={handleRename}
+                      className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      <Edit className="w-4 h-4 text-gray-500" />
+                      Renommer
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                      Supprimer
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <h1 className="font-medium truncate max-w-[200px] md:max-w-[300px] text-sm md:text-base">
                 {truncateTitle(chatTitle)}
               </h1>
               <ChevronDown
@@ -87,47 +126,20 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
                 }`}
               />
             </button>
-
-            {/* Dropdown Content */}
-            <AnimatePresence>
-              {showDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute left-0 top-[90%] mt-2 bg-white rounded-xl shadow-lg border border-gray-300 z-50 min-w-[180px] py-2"
-                >
-                  <button
-                    onClick={handleRename}
-                    className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                  >
-                    <Edit className="w-4 h-4 text-gray-500" />
-                    Renommer
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                    Supprimer
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* Actions - View Post button instead of Share */}
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 ml-2 md:ml-4">
             {/* View Post Button - Only show if there's an associated post */}
             {associatedPostId && (
               <button
                 onClick={handleViewPost}
-                className="relative z-10 flex items-center mt-1 gap-2 bg-[#7C3AED] text-white px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-sm"
+                className="relative z-10 flex items-center mt-1 gap-1 md:gap-2 bg-[#7C3AED] text-white px-2 md:px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-xs md:text-sm"
                 title="Voir le post associé"
               >
-                <Eye className="w-4 h-4" />
-                <span>Voir le post</span>
+                <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden md:inline">Voir le post</span>
+                <span className="md:hidden">Post</span>
               </button>
             )}
           </div>

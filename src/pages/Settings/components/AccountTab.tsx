@@ -1,19 +1,126 @@
-import React from 'react';
-import { User } from 'lucide-react';
+import { Lock, Save, User } from "lucide-react";
+import React, { FormEvent, useState } from "react";
+import InputField from "../../../shared/components/InputField";
+import { useAuth } from "../../../shared/contexts/AuthContext";
 
 const AccountTab: React.FC = () => {
+  const { user } = useAuth();
+
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    // Logique de soumission à implémenter plus tard
+    console.log("Formulaire soumis (pas encore implémenté):", formData);
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-16 h-16 bg-[#7C3AED]/10 rounded-full flex items-center justify-center mb-6">
-        <User className="w-8 h-8 text-[#7C3AED]" />
+    <div className="max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 bg-[#7C3AED]/10 rounded-lg flex items-center justify-center">
+            <User className="w-5 h-5 text-[#7C3AED]" />
+          </div>
+          <h2 className="text-2xl font-coolvetica text-gray-900">
+            Informations du compte
+          </h2>
+        </div>
+        <p className="text-gray-600 text-sm ml-13">
+          Gérez vos informations personnelles et préférences de sécurité
+        </p>
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-        Compte utilisateur
-      </h3>
-      <p className="text-gray-600 text-center max-w-md">
-        Cette section permettra de gérer vos informations personnelles et préférences. 
-        Fonctionnalité à venir prochainement.
-      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Informations personnelles */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <User className="w-5 h-5 text-gray-600" />
+            Informations personnelles
+          </h3>
+
+          <div className="space-y-4">
+            <InputField
+              label="Nom d'utilisateur"
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              placeholder="Votre nom"
+              className="bg-white"
+            />
+
+            <InputField
+              label="Adresse email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              placeholder="votre@email.com"
+              className="bg-white"
+            />
+          </div>
+        </div>
+
+        {/* Sécurité */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Lock className="w-5 h-5 text-gray-600" />
+            Sécurité
+          </h3>
+
+          <div className="space-y-4">
+            <InputField
+              label="Mot de passe actuel"
+              type="password"
+              value={formData.currentPassword}
+              onChange={(e) => handleChange("currentPassword", e.target.value)}
+              placeholder="••••••••"
+              className="bg-white"
+            />
+
+            <InputField
+              label="Nouveau mot de passe"
+              type="password"
+              value={formData.newPassword}
+              onChange={(e) => handleChange("newPassword", e.target.value)}
+              placeholder="••••••••"
+              className="bg-white"
+            />
+
+            <InputField
+              label="Confirmer le nouveau mot de passe"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => handleChange("confirmPassword", e.target.value)}
+              placeholder="••••••••"
+              className="bg-white"
+            />
+          </div>
+        </div>
+
+        {/* Bouton de soumission */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            type="submit"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            <Save className="w-4 h-4" />
+            Enregistrer les modifications
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

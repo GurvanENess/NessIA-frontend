@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
-import { Building2, CreditCard, Link, Shield, User } from "lucide-react";
+import { Building2, Link, Shield, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountTab from "./components/AccountTab";
-import BillingTab from "./components/BillingTab";
 import ConnectorsTab from "./components/ConnectorsTab";
 import PrivacyTab from "./components/PrivacyTab";
 import ProfileTab from "./components/ProfileTab";
@@ -20,12 +19,6 @@ interface Tab {
 const tabs: Tab[] = [
   { id: "profile", label: "Profil", icon: Building2, component: ProfileTab },
   { id: "account", label: "Compte", icon: User, component: AccountTab },
-  {
-    id: "billing",
-    label: "Facturation",
-    icon: CreditCard,
-    component: BillingTab,
-  },
   {
     id: "privacy",
     label: "Confidentialité",
@@ -142,7 +135,7 @@ const SettingsPage: React.FC = () => {
 
           {/* Content Area */}
           <div className="flex-1 lg:border-l lg:border-gray-200">
-            <div className="bg-white lg:m-6 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 rounded-b-xl shadow-lg min-h-[600px]">
+            <div className="bg-white lg:m-6 lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-200 rounded-b-xl shadow-lg">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 20 }}
