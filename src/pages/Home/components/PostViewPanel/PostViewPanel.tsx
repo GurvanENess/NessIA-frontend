@@ -83,7 +83,9 @@ const PostViewPanel: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Eye className="w-5 h-5 text-[#7C3AED]" />
                   <h2 className="md:text-xl text-base font-semibold text-gray-900">
-                    {activeTab === "edit"
+                    {post?.status === "published"
+                      ? "Détails du post — Publié"
+                      : activeTab === "edit"
                       ? "Modifier le post"
                       : activeTab === "schedule"
                       ? "Programmer le post"
@@ -125,13 +127,23 @@ const PostViewPanel: React.FC = () => {
                 </motion.button>
                 <motion.button
                   onClick={() => setActiveTab("edit")}
-                  className={`pb-2 px-6 text-base cursor-pointer relative ${
-                    activeTab === "edit"
-                      ? "text-purple-700 font-semibold"
-                      : "text-gray-600"
+                  disabled={post?.status === "published"}
+                  className={`pb-2 px-6 text-base relative ${
+                    post?.status === "published"
+                      ? "text-gray-400 cursor-not-allowed opacity-50"
+                      : activeTab === "edit"
+                      ? "text-purple-700 font-semibold cursor-pointer"
+                      : "text-gray-600 cursor-pointer"
                   }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={
+                    post?.status !== "published" ? { scale: 1.02 } : {}
+                  }
+                  whileTap={post?.status !== "published" ? { scale: 0.98 } : {}}
+                  title={
+                    post?.status === "published"
+                      ? "Indisponible pour un post déjà publié"
+                      : ""
+                  }
                 >
                   Éditer
                   {activeTab === "edit" && (
@@ -149,13 +161,23 @@ const PostViewPanel: React.FC = () => {
                 </motion.button>
                 <motion.button
                   onClick={() => setActiveTab("schedule")}
-                  className={`pb-2 px-6 text-base cursor-pointer relative ${
-                    activeTab === "schedule"
-                      ? "text-purple-700 font-semibold"
-                      : "text-gray-600"
+                  disabled={post?.status === "published"}
+                  className={`pb-2 px-6 text-base relative ${
+                    post?.status === "published"
+                      ? "text-gray-400 cursor-not-allowed opacity-50"
+                      : activeTab === "schedule"
+                      ? "text-purple-700 font-semibold cursor-pointer"
+                      : "text-gray-600 cursor-pointer"
                   }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={
+                    post?.status !== "published" ? { scale: 1.02 } : {}
+                  }
+                  whileTap={post?.status !== "published" ? { scale: 0.98 } : {}}
+                  title={
+                    post?.status === "published"
+                      ? "Indisponible pour un post déjà publié"
+                      : ""
+                  }
                 >
                   Programmer
                   {activeTab === "schedule" && (
@@ -242,13 +264,20 @@ const PostViewPanel: React.FC = () => {
                     {getPlatformText(post.platform)}
                   </span>
                 </div>
-                <button
-                  onClick={handlePublish}
-                  className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
-                >
-                  {platformIcon(post.platform)}
-                  <span>Publier maintenant</span>
-                </button>
+                {post.status === "published" ? (
+                  <div className="flex items-center gap-2 px-4 py-2 text-green-700 bg-green-50 rounded-lg">
+                    {platformIcon(post.platform)}
+                    <span className="font-medium">Publié</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handlePublish}
+                    className="flex items-center gap-2 px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                  >
+                    {platformIcon(post.platform)}
+                    <span>Publier maintenant</span>
+                  </button>
+                )}
                 <button
                   onClick={handleOpenDeleteModal}
                   className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"

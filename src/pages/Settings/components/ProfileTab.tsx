@@ -1,45 +1,55 @@
-import { AlertCircle, Building2, Save } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  FileText,
+  Save,
+  Scale,
+  Target,
+} from "lucide-react";
 import React, { FormEvent, useState } from "react";
+import FileUploadField from "../../../shared/components/FileUploadField";
 import InputField from "../../../shared/components/InputField";
-import { useApp } from "../../../shared/contexts/AppContext";
+import SelectField from "../../../shared/components/SelectField";
+import TextAreaField from "../../../shared/components/TextAreaField";
+import {
+  COMPANY_SIZE_OPTIONS,
+  ENTITY_TYPE_OPTIONS,
+  ProfileFormData,
+} from "../entities/ProfileTypes";
 
 const ProfileTab: React.FC = () => {
-  const { state } = useApp();
-  const { currentCompany } = state;
+  const [formData, setFormData] = useState<ProfileFormData>({
+    // INFORMATIONS
+    companyName: "",
+    role: "",
+    website: "",
 
-  const [formData, setFormData] = useState({
-    companyName: currentCompany?.name || "",
-    companyEmail: currentCompany?.email || "",
+    // ORGANISATION
+    entityType: "" as any,
+    activitySector: "",
+    companySize: "" as any,
+
+    // CIBLES & PILIERS ÉDITORIAUX
+    targetAudience: "",
+
+    // LEGAL & CONFORMITÉ
+    mandatoryMentions: null,
+    forbiddenWords: "",
   });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // Logique de soumission à implémenter plus tard
-    console.log("Formulaire soumis (pas encore implémenté):", formData);
+    console.log("Formulaire de profil soumis :", formData);
+    alert("Profil enregistré avec succès ! (local uniquement)");
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: keyof ProfileFormData, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
-
-  if (!currentCompany) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-6">
-          <AlertCircle className="w-8 h-8 text-amber-600" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Aucune compagnie sélectionnée
-        </h3>
-        <p className="text-gray-600 text-center max-w-md">
-          Veuillez sélectionner une compagnie pour gérer son profil.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -50,61 +60,154 @@ const ProfileTab: React.FC = () => {
             <Building2 className="w-5 h-5 text-[#7C3AED]" />
           </div>
           <h2 className="text-2xl font-coolvetica text-gray-900">
-            Profil de la compagnie
+            Profil de l'entreprise
           </h2>
         </div>
         <p className="text-gray-600 text-sm ml-13">
-          Gérez les informations de votre compagnie
+          Configurez les informations de votre entreprise et vos préférences
+          éditoriales
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Informations de la compagnie */}
+        {/* INFORMATIONS */}
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-gray-600" />
-            Informations de la compagnie
+            Informations
           </h3>
 
           <div className="space-y-4">
             <InputField
-              label="Nom de la compagnie"
+              label="Entreprise ou marque"
               type="text"
               value={formData.companyName}
               onChange={(e) => handleChange("companyName", e.target.value)}
-              placeholder="Nom de votre compagnie"
+              placeholder="Nom de votre entreprise ou marque"
               className="bg-white"
             />
 
             <InputField
-              label="Email de la compagnie"
-              type="email"
-              value={formData.companyEmail}
-              onChange={(e) => handleChange("companyEmail", e.target.value)}
-              placeholder="contact@compagnie.com"
+              label="Rôle/fonction"
+              type="text"
+              value={formData.role}
+              onChange={(e) => handleChange("role", e.target.value)}
+              placeholder="Ex: Community Manager, Directeur Marketing..."
+              className="bg-white"
+            />
+
+            <InputField
+              label="Site web"
+              type="url"
+              value={formData.website}
+              onChange={(e) => handleChange("website", e.target.value)}
+              placeholder="https://www.votre-site.com"
               className="bg-white"
             />
           </div>
         </div>
 
-        {/* Informations supplémentaires */}
+        {/* ORGANISATION */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-gray-600" />
+            Organisation
+          </h3>
+
+          <div className="space-y-4">
+            <SelectField
+              label="Type d'entité"
+              value={formData.entityType}
+              onChange={(value) => handleChange("entityType", value)}
+              options={ENTITY_TYPE_OPTIONS}
+              placeholder="Sélectionner le type d'entité"
+              className="bg-white"
+            />
+
+            <InputField
+              label="Secteur d'activité"
+              type="text"
+              value={formData.activitySector}
+              onChange={(e) => handleChange("activitySector", e.target.value)}
+              placeholder="Ex: E-commerce, SaaS, Conseil..."
+              className="bg-white"
+            />
+
+            <SelectField
+              label="Taille de l'entreprise"
+              value={formData.companySize}
+              onChange={(value) => handleChange("companySize", value)}
+              options={COMPANY_SIZE_OPTIONS}
+              placeholder="Sélectionner la taille"
+              className="bg-white"
+            />
+          </div>
+        </div>
+
+        {/* CIBLES & PILIERS ÉDITORIAUX */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Target className="w-5 h-5 text-gray-600" />
+            Cibles & Piliers Éditoriaux
+          </h3>
+
+          <div className="space-y-4">
+            <TextAreaField
+              label="Audience cible"
+              value={formData.targetAudience}
+              onChange={(e) => handleChange("targetAudience", e.target.value)}
+              placeholder="Décrivez votre audience cible : démographie, centres d'intérêt, besoins..."
+              rows={4}
+              className="bg-white"
+            />
+          </div>
+        </div>
+
+        {/* LEGAL & CONFORMITÉ */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Scale className="w-5 h-5 text-gray-600" />
+            Legal & Conformité
+          </h3>
+
+          <div className="space-y-4">
+            <FileUploadField
+              label="Mentions obligatoires"
+              value={formData.mandatoryMentions}
+              onChange={(value) => handleChange("mandatoryMentions", value)}
+              className="bg-white"
+            />
+
+            <div className="pt-2">
+              <TextAreaField
+                label="Liste de mots interdits"
+                value={formData.forbiddenWords}
+                onChange={(e) => handleChange("forbiddenWords", e.target.value)}
+                placeholder="Séparez les mots par des virgules. Ex: concurrent, marque1, marque2..."
+                rows={3}
+                className="bg-white"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Ces mots seront automatiquement filtrés lors de la génération de
+                contenu
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info supplémentaire */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
               <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                Informations actuelles
+                À propos de ce formulaire
               </h4>
               <p className="text-sm text-blue-700">
-                Compagnie :{" "}
-                <span className="font-medium">{currentCompany.name}</span>
+                Ces informations permettent de personnaliser votre expérience et
+                d'optimiser la génération de contenu selon vos besoins et votre
+                contexte professionnel.
               </p>
-              {currentCompany.email && (
-                <p className="text-sm text-blue-700">
-                  Email :{" "}
-                  <span className="font-medium">{currentCompany.email}</span>
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -116,7 +219,7 @@ const ProfileTab: React.FC = () => {
             className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
           >
             <Save className="w-4 h-4" />
-            Enregistrer les modifications
+            Enregistrer le profil
           </button>
         </div>
       </form>

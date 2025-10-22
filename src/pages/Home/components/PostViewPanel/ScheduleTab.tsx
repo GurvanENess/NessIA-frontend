@@ -17,8 +17,10 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
 
+  const isPublished = post.status === "published";
+
   const handleSchedule = async () => {
-    if (!selectedDate) return;
+    if (!selectedDate || isPublished) return;
     setIsScheduling(true);
     await onSchedule(selectedDate);
     setIsScheduling(false);
@@ -42,6 +44,18 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
   return (
     <div className="space-y-8">
+      {isPublished && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="text-green-600 mt-0.5">ℹ️</div>
+          <div>
+            <p className="text-green-800 font-medium">Ce post est publié</p>
+            <p className="text-green-700 text-sm mt-1">
+              La programmation n'est plus disponible pour un post déjà publié.
+              Le post a été publié sur la plateforme.
+            </p>
+          </div>
+        </div>
+      )}
       {/* État actuel de la programmation */}
       <div className="bg-[#E7E9F2] rounded-lg p-6 border border-gray-200">
         <div className="flex items-center gap-3 mb-4">
@@ -90,7 +104,7 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
 
         <DateTimePicker
           selectedDate={selectedDate}
-          onDateTimeChange={setSelectedDate}
+          onDateTimeChange={isPublished ? () => {} : setSelectedDate}
         />
       </div>
 
@@ -105,9 +119,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
         <button
           onClick={handleSchedule}
           disabled={
-            !selectedDate || isScheduling || selectedDate === post.scheduledAt
+            !selectedDate ||
+            isScheduling ||
+            isPublished ||
+            selectedDate === post.scheduledAt
           }
           className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title={isPublished ? "Indisponible pour un post déjà publié" : ""}
         >
           {isScheduling
             ? "Programmation..."

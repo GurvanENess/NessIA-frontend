@@ -31,6 +31,8 @@ const EditTab: React.FC<EditTabProps> = ({
   const [hashtags, setHashtags] = useState((post.hashtags || []).join(" "));
   const [isSaving, setIsSaving] = useState(false);
 
+  const isPublished = post.status === "published";
+
   console.log("post", post);
 
   useEffect(() => {
@@ -39,6 +41,7 @@ const EditTab: React.FC<EditTabProps> = ({
   }, [post]);
 
   const handleSave = async () => {
+    if (isPublished) return;
     setIsSaving(true);
 
     // Calculer les images uploadées depuis l'état parent
@@ -64,17 +67,30 @@ const EditTab: React.FC<EditTabProps> = ({
 
   return (
     <div className="space-y-6">
+      {isPublished && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="text-green-600 mt-0.5">ℹ️</div>
+          <div>
+            <p className="text-green-800 font-medium">Ce post est publié</p>
+            <p className="text-green-700 text-sm mt-1">
+              L'édition n'est plus disponible pour un post déjà publié. Vous
+              pouvez uniquement consulter son contenu.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="rounded-lg">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-800">Legende</h3>
         </div>
         <textarea
-          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
+          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
           placeholder="Decrivez votre post..."
           rows={4}
           value={caption}
           onChange={(event) => setCaption(event.target.value)}
+          disabled={isPublished}
         />
       </div>
 
@@ -85,10 +101,11 @@ const EditTab: React.FC<EditTabProps> = ({
         </div>
         <input
           type="text"
-          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white"
+          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
           placeholder="marketing socialmedia"
           value={hashtags}
           onChange={(event) => setHashtags(event.target.value)}
+          disabled={isPublished}
         />
         <p className="text-xs text-gray-500 mt-1">
           Separez les hashtags par des espaces
@@ -113,8 +130,8 @@ const EditTab: React.FC<EditTabProps> = ({
         </button>
         <button
           onClick={handleSave}
-          disabled={isSaving}
-          className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50"
+          disabled={isSaving || isPublished}
+          className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? "Sauvegarde..." : "Sauvegarder"}
         </button>

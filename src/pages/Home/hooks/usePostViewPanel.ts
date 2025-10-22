@@ -57,6 +57,15 @@ export const usePostViewPanel = () => {
 
   // Fonction publique pour changer d'onglet (met à jour l'état ET l'URL)
   const setActiveTab = (tab: "preview" | "edit" | "schedule") => {
+    // Empêcher la navigation vers "edit" ou "schedule" si le post est publié
+    if (
+      post?.status === "published" &&
+      (tab === "edit" || tab === "schedule")
+    ) {
+      toast.error("Ce post est déjà publié et ne peut plus être modifié");
+      return;
+    }
+
     setActiveTabState(tab);
 
     const currentPath = location.pathname + location.search;
