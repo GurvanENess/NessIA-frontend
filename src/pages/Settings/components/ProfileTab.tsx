@@ -6,18 +6,27 @@ import {
   Scale,
   Target,
 } from "lucide-react";
-import React, { FormEvent, useState } from "react";
-import FileUploadField from "../../../shared/components/FileUploadField";
+import React, { FormEvent, useEffect, useState } from "react";
 import InputField from "../../../shared/components/InputField";
 import SelectField from "../../../shared/components/SelectField";
 import TextAreaField from "../../../shared/components/TextAreaField";
+import { useApp } from "../../../shared/contexts/AppContext";
 import {
   COMPANY_SIZE_OPTIONS,
   ENTITY_TYPE_OPTIONS,
   ProfileFormData,
 } from "../entities/ProfileTypes";
+import { AccountService } from "../services/accountService";
+import ForbiddenWordsField from "./ForbiddenWordsField";
+import MandatoryMentionsField from "./MandatoryMentionsField";
 
 const ProfileTab: React.FC = () => {
+  const {
+    state: { currentCompany },
+    updateCurrentCompany,
+    updateCompanyInList,
+  } = useApp();
+
   const [formData, setFormData] = useState<ProfileFormData>({
     // INFORMATIONS
     companyName: "",
@@ -33,15 +42,78 @@ const ProfileTab: React.FC = () => {
     targetAudience: "",
 
     // LEGAL & CONFORMITÉ
-    mandatoryMentions: null,
-    forbiddenWords: "",
+    mandatoryMentions: [],
+    forbiddenWords: [],
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentCompany) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchCompanyData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await AccountService.getCompanyData(currentCompany.id);
+        if (data) {
+          setFormData(data);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des données du profil :",
+          error
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCompanyData();
+  }, [currentCompany]);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Logique de soumission à implémenter plus tard
-    console.log("Formulaire de profil soumis :", formData);
-    alert("Profil enregistré avec succès ! (local uniquement)");
+    console.log("Profile Tab - formData", formData);
+    if (!currentCompany) {
+      console.error("Aucune entreprise sélectionnée");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveSuccess(false);
+
+    try {
+      await AccountService.updateCompanyData(currentCompany.id, formData);
+
+      // Mettre à jour le store global immédiatement
+      updateCurrentCompany({
+        name: formData.companyName,
+      });
+
+      // Mettre à jour la company dans la liste
+      updateCompanyInList(currentCompany.id, {
+        name: formData.companyName,
+      });
+
+      setSaveSuccess(true);
+
+      // Réinitialiser le succès après 3 secondes
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement du profil :", error);
+      alert(
+        "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (field: keyof ProfileFormData, value: any) => {
@@ -50,6 +122,39 @@ const ProfileTab: React.FC = () => {
       [field]: value,
     }));
   };
+
+  // Affichage du loading
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-[#7C3AED]/10 rounded-lg flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-[#7C3AED]" />
+            </div>
+            <h2 className="text-2xl font-coolvetica text-gray-900">
+              Profil de l'entreprise
+            </h2>
+          </div>
+          <p className="text-gray-600 text-sm ml-13">
+            Configurez les informations de votre entreprise et vos préférences
+            éditoriales
+          </p>
+        </div>
+
+        {/* Loading State */}
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-600 text-sm">
+              Chargement des données du profil...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -84,15 +189,6 @@ const ProfileTab: React.FC = () => {
               value={formData.companyName}
               onChange={(e) => handleChange("companyName", e.target.value)}
               placeholder="Nom de votre entreprise ou marque"
-              className="bg-white"
-            />
-
-            <InputField
-              label="Rôle/fonction"
-              type="text"
-              value={formData.role}
-              onChange={(e) => handleChange("role", e.target.value)}
-              placeholder="Ex: Community Manager, Directeur Marketing..."
               className="bg-white"
             />
 
@@ -144,14 +240,23 @@ const ProfileTab: React.FC = () => {
           </div>
         </div>
 
-        {/* CIBLES & PILIERS ÉDITORIAUX */}
+        {/* PERSONNALISATION NESSIA */}
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Target className="w-5 h-5 text-gray-600" />
-            Cibles & Piliers Éditoriaux
+            Personnalisation NessIA
           </h3>
 
           <div className="space-y-4">
+            <InputField
+              label="Rôle/fonction"
+              type="text"
+              value={formData.role}
+              onChange={(e) => handleChange("role", e.target.value)}
+              placeholder="Ex: Community Manager, Directeur Marketing..."
+              className="bg-white"
+            />
+
             <TextAreaField
               label="Audience cible"
               value={formData.targetAudience}
@@ -171,26 +276,18 @@ const ProfileTab: React.FC = () => {
           </h3>
 
           <div className="space-y-4">
-            <FileUploadField
-              label="Mentions obligatoires"
+            <MandatoryMentionsField
               value={formData.mandatoryMentions}
-              onChange={(value) => handleChange("mandatoryMentions", value)}
-              className="bg-white"
+              onChange={(mentions) =>
+                handleChange("mandatoryMentions", mentions)
+              }
             />
 
             <div className="pt-2">
-              <TextAreaField
-                label="Liste de mots interdits"
+              <ForbiddenWordsField
                 value={formData.forbiddenWords}
-                onChange={(e) => handleChange("forbiddenWords", e.target.value)}
-                placeholder="Séparez les mots par des virgules. Ex: concurrent, marque1, marque2..."
-                rows={3}
-                className="bg-white"
+                onChange={(words) => handleChange("forbiddenWords", words)}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Ces mots seront automatiquement filtrés lors de la génération de
-                contenu
-              </p>
             </div>
           </div>
         </div>
@@ -216,10 +313,43 @@ const ProfileTab: React.FC = () => {
         <div className="flex justify-end pt-4 border-t border-gray-200">
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm ${
+              saveSuccess
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-[#7C3AED] hover:bg-[#6D28D9]"
+            } text-white ${
+              isSaving ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"
+            }`}
           >
-            <Save className="w-4 h-4" />
-            Enregistrer le profil
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Enregistrement...
+              </>
+            ) : saveSuccess ? (
+              <>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Enregistré !
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Enregistrer le profil
+              </>
+            )}
           </button>
         </div>
       </form>

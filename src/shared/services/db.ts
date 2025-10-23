@@ -1,3 +1,4 @@
+import { SupabaseProfile } from "../../pages/Settings/entities/ProfileTypes";
 import { logger } from "../utils/logger";
 import { supabaseClient } from "./supabase";
 
@@ -340,6 +341,38 @@ export const db = {
     } catch (err) {
       logger.error("Error fetching connected platforms", err);
       throw err;
+    }
+  },
+
+  async getCompanyData(companyId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("company")
+        .select("*")
+        .eq("id", companyId)
+        .single();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error fetching company data", err);
+    }
+  },
+
+  async updateCompanyData(id: string, companyData: SupabaseProfile) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("company")
+        .update({ ...companyData })
+        .eq("id", id)
+        .select("*");
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error updating company data", err);
     }
   },
 };

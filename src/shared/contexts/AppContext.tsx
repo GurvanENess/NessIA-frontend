@@ -24,6 +24,8 @@ interface AppContextType {
   setCurrentCompany: (company: Company) => void;
   clearCurrentCompany: () => void;
   changeCompanyAndReset: (company: Company) => void;
+  updateCurrentCompany: (updates: Partial<Company>) => void;
+  updateCompanyInList: (id: string, updates: Partial<Company>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -85,6 +87,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "CHANGE_COMPANY_AND_RESET", payload: company });
   };
 
+  const updateCurrentCompany = (updates: Partial<Company>) => {
+    dispatch({ type: "UPDATE_CURRENT_COMPANY", payload: updates });
+  };
+
+  const updateCompanyInList = (id: string, updates: Partial<Company>) => {
+    dispatch({ type: "UPDATE_COMPANY_IN_LIST", payload: { id, updates } });
+  };
+
   const value = {
     state,
     dispatch,
@@ -93,6 +103,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     setCurrentCompany,
     clearCurrentCompany,
     changeCompanyAndReset,
+    updateCurrentCompany,
+    updateCompanyInList,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

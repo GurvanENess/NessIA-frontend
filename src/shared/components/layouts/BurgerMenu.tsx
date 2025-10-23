@@ -9,14 +9,14 @@ import {
   X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { formatChatsforUi } from "../../../pages/Chats/utils/utils";
 import { useApp } from "../../contexts/AppContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChatModals } from "../../hooks/useChatModals";
 import { useChats } from "../../hooks/useChats";
 import { db } from "../../services/db";
-import { Company } from "../../store/AppReducer";
+// Company est maintenant importé via useApp
 import { logger } from "../../utils/logger";
 import DeleteChatModal from "../DeleteChatModal";
 import RenameChatModal from "../RenameChatModal";
@@ -46,7 +46,6 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   onOpen,
   appDimensions,
 }) => {
-  const navigate = useNavigate();
   const { dispatch, state } = useApp();
   const { user } = useAuth();
   const { conversations, fetchChats } = useChats();
@@ -58,7 +57,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   >(null);
   // Utiliser le hook global pour les modales
   const modals = useChatModals();
-  const [companies, setCompanies] = useState<Company[]>([]);
+  // Utiliser les companies du store global au lieu d'un état local
+  const {
+    state: { companies },
+  } = useApp();
   const [isMobile, setIsMobile] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
 
@@ -83,10 +85,11 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   // Load companies when menu opens
   useEffect(() => {
     const loadCompanies = async () => {
-      if (isOpen) {
+      if (isOpen && companies.length === 0) {
         try {
-          const companies = await db.getCompaniesByUserId(user?.id!);
-          setCompanies(companies);
+          const companiesData = await db.getCompaniesByUserId(user?.id!);
+          // Mettre à jour le store global avec les companies
+          dispatch({ type: "SET_COMPANIES", payload: companiesData });
         } catch (err) {
           logger.error("Failed to load companies", err);
           // Trouver un moyen d'afficher l'erreur à l'utilisateur
@@ -95,7 +98,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     };
 
     loadCompanies();
-  }, [isOpen, user?.id]);
+  }, [isOpen, user?.id, companies.length, dispatch]);
 
   // Close actions popup when clicking outside
   useEffect(() => {

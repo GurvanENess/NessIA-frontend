@@ -33,6 +33,7 @@ export interface AppState {
   chats: ChatsState;
   postPanel: PostPanelState;
   currentCompany: Company | null;
+  companies: Company[];
   error: string | null;
 }
 
@@ -58,7 +59,13 @@ export type ChatAction =
 export type CompanyAction =
   | { type: "SET_CURRENT_COMPANY"; payload: Company }
   | { type: "CLEAR_CURRENT_COMPANY" }
-  | { type: "CHANGE_COMPANY_AND_RESET"; payload: Company };
+  | { type: "CHANGE_COMPANY_AND_RESET"; payload: Company }
+  | { type: "UPDATE_CURRENT_COMPANY"; payload: Partial<Company> }
+  | {
+      type: "UPDATE_COMPANY_IN_LIST";
+      payload: { id: string; updates: Partial<Company> };
+    }
+  | { type: "SET_COMPANIES"; payload: Company[] };
 
 export type PostPanelAction =
   | { type: "OPEN_POST_PANEL"; payload: string }
@@ -109,6 +116,7 @@ export const initialState: AppState = {
     postId: null,
   },
   currentCompany: null,
+  companies: [],
   error: null,
 };
 
@@ -242,6 +250,30 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         ...initialState,
         currentCompany: action.payload, // Garde la nouvelle compagnie
         // Tous les autres états sont réinitialisés
+      };
+
+    case "UPDATE_CURRENT_COMPANY":
+      return {
+        ...state,
+        currentCompany: state.currentCompany
+          ? { ...state.currentCompany, ...action.payload }
+          : null,
+      };
+
+    case "UPDATE_COMPANY_IN_LIST":
+      return {
+        ...state,
+        companies: state.companies.map((company) =>
+          company.id === action.payload.id
+            ? { ...company, ...action.payload.updates }
+            : company
+        ),
+      };
+
+    case "SET_COMPANIES":
+      return {
+        ...state,
+        companies: action.payload,
       };
 
     case "SET_GLOBAL_ERROR":

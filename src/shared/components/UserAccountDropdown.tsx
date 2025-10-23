@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Building2,
   Check,
   ChevronDown,
   ChevronUp,
@@ -70,26 +69,6 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
       "U"
     );
   };
-
-  // A réutiliser pour le formattage des accounts
-  const mockAccounts: Company[] = [
-    {
-      id: "current",
-      name: "e-Ness",
-      email: user?.email || "user@example.com",
-      isActive: true,
-      icon: Building2,
-      color: "bg-blue-500",
-    },
-    {
-      id: "personal",
-      name: "Compte personnel",
-      email: "personnel@example.com",
-      isActive: false,
-      icon: User,
-      color: "bg-pink-500",
-    },
-  ];
 
   return (
     <div ref={dropdownRef} className="relative">
