@@ -39,7 +39,7 @@ const ForbiddenWordsField: React.FC<ForbiddenWordsFieldProps> = ({
 
       {/* Zone d'ajout */}
       <div className="border-2 border-dashed border-red-200 rounded-lg p-4 bg-white">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={currentWord}
@@ -51,7 +51,7 @@ const ForbiddenWordsField: React.FC<ForbiddenWordsFieldProps> = ({
           <button
             type="button"
             onClick={addWord}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
           >
             <Plus size={20} />
             Ajouter

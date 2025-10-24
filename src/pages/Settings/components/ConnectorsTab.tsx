@@ -51,7 +51,7 @@ const ConnectorsTab: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         <div className="space-y-6">
           {/* Meta Connector */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Facebook className="w-6 h-6 text-gray-600" />
@@ -65,37 +65,39 @@ const ConnectorsTab: React.FC = () => {
                 </p>
               </div>
             </div>
-            {connectedPlatforms.find(
-              (platform) => platform.platform_name === "facebook"
-            ) ? (
-              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
-                <svg
-                  className="w-4 h-4 text-[#7C3AED]"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
+            <div className="flex justify-start sm:justify-end">
+              {connectedPlatforms.find(
+                (platform) => platform.platform_name === "facebook"
+              ) ? (
+                <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
+                  <svg
+                    className="w-4 h-4 text-[#7C3AED]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Connecté
+                </span>
+              ) : (
+                <button
+                  onClick={handleConnect}
+                  className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Connecté
-              </span>
-            ) : (
-              <button
-                onClick={handleConnect}
-                className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Connecter
-              </button>
-            )}
+                  <ExternalLink className="w-4 h-4" />
+                  Connecter
+                </button>
+              )}
+            </div>
           </div>
           {/* Instagram Connector */}
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Instagram className="w-6 h-6 text-gray-600" />
@@ -109,34 +111,36 @@ const ConnectorsTab: React.FC = () => {
                 </p>
               </div>
             </div>
-            {connectedPlatforms.find(
-              (platform) => platform.platform_name === "instagram"
-            ) ? (
-              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
-                <svg
-                  className="w-4 h-4 text-[#7C3AED]"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
+            <div className="flex justify-start sm:justify-end">
+              {connectedPlatforms.find(
+                (platform) => platform.platform_name === "instagram"
+              ) ? (
+                <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#EDE9FE] text-[#6D28D9] rounded-full text-xs font-medium">
+                  <svg
+                    className="w-4 h-4 text-[#7C3AED]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Connecté
+                </span>
+              ) : (
+                <button
+                  onClick={handleConnect}
+                  className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Connecté
-              </span>
-            ) : (
-              <button
-                onClick={handleConnect}
-                className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Connecter
-              </button>
-            )}
+                  <ExternalLink className="w-4 h-4" />
+                  Connecter
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -15,9 +15,7 @@ export class AccountService {
 
   static async updateCompanyData(companyId: string, data: ProfileFormData) {
     const supabaseData = formatFormDataToSupabase(data);
-    console.log("updateCompanyData - supabaseData", supabaseData);
     const result = await db.updateCompanyData(companyId, supabaseData);
-    console.log("updated data", result);
     return result;
   }
 }

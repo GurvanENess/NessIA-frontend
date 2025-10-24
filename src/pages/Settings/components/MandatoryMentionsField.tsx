@@ -38,7 +38,7 @@ const MandatoryMentionsField: React.FC<MandatoryMentionsFieldProps> = ({
 
       {/* Zone d'ajout */}
       <div className="border-2 border-dashed border-[#7C3AED]/20 rounded-lg p-4 bg-white">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={currentMention}
@@ -50,7 +50,7 @@ const MandatoryMentionsField: React.FC<MandatoryMentionsFieldProps> = ({
           <button
             type="button"
             onClick={addMention}
-            className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg hover:bg-[#6D28D9] transition-colors flex items-center gap-2 whitespace-nowrap"
+            className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg hover:bg-[#6D28D9] transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
           >
             <Plus size={20} />
             Ajouter

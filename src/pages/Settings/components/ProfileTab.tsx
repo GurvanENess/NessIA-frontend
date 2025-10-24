@@ -78,7 +78,6 @@ const ProfileTab: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Profile Tab - formData", formData);
     if (!currentCompany) {
       console.error("Aucune entreprise sélectionnée");
       return;
