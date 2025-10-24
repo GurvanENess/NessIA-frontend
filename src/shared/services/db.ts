@@ -162,10 +162,19 @@ export const db = {
 
   async updatePostById(
     id: string,
-    { content, hashtags }: { content: string; hashtags: string },
+    {
+      content,
+      hashtags,
+      imagePositions,
+    }: {
+      content: string;
+      hashtags: string;
+      imagePositions?: { id: string; position: number }[];
+    },
     companyId: string
   ) {
     try {
+      // Mettre à jour le post
       const { data, error } = await supabaseClient
         .from("post")
         .update({ content_text: content, hashtags: hashtags })
@@ -174,6 +183,23 @@ export const db = {
         .select();
 
       if (error) throw error;
+
+      // Si des positions d'images sont fournies, les mettre à jour
+      if (imagePositions && imagePositions.length > 0) {
+        for (const imagePosition of imagePositions) {
+          const { error: mediaError } = await supabaseClient
+            .from("media")
+            .update({ position: imagePosition.position })
+            .eq("id", imagePosition.id);
+
+          if (mediaError) {
+            logger.error(
+              `Error updating media position for ${imagePosition.id}`,
+              mediaError
+            );
+          }
+        }
+      }
 
       return data;
     } catch (err) {

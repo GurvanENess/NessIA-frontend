@@ -76,9 +76,10 @@ export const usePostViewPanel = () => {
   const convertToMediaWithUploadState = (
     postImages: Media[] = []
   ): MediaWithUploadState[] =>
-    postImages.map((image) => ({
+    postImages.map((image, index) => ({
       ...image,
       uploadState: "uploaded" as const,
+      position: image.position ?? index, // Utiliser la position existante ou l'index
     }));
 
   // === SYNCHRONISATION URL ↔ ÉTAT ===
@@ -188,6 +189,7 @@ export const usePostViewPanel = () => {
           hashtags: JSON.stringify(
             data.hashtags.split(" ").filter((tag) => tag.length > 0)
           ),
+          imagePositions: data.imagePositions, // Passer les positions
         },
         state.currentCompany.id
       );
@@ -197,6 +199,7 @@ export const usePostViewPanel = () => {
         ...prevPost!,
         description: data.caption,
         hashtags: data.hashtags.split(" ").filter((tag) => tag.length > 0),
+        images: data.images, // Mettre à jour avec les nouvelles positions
       }));
 
       toast.success("Post mis à jour avec succès");
@@ -289,10 +292,14 @@ export const usePostViewPanel = () => {
   const handleImagesChange = (newImages: MediaWithUploadState[]) => {
     setImages(newImages);
 
-    // Synchroniser avec l'état du post
+    // Synchroniser avec l'état du post en conservant les positions
     const uploadedImages = newImages
       .filter((image) => image.uploadState === "uploaded")
-      .map((image) => ({ id: image.id, url: image.url }));
+      .map((image) => ({
+        id: image.id,
+        url: image.url,
+        position: image.position ?? 0, // Conserver la position
+      }));
 
     setPost((prevPost) =>
       prevPost ? { ...prevPost, images: uploadedImages } : null

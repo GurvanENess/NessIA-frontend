@@ -9,6 +9,7 @@
 export interface Media {
   id: string;
   url: string;
+  position?: number; // Position pour l'ordre d'affichage
 }
 
 /** Média avec métadonnées optionnelles (alt text, etc.) */
@@ -23,6 +24,12 @@ export type MediaUploadState = "local" | "uploading" | "uploaded" | "error";
 export interface MediaWithUploadState extends Media {
   file?: File;
   uploadState: MediaUploadState;
+}
+
+/** Média avec position pour la gestion de l'ordre */
+export interface MediaWithPosition {
+  id: string;
+  position: number;
 }
 
 /** Requête d'upload de médias */

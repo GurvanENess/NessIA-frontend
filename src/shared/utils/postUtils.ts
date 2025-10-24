@@ -24,17 +24,22 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     ? supabasePost.session[0]?.id
     : supabasePost.session?.id;
 
-  // Récupération des URLs des images depuis la session.images, triées par date de création
+  // Récupération des URLs des images depuis la session.images, triées par position
   const images =
     Array.isArray(supabasePost.session?.media) &&
     supabasePost.session.media.length > 0
       ? supabasePost.session.media
-          .sort(
-            (a, b) =>
-              new Date(a.created_at).getTime() -
-              new Date(b.created_at).getTime()
-          )
-          .map((image) => ({ id: image.id, url: image.url }))
+          .sort((a, b) => {
+            // Trier par position si disponible, sinon par date de création
+            const positionA = a.position ?? new Date(a.created_at).getTime();
+            const positionB = b.position ?? new Date(b.created_at).getTime();
+            return positionA - positionB;
+          })
+          .map((image, index) => ({
+            id: image.id,
+            url: image.url,
+            position: image.position ?? index, // Conserver la position
+          }))
       : [];
 
   let hashtags: string[] = [];

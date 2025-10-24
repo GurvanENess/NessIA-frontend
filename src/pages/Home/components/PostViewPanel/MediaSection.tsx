@@ -76,7 +76,14 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     try {
       await onDeleteImage(images[index].id);
       const updatedImages = images.filter((_, position) => position !== index);
-      onImagesChange(updatedImages);
+
+      // Recalculer les positions après suppression
+      const imagesWithUpdatedPositions = updatedImages.map((image, idx) => ({
+        ...image,
+        position: idx, // Réassigner les positions après suppression
+      }));
+
+      onImagesChange(imagesWithUpdatedPositions);
     } catch (error) {
       console.error("Error while deleting image:", error);
     }
@@ -112,7 +119,13 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     updatedImages.splice(draggedIndex, 1);
     updatedImages.splice(dropIndex, 0, draggedImage);
 
-    onImagesChange(updatedImages);
+    // Mettre à jour les positions après le réarrangement
+    const imagesWithUpdatedPositions = updatedImages.map((image, index) => ({
+      ...image,
+      position: index, // Assigner la position basée sur l'index
+    }));
+
+    onImagesChange(imagesWithUpdatedPositions);
     setDraggedIndex(null);
     setDragOverIndex(null);
   };

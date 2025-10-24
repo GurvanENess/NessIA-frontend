@@ -1,9 +1,10 @@
-import { Media } from "./MediaTypes";
+import { Media, MediaWithPosition } from "./MediaTypes";
 
 export interface PostData {
   images: Media[];
   caption: string;
   hashtags: string;
+  imagePositions?: MediaWithPosition[]; // Positions des images pour la persistance
 }
 
 export interface InstagramPostProps extends PostData {

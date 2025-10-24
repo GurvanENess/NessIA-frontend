@@ -42,15 +42,26 @@ const EditTab: React.FC<EditTabProps> = ({
     if (isPublished) return;
     setIsSaving(true);
 
-    // Calculer les images uploadées depuis l'état parent
+    // Calculer les images uploadées avec leurs positions
     const uploadedImages = images
       .filter((image) => image.uploadState === "uploaded")
-      .map((image) => ({ id: image.id, url: image.url }));
+      .map((image, index) => ({
+        id: image.id,
+        url: image.url,
+        position: image.position ?? index, // Utiliser la position ou l'index comme fallback
+      }));
+
+    // Créer le tableau des positions pour la sauvegarde
+    const imagePositions = uploadedImages.map((image) => ({
+      id: image.id,
+      position: image.position ?? 0,
+    }));
 
     const formData: PostData = {
       images: uploadedImages,
       caption,
       hashtags,
+      imagePositions, // Ajouter les positions
     };
 
     await onSave(formData);
