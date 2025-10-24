@@ -11,7 +11,6 @@ const ChatPage: React.FC = () => {
   const { chatId: sessionIdParam } = useParams();
   const isHomePage = !sessionIdParam;
   const { toggleMenu } = useOutletContext<{ toggleMenu: () => void }>();
-  console.log("toggleMenu", toggleMenu);
 
   // Logique commune (Landing + Chat)
   const commonLogic = useCommonLogic();

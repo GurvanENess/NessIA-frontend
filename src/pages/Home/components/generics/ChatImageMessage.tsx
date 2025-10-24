@@ -27,6 +27,8 @@ const ChatImageMessage: React.FC<ChatImageMessageProps> = ({
     return null;
   }
 
+  console.log("images", images);
+
   // Choix de la taille selon le mode et le nombre d'images
   const getImageSize = () => {
     if (compact) return "sm";
@@ -55,7 +57,7 @@ const ChatImageMessage: React.FC<ChatImageMessageProps> = ({
       >
         {displayedImages.map((image, index) => (
           <ImagePreview
-            key={image.id || index}
+            key={image.id || `temp-${index}`}
             src={image.url}
             alt={image.alt || `Image ${index + 1}`}
             size={imageSize}

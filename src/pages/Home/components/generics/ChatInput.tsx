@@ -115,8 +115,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {images.length > 0 && (
               <div className="px-4 pt-4 pb-2 border-b border-gray-200">
                 <div className="flex flex-wrap gap-2">
-                  {images.map((image) => (
-                    <div key={image.id} className="relative">
+                  {images.map((image, index) => (
+                    <div key={image.id || `temp-${index}`} className="relative">
                       <ImagePreview
                         src={image.url}
                         alt={`Image uploadée`}

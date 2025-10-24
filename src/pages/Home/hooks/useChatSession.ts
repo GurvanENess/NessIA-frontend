@@ -58,7 +58,6 @@ export const useChatSession = (sessionIdParam?: string) => {
 
   // Open post panel if a post is created
   useEffect(() => {
-    console.log("associatedPostId", associatedPostId);
     if (associatedPostId) {
       dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
     }

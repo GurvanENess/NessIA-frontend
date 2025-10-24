@@ -112,14 +112,12 @@ const JobStatus: React.FC<JobStatusProps> = ({
         <p className="text-sm font-medium text-gray-800">
           {getStatusText(job.status)}
         </p>
-
         {/* Question */}
         {needUserInput.question && (
           <p className="text-sm text-gray-700 mt-2 font-medium">
             {needUserInput.question}
           </p>
         )}
-
         {/* Suggestions */}
         {needUserInput.suggested && needUserInput.suggested.length > 0 && (
           <div className="mt-3 space-y-2">
@@ -139,7 +137,6 @@ const JobStatus: React.FC<JobStatusProps> = ({
             </div>
           </div>
         )}
-
         {job.message && (
           <p className="text-xs text-gray-600 mt-2">{job.message}</p>
         )}

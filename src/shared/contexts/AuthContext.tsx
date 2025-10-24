@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabaseClient } from "../services/supabase";
 
 interface FormDataType {
@@ -21,6 +21,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   signup: (formData: FormDataType) => Promise<any>;
+  updateUserName: (name: string) => Promise<any>;
+  updateUserEmail: (email: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -96,6 +98,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateUserName = async (name: string) => {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      data: { name: name },
+    });
+    console.log("updateUserName - data", data);
+    if (error) throw error;
+    return data;
+  };
+
+  const updateUserEmail = async (email: string) => {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      email,
+    });
+    console.log("updateUserEmail - data", data);
+    if (error) throw error;
+    return data;
+  };
+
   const logout = async () => {
     const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
@@ -109,6 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     login,
     logout,
     signup,
+    updateUserName,
+    updateUserEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

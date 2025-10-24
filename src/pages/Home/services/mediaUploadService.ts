@@ -13,7 +13,8 @@ const readFileAsDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error ?? new Error("Unable to read file"));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Unable to read file"));
     reader.readAsDataURL(file);
   });
 
@@ -26,12 +27,15 @@ export const createMediaFromFiles = async (
   const imageFiles = filterImageFiles(files);
 
   const mediaItems = await Promise.all(
-    imageFiles.map(async (file) => ({
-      id: `${LOCAL_MEDIA_PREFIX}${crypto.randomUUID()}`,
-      url: await readFileAsDataUrl(file),
-      file,
-      uploadState: "local" as const,
-    }))
+    imageFiles.map(async (file) => {
+      const id = `${LOCAL_MEDIA_PREFIX}${crypto.randomUUID()}`;
+      return {
+        id: id || `fallback_${Date.now()}_${Math.random()}`, // Double sécurité
+        url: await readFileAsDataUrl(file),
+        file,
+        uploadState: "local" as const,
+      };
+    })
   );
 
   return mediaItems;
@@ -57,7 +61,9 @@ export const mergeUploadedMedia = (
     return current;
   }
 
-  const uploadedByTempId = new Map(uploaded.map((item) => [item.temp_id, item]));
+  const uploadedByTempId = new Map(
+    uploaded.map((item) => [item.temp_id, item])
+  );
 
   return current.map((media) => {
     const match = uploadedByTempId.get(media.id);
@@ -66,7 +72,7 @@ export const mergeUploadedMedia = (
     }
 
     return {
-      id: match.id,
+      id: match.id || media.id, // Fallback vers l'ID local si l'ID serveur est vide
       url: match.url,
       uploadState: "uploaded" as const,
     };
@@ -88,13 +94,12 @@ export const markMediaAsError = (
   mediaIds: Set<string>
 ): MediaWithUploadState[] =>
   current.map((media) =>
-    mediaIds.has(media.id)
-      ? { ...media, uploadState: "error" as const }
-      : media
+    mediaIds.has(media.id) ? { ...media, uploadState: "error" as const } : media
   );
 
 export const getPendingMedia = (
   medias: MediaWithUploadState[]
 ): MediaWithUploadState[] =>
-  medias.filter((media) => media.uploadState !== "uploaded" && Boolean(media.file));
-
+  medias.filter(
+    (media) => media.uploadState !== "uploaded" && Boolean(media.file)
+  );

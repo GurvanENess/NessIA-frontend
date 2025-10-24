@@ -166,7 +166,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
             <div className="flex flex-wrap gap-2">
               {images.map((image, index) => (
                 <ImagePreview
-                  key={image.id}
+                  key={image.id || `temp-${index}`}
                   src={image.url}
                   alt={`Media ${index + 1}`}
                   size="md"

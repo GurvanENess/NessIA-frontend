@@ -1,10 +1,12 @@
 import { Lock, Save, User } from "lucide-react";
 import React, { FormEvent, useState } from "react";
+import { toast } from "react-hot-toast";
 import InputField from "../../../shared/components/InputField";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 
 const AccountTab: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUserName, updateUserEmail } = useAuth();
+  console.log("user", user);
 
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -14,10 +16,23 @@ const AccountTab: React.FC = () => {
     confirmPassword: "",
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Logique de soumission à implémenter plus tard
-    console.log("Formulaire soumis (pas encore implémenté):", formData);
+    try {
+      await updateUserName(formData.name);
+      if (formData.email !== user?.email) {
+        await updateUserEmail(formData.email);
+      }
+      toast.success("Informations du compte mises à jour avec succès");
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour des informations du compte :",
+        error
+      );
+      toast.error(
+        "Une erreur est survenue lors de la mise à jour du nom d'utilisateur. Veuillez réessayer."
+      );
+    }
   };
 
   const handleChange = (field: string, value: string) => {

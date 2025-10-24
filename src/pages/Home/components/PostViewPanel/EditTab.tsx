@@ -33,8 +33,6 @@ const EditTab: React.FC<EditTabProps> = ({
 
   const isPublished = post.status === "published";
 
-  console.log("post", post);
-
   useEffect(() => {
     setCaption(post.description);
     setHashtags((post.hashtags || []).join(" "));
