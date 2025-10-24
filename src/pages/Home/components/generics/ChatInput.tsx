@@ -96,7 +96,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       {/* Affichage du statut des jobs */}
       <JobStatus jobs={jobs} onSuggestionClick={handleSuggestionClick} />
 
-      <div className="sticky bottom-0 left-0 right-0 md:pb-8 md:px-2 z-[50]">
+      <div className="sticky bottom-0 left-0 right-0 md:pb-8 md:px-2 z-[40]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
