@@ -1,41 +1,42 @@
-﻿import { Hash, Pencil } from "lucide-react";
+﻿import { Pencil } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useApp } from "../../../../shared/contexts/AppContext";
 import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { PostData } from "../../../../shared/entities/PostTypes";
 import { Post } from "../../../Posts/entities/PostTypes";
 import { MediaWithUploadState } from "../../entities/media";
-import MediaSection from "./MediaSection";
+import MediaLibrary from "./MediaLibrary";
 
 interface EditTabProps {
   post: Post;
   images: MediaWithUploadState[];
-  onImagesChange: (images: MediaWithUploadState[]) => void;
+  allSessionMedias: MediaWithUploadState[];
+  onImagesChange: (images: MediaWithUploadState[], allMedias?: MediaWithUploadState[]) => void;
   onSave: (data: PostData) => Promise<void>;
-  onCancel: () => void;
   onDeleteImage: (imageId: string) => Promise<void>;
 }
 
 const EditTab: React.FC<EditTabProps> = ({
   post,
   images,
+  allSessionMedias,
   onImagesChange,
   onSave,
-  onCancel,
   onDeleteImage,
 }) => {
   const { state } = useApp();
   const { user } = useAuth();
 
   const [caption, setCaption] = useState(post.description);
-  const [hashtags, setHashtags] = useState((post.hashtags || []).join(" "));
+  const [originalCaption, setOriginalCaption] = useState(post.description);
   const [isSaving, setIsSaving] = useState(false);
 
   const isPublished = post.status === "published";
+  const hasChanges = caption !== originalCaption;
 
   useEffect(() => {
     setCaption(post.description);
-    setHashtags((post.hashtags || []).join(" "));
+    setOriginalCaption(post.description);
   }, [post]);
 
   const handleSave = async () => {
@@ -48,7 +49,7 @@ const EditTab: React.FC<EditTabProps> = ({
       .map((image, index) => ({
         id: image.id,
         url: image.url,
-        position: image.position ?? index, // Utiliser la position ou l'index comme fallback
+        position: image.position ?? index,
       }));
 
     // Créer le tableau des positions pour la sauvegarde
@@ -60,18 +61,23 @@ const EditTab: React.FC<EditTabProps> = ({
     const formData: PostData = {
       images: uploadedImages,
       caption,
-      hashtags,
-      imagePositions, // Ajouter les positions
+      hashtags: "", // Les hashtags font maintenant partie de la légende
+      imagePositions,
     };
 
     await onSave(formData);
+    // Mettre à jour la légende originale après la sauvegarde
+    setOriginalCaption(caption);
     setIsSaving(false);
   };
 
   const handleCancel = () => {
-    setCaption(post.description);
-    setHashtags((post.hashtags || []).join(" "));
-    onCancel();
+    setCaption(originalCaption);
+  };
+
+  const handleMediasChange = (selectedMedias: MediaWithUploadState[], updatedAllMedias: MediaWithUploadState[]) => {
+    // Mettre à jour les médias sélectionnés ET tous les médias de la session
+    onImagesChange(selectedMedias, updatedAllMedias);
   };
 
   return (
@@ -91,60 +97,48 @@ const EditTab: React.FC<EditTabProps> = ({
       <div className="rounded-lg">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-800">Legende</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Légende</h3>
         </div>
         <textarea
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
-          placeholder="Decrivez votre post..."
+          placeholder="Décrivez votre post... (incluez vos #hashtags)"
           rows={4}
           value={caption}
           onChange={(event) => setCaption(event.target.value)}
           disabled={isPublished}
         />
-      </div>
-
-      <div className="rounded-lg">
-        <div className="flex items-center mb-4">
-          <Hash className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-800">Hashtags</h3>
-        </div>
-        <input
-          type="text"
-          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
-          placeholder="marketing socialmedia"
-          value={hashtags}
-          onChange={(event) => setHashtags(event.target.value)}
-          disabled={isPublished}
-        />
         <p className="text-xs text-gray-500 mt-1">
-          Separez les hashtags par des espaces
+          Les hashtags font partie de la légende
         </p>
       </div>
 
-      <MediaSection
-        images={images}
-        onImagesChange={onImagesChange}
+      {hasChanges && !isPublished && (
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+          </button>
+        </div>
+      )}
+
+      <MediaLibrary
+        allMedias={allSessionMedias}
+        selectedMedias={images}
+        onMediasChange={handleMediasChange}
         onDeleteImage={onDeleteImage}
         sessionId={state.chat.sessionId || undefined}
         userToken={user?.token}
         companyId={state.currentCompany?.id}
       />
-
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={handleCancel}
-          className="px-4 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-        >
-          Annuler
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={isSaving || isPublished}
-          className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSaving ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
-      </div>
     </div>
   );
 };

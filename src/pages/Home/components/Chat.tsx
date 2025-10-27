@@ -45,7 +45,7 @@ const Chat: React.FC<ChatProps> = ({
 }) => {
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className="chat-wrapper flex flex-1 flex-col h-full overflow-hidden">
+      <div className="chat-wrapper flex flex-1 flex-col h-full overflow-hidden transition-all duration-300 ease-out">
         <ChatFixedHeader
           chatId={sessionIdParam}
           chatTitle={chatTitle}
@@ -63,7 +63,7 @@ const Chat: React.FC<ChatProps> = ({
                   messages.length === 0 ? "opacity-0" : "opacity-100"
                 }`}
               >
-                <MessageList messages={messages} />
+                <MessageList key={sessionIdParam} messages={messages} />
               </div>
             </div>
           </div>
@@ -77,9 +77,10 @@ const Chat: React.FC<ChatProps> = ({
             handleSuggestionClick={onSuggestionClick}
             sessionId={sessionIdParam}
           >
-            {isFirstMessage && showQuickActions && (
+            {/* TODO: Provoque un re-rendu et un rapide resize au chargement du chat */}
+            {/* {isFirstMessage && showQuickActions && (
               <QuickActions onSelect={onQuickAction} />
-            )}
+            )} */}
           </ChatInput>
         </div>
       </div>

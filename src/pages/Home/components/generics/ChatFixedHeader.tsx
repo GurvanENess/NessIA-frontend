@@ -70,7 +70,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   };
 
   return (
-    <div className="block sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
+    <div className="block xl:hidden sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
       <div className="px-4 flex items-center justify-between w-full">
         <div className="h-12 flex items-center justify-between w-full">
           <button
@@ -134,7 +134,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
             {associatedPostId && (
               <button
                 onClick={handleViewPost}
-                className="relative z-10 flex items-center mt-1 gap-1 md:gap-2 bg-[#7C3AED] text-white px-2 md:px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-xs md:text-sm"
+                className="relative xl:hidden z-10 flex items-center mt-1 gap-1 md:gap-2 bg-[#7C3AED] text-white px-2 md:px-3 py-2 rounded-lg hover:bg-[#6D28D9] transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 font-medium text-xs md:text-sm"
                 title="Voir le post associé"
               >
                 <Eye className="w-3 h-3 md:w-4 md:h-4" />

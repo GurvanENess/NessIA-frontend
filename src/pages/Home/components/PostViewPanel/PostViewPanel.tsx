@@ -6,7 +6,7 @@ import {
   MessageSquare,
   Trash2,
 } from "lucide-react";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DeletePostModal from "../../../../shared/components/DeletePostModal";
 import PublishPostModal from "../../../../shared/components/PublishPostModal";
 import { useApp } from "../../../../shared/contexts/AppContext";
@@ -27,10 +27,31 @@ const PostViewPanel: React.FC = () => {
   const { state } = useApp();
   const { postPanel } = state;
   const panelRef = useRef<HTMLDivElement>(null);
+  const [panelWidth, setPanelWidth] = useState(420);
+
+  // Gérer la largeur du panneau en fonction de la taille de l'écran
+  useEffect(() => {
+    const updatePanelWidth = () => {
+      if (window.innerWidth >= 1280) {
+        setPanelWidth(480); // xl breakpoint
+      } else {
+        setPanelWidth(420); // lg breakpoint
+      }
+    };
+
+    // Initialiser la largeur
+    updatePanelWidth();
+
+    // Écouter les changements de taille
+    window.addEventListener("resize", updatePanelWidth);
+    return () => window.removeEventListener("resize", updatePanelWidth);
+  }, []);
+
   // Utilisation du hook personnalisé pour toute la logique
   const {
     post,
     images,
+    allSessionMedias,
     isLoading,
     error,
     activeTab,
@@ -212,10 +233,10 @@ const PostViewPanel: React.FC = () => {
                 <EditTab
                   post={post}
                   images={images}
+                  allSessionMedias={allSessionMedias}
                   onImagesChange={handleImagesChange}
                   onDeleteImage={handleDeleteImage}
                   onSave={handleSave}
-                  onCancel={() => setActiveTab("preview")}
                 />
               )}
               {activeTab === "schedule" && (
@@ -279,7 +300,7 @@ const PostViewPanel: React.FC = () => {
       <AnimatePresence>
         {postPanel.isOpen && (
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -299,11 +320,29 @@ const PostViewPanel: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {(postPanel.postId || post) && (
-        <div className="hidden lg:flex lg:flex-col lg:w-[420px] xl:w-[480px] h-full bg-white shadow-xl border-l border-gray-200">
-          {renderPanelContent("inline")}
-        </div>
-      )}
+      <AnimatePresence>
+        {(postPanel.postId || post) && (
+          <motion.div
+            className="hidden xl:flex xl:flex-col h-full bg-white shadow-xl border-l border-gray-200 overflow-hidden"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ 
+              width: panelWidth,
+              opacity: 1 
+            }}
+            exit={{ 
+              width: 0,
+              opacity: 0 
+            }}
+            transition={{ 
+              duration: 0.3,
+              ease: [0.32, 0.72, 0, 1],
+              delay: 0.15
+            }}
+          >
+            {renderPanelContent("inline")}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {post && (
         <DeletePostModal

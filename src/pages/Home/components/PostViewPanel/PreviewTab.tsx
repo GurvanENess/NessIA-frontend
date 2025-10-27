@@ -29,7 +29,8 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
           <span className="font-medium">✓ Ce post a été publié</span>
         </div>
       )}
-      <div className="flex gap-3 mt-4">
+      {/* TODO: Boutons d'edition et programmation disponibles avec les onglets en haut. Choisir l'un ou l'autre */}
+      {/* <div className="flex gap-3 mt-4">
         <button
           onClick={onEdit}
           disabled={isPublished}
@@ -54,7 +55,7 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
         >
           Programmer
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
