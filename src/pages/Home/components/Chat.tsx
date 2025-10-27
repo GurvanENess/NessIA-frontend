@@ -44,8 +44,8 @@ const Chat: React.FC<ChatProps> = ({
   onToggleSidebar,
 }) => {
   return (
-    <>
-      <div className="chat-wrapper flex flex-col h-screen overflow-y-auto">
+    <div className="flex h-screen overflow-hidden">
+      <div className="chat-wrapper flex flex-1 flex-col h-full overflow-hidden">
         <ChatFixedHeader
           chatId={sessionIdParam}
           chatTitle={chatTitle}
@@ -56,8 +56,8 @@ const Chat: React.FC<ChatProps> = ({
         />
 
         <div className="flex-wrapper flex-1 flex flex-col h-full">
-          <div className="flex-1">
-            <div className="max-w-3xl mx-auto px-4">
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-4 pb-6">
               <div
                 className={`transition-opacity duration-500 ${
                   messages.length === 0 ? "opacity-0" : "opacity-100"
@@ -86,7 +86,7 @@ const Chat: React.FC<ChatProps> = ({
 
       {/* Post View Panel - spécifique au chat */}
       <PostViewPanel />
-    </>
+    </div>
   );
 };
 
