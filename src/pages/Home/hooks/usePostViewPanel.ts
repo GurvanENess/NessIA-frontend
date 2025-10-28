@@ -107,11 +107,12 @@ export const usePostViewPanel = () => {
   // === RÉCUPÉRATION DES DONNÉES ===
   useEffect(() => {
     const fetchPost = async () => {
-      // Utiliser postId de l'URL ou celui du state en fallback
+      
       let targetPostId = state.postPanel.postId;
       let sessionId = state.chat.sessionId;
 
-      if (!targetPostId && chatId && isPostRoute) {
+      // Toujours récupérer depuis la BD pour avoir les données les plus à jour
+      if (chatId) {
         try {
           const chatData = await db.getChatById(
             chatId,
@@ -127,16 +128,18 @@ export const usePostViewPanel = () => {
         }
       }
 
-      if (!state.postPanel.isOpen && !shouldPanelBeOpen) {
+      // Ne pas recharger si on n'a pas de postId
+      if (!targetPostId) {
         return;
       }
+      
 
       setIsLoading(true);
       setError(null);
 
       try {
         const postData = (await db.getPostById(
-          targetPostId!,
+          targetPostId,
           state.currentCompany?.id as string
         )) as SupabasePost | null;
 
@@ -172,6 +175,7 @@ export const usePostViewPanel = () => {
   }, [
     state.postPanel.postId,
     state.postPanel.isOpen,
+    state.postPanel.lastRefresh, // Écouter les changements de lastRefresh pour recharger le post
     shouldPanelBeOpen,
     state.currentCompany?.id,
     state.chat.sessionId,

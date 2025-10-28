@@ -305,6 +305,7 @@ export const db = {
           `
           *,
           message!message_session_id_fkey(count),
+          last_message:message!session_last_msg_id_fkey(created_at),
           post (
             id
           )
