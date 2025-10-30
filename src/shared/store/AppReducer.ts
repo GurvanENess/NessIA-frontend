@@ -12,6 +12,7 @@ export interface Company {
   isActive?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
   color?: string;
+  platforms?: { platform_name: string; account_name: string }[];
 }
 
 interface ChatState {

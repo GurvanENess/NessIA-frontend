@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import InstagramPost from "../../../../shared/components/InstagramPost";
 import { Post } from "../../../Posts/entities/PostTypes";
+import { useApp } from "../../../../shared/contexts/AppContext";
 
 interface PreviewTabProps {
   post: Post;
@@ -15,6 +16,11 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
 }) => {
   useEffect(() => {});
   const isPublished = post.status === "published";
+  const { state } = useApp();
+  const platforms = state.currentCompany?.platforms ?? [];
+  const accountName =
+    platforms.find((p) => p.platform_name === post.platform)?.account_name ||
+    "nessia";
 
   return (
     <div className="flex flex-col items-center" id="preview-tab">
@@ -22,6 +28,7 @@ const PreviewTab: React.FC<PreviewTabProps> = ({
         images={post.images && post.images.length > 0 ? post.images : []}
         caption={post.description}
         hashtags={(post.hashtags || []).join(" ")}
+        username={accountName}
         className="max-w-[400px]"
       />
       {isPublished && (

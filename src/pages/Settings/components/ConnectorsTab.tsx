@@ -1,5 +1,5 @@
 import { ExternalLink, Facebook, Instagram } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { toast } from "react-hot-toast";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { useAuth } from "../../../shared/contexts/AuthContext";
@@ -10,17 +10,7 @@ const ConnectorsTab: React.FC = () => {
   const { currentCompany } = state;
   const { user } = useAuth();
 
-  const [connectedPlatforms, setConnectedPlatforms] = useState<
-    { platform_name: string; account_name: string }[]
-  >([]);
-
-  useEffect(() => {
-    if (currentCompany) {
-      PlatformsService.getConnectedPlatforms(currentCompany.id).then((data) =>
-        setConnectedPlatforms(data)
-      );
-    }
-  }, [currentCompany]);
+  const connectedPlatforms = currentCompany?.platforms ?? [];
 
   const handleConnect = async () => {
     const url = await PlatformsService.getConnectionUrl(

@@ -25,7 +25,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <AppProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen text-black bg-gray-50">
             <Routes>
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route element={<PublicRoute />}>
