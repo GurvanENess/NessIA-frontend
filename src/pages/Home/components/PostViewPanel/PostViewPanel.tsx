@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Eye,
   FacebookIcon,
+  Globe2,
   InstagramIcon,
   MessageSquare,
   Trash2,
@@ -79,7 +80,7 @@ const PostViewPanel: React.FC = () => {
       case "facebook":
         return <FacebookIcon className="w-5 h-5 text-[#7C3AED] " />;
       default:
-        return null;
+        return <Globe2 className="w-5 h-5 text-[#7C3AED] " />;
     }
   };
 
@@ -225,8 +226,6 @@ const PostViewPanel: React.FC = () => {
               {activeTab === "preview" && (
                 <PreviewTab
                   post={post}
-                  onEdit={() => setActiveTab("edit")}
-                  onSchedule={() => setActiveTab("schedule")}
                 />
               )}
               {activeTab === "edit" && (

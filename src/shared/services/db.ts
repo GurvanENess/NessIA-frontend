@@ -137,8 +137,8 @@ export const db = {
         .from("post")
         .select(
           `
-                id, title, content_text, created_at, status, scheduled_at,
-                platform ( name ),
+                id, title, content_text, created_at, status, scheduled_at, platform_id,
+                platform ( id, name ),
                 session!post_session_id_fkey ( 
                 id,
                 media( id, url, position, selected )
@@ -179,7 +179,8 @@ export const db = {
         .from("post")
         .select(
           `title, content_text, hashtags, created_at, id, status, scheduled_at,
-            platform( name ),
+            platform_id,
+            platform( id, name ),
             session!post_session_id_fkey ( 
               id,
               media!inner( id, url, created_at, position, selected, session_id )
@@ -234,18 +235,29 @@ export const db = {
       content,
       hashtags,
       imagePositions,
+      platformId,
     }: {
       content: string;
       hashtags: string;
       imagePositions?: { id: string; position: number }[];
+      platformId?: number;
     },
     companyId: string
   ) {
     try {
+      const updates: Record<string, unknown> = {
+        content_text: content,
+        hashtags: hashtags,
+      };
+
+      if (typeof platformId === "number") {
+        updates.platform_id = platformId;
+      }
+
       // Mettre à jour le post
       const { data, error } = await supabaseClient
         .from("post")
-        .update({ content_text: content, hashtags: hashtags })
+        .update(updates)
         .eq("id", id)
         .eq("company_id", companyId)
         .select();

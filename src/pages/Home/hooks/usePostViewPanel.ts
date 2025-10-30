@@ -202,14 +202,17 @@ export const usePostViewPanel = () => {
     }
 
     try {
+      const hashtagsArray = data.hashtags
+        .split(" ")
+        .filter((tag) => tag.length > 0);
+
       await db.updatePostById(
         post.id,
         {
           content: data.caption,
-          hashtags: JSON.stringify(
-            data.hashtags.split(" ").filter((tag) => tag.length > 0)
-          ),
+          hashtags: JSON.stringify(hashtagsArray),
           imagePositions: data.imagePositions, // Passer les positions
+          platformId: data.platformId ?? undefined,
         },
         state.currentCompany.id
       );
@@ -218,8 +221,10 @@ export const usePostViewPanel = () => {
       setPost((prevPost) => ({
         ...prevPost!,
         description: data.caption,
-        hashtags: data.hashtags.split(" ").filter((tag) => tag.length > 0),
+        hashtags: hashtagsArray,
         images: data.images, // Mettre à jour avec les nouvelles positions
+        platform: data.platform,
+        platformId: data.platformId ?? prevPost?.platformId ?? null,
       }));
 
       toast.success("Post mis à jour avec succès");

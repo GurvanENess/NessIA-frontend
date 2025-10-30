@@ -1,11 +1,13 @@
 ﻿import { Pencil } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../../../shared/contexts/AppContext";
 import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { PostData } from "../../../../shared/entities/PostTypes";
 import { Post } from "../../../Posts/entities/PostTypes";
 import { MediaWithUploadState } from "../../entities/media";
 import MediaLibrary from "./MediaLibrary";
+import PlatformSelector, { PlatformOption } from "./PlatformSelector";
+import { normalizePlatformName } from "../../../../shared/utils/postUtils";
 
 interface EditTabProps {
   post: Post;
@@ -29,15 +31,105 @@ const EditTab: React.FC<EditTabProps> = ({
 
   const [caption, setCaption] = useState(post.description);
   const [originalCaption, setOriginalCaption] = useState(post.description);
+  const [selectedPlatformId, setSelectedPlatformId] = useState<number | null>(
+    post.platformId ?? null
+  );
+  const [selectedPlatformName, setSelectedPlatformName] = useState<
+    Post["platform"]
+  >(post.platform);
+  const [originalPlatformId, setOriginalPlatformId] = useState<number | null>(
+    post.platformId ?? null
+  );
+  const [originalPlatformName, setOriginalPlatformName] = useState<
+    Post["platform"]
+  >(post.platform);
   const [isSaving, setIsSaving] = useState(false);
 
   const isPublished = post.status === "published";
-  const hasChanges = caption !== originalCaption;
+  const hasChanges =
+    caption !== originalCaption || selectedPlatformId !== originalPlatformId;
+
+  const platformOptions = useMemo<PlatformOption[]>(() => {
+    const options: PlatformOption[] = [];
+    const seenIds = new Set<number>();
+
+    const connectedPlatforms = state.currentCompany?.platforms ?? [];
+
+    connectedPlatforms.forEach(
+      ({ platform_id, platform_name, account_name }) => {
+        if (platform_id === null || platform_id === undefined) {
+          return;
+        }
+
+        const parsedId =
+          typeof platform_id === "number" ? platform_id : Number(platform_id);
+
+        if (Number.isNaN(parsedId)) {
+          return;
+        }
+
+        const normalized = normalizePlatformName(platform_name);
+
+        if (!seenIds.has(parsedId)) {
+          seenIds.add(parsedId);
+          options.push({
+            id: parsedId,
+            value: normalized,
+            accountName: account_name ?? null,
+            isConnected: true,
+          });
+        }
+      }
+    );
+
+    if (
+      post.platformId !== null &&
+      post.platformId !== undefined &&
+      !seenIds.has(post.platformId)
+    ) {
+      options.push({
+        id: post.platformId,
+        value: post.platform,
+        accountName: null,
+        isConnected: false,
+      });
+    }
+
+    return options;
+  }, [state.currentCompany?.platforms, post.platformId, post.platform]);
 
   useEffect(() => {
     setCaption(post.description);
     setOriginalCaption(post.description);
+    setSelectedPlatformId(post.platformId ?? null);
+    setOriginalPlatformId(post.platformId ?? null);
+    setSelectedPlatformName(post.platform);
+    setOriginalPlatformName(post.platform);
   }, [post]);
+
+  useEffect(() => {
+    if (platformOptions.length === 0) {
+      return;
+    }
+
+    const isCurrentSelectionAvailable = platformOptions.some(
+      (option) => option.id === selectedPlatformId
+    );
+
+    if (isCurrentSelectionAvailable) {
+      const currentOption = platformOptions.find(
+        (option) => option.id === selectedPlatformId
+      );
+      if (currentOption) {
+        setSelectedPlatformName(currentOption.value);
+      }
+      return;
+    }
+
+    const defaultOption = platformOptions[0];
+    setSelectedPlatformId(defaultOption.id);
+    setSelectedPlatformName(defaultOption.value);
+  }, [platformOptions, selectedPlatformId]);
 
   const handleSave = async () => {
     if (isPublished) return;
@@ -63,16 +155,25 @@ const EditTab: React.FC<EditTabProps> = ({
       caption,
       hashtags: "", // Les hashtags font maintenant partie de la légende
       imagePositions,
+      platform: selectedPlatformName,
+      platformId: selectedPlatformId,
     };
 
-    await onSave(formData);
-    // Mettre à jour la légende originale après la sauvegarde
-    setOriginalCaption(caption);
-    setIsSaving(false);
+    try {
+      await onSave(formData);
+      // Mettre à jour les valeurs originales après la sauvegarde
+      setOriginalCaption(caption);
+      setOriginalPlatformId(selectedPlatformId);
+      setOriginalPlatformName(selectedPlatformName);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
     setCaption(originalCaption);
+    setSelectedPlatformId(originalPlatformId ?? null);
+    setSelectedPlatformName(originalPlatformName);
   };
 
   const handleMediasChange = (selectedMedias: MediaWithUploadState[], updatedAllMedias: MediaWithUploadState[]) => {
@@ -94,6 +195,20 @@ const EditTab: React.FC<EditTabProps> = ({
           </div>
         </div>
       )}
+      <PlatformSelector
+        options={platformOptions}
+        selectedPlatformId={selectedPlatformId}
+        onSelectPlatform={(platformId) => {
+          setSelectedPlatformId(platformId);
+          const matchingOption = platformOptions.find(
+            (option) => option.id === platformId
+          );
+          if (matchingOption) {
+            setSelectedPlatformName(matchingOption.value);
+          }
+        }}
+        disabled={isPublished || platformOptions.length === 0}
+      />
       <div className="rounded-lg">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
