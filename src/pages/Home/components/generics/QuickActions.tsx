@@ -25,11 +25,11 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onSelect }) => (
     </button>
     <button
       type="button"
-      onClick={() => onSelect("Créer un post TikTok")}
+      onClick={() => onSelect("Donnez moi des idées")}
       className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-lg border border-gray-300 transition-colors shadow-sm whitespace-nowrap"
     >
       <MessageCircle className="w-5 h-5 text-[#1A201B]" />
-      <span className="text-sm text-[#1A201B]">Créer un post TikTok</span>
+      <span className="text-sm text-[#1A201B]">Donnez moi des idées</span>
     </button>
   </div>
 );

@@ -80,11 +80,13 @@ const FacebookPostPreview: React.FC<PostPreviewProps> = ({
       );
     }
 
-    // 5+ images : grande image au dessus, max 3 images en dessous
-    // Pour 3-4 images, on adapte aussi le layout
+    // 3+ images : grande image au dessus, images en dessous
+    // - 3 images : 1 image en haut + grid-cols-2 pour les 2 images restantes
+    // - 4+ images : 1 image en haut + grid-cols-3 pour les images restantes
     if (count >= 3) {
       const topImage = visibleImages[0];
       const bottomImages = visibleImages.slice(1, 4); // Max 3 images en dessous
+      const gridCols = count === 3 ? "grid-cols-2" : "grid-cols-3";
 
       return (
         <div className="space-y-1">
@@ -98,9 +100,9 @@ const FacebookPostPreview: React.FC<PostPreviewProps> = ({
             />
           </div>
 
-          {/* Images en dessous (max 3) */}
+          {/* Images en dessous */}
           {bottomImages.length > 0 && (
-            <div className="grid grid-cols-3 gap-1">
+            <div className={`grid ${gridCols} gap-1`}>
               {bottomImages.map((image, index) => {
                 const actualIndex = index + 1; // Index dans visibleImages
                 const isLastVisible = actualIndex === visibleImages.length - 1;
