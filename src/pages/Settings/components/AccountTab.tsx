@@ -106,50 +106,51 @@ const AccountTab: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-[#7C3AED]/10 rounded-lg flex items-center justify-center">
-            <User className="w-5 h-5 text-[#7C3AED]" />
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#7C3AED]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#7C3AED]" />
           </div>
-          <h2 className="text-2xl font-coolvetica text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-coolvetica text-gray-900">
             Informations du compte
           </h2>
         </div>
-        <p className="text-gray-600 text-sm ml-13">
+        <p className="text-gray-600 text-xs sm:text-sm ml-10 sm:ml-13">
           Gérez vos informations personnelles et préférences de sécurité
         </p>
       </div>
 
       {/* Formulaire nom d'utilisateur */}
-      <div className="bg-gray-50 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <User className="w-5 h-5 text-gray-600" />
-            Nom d'utilisateur
+      <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-1.5 sm:gap-2">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+            <span className="truncate">Nom d'utilisateur</span>
           </h3>
           <button
             type="button"
             onClick={() => setIsNameFormOpen(!isNameFormOpen)}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200 whitespace-nowrap flex-shrink-0"
           >
             {isNameFormOpen ? (
               <>
-                <ChevronUp className="w-4 h-4" />
-                Masquer
+                <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Masquer</span>
               </>
             ) : (
               <>
-                <ChevronDown className="w-4 h-4" />
-                Modifier le nom
+                <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Modifier</span>
+                <span className="sm:hidden">Modifier</span>
               </>
             )}
           </button>
         </div>
 
         {!isNameFormOpen && (
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-xs sm:text-sm break-words">
             Nom actuel :{" "}
             <span className="font-medium text-gray-900">{user?.name}</span>
           </p>
@@ -168,20 +169,20 @@ const AccountTab: React.FC = () => {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => {
                   setIsNameFormOpen(false);
                   setNameFormData({ name: user?.name || "" });
                 }}
-                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200 order-2 sm:order-1"
               >
                 Annuler
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md order-1 sm:order-2"
               >
                 <Save className="w-4 h-4" />
                 Enregistrer
@@ -192,33 +193,34 @@ const AccountTab: React.FC = () => {
       </div>
 
       {/* Formulaire adresse email */}
-      <div className="mt-6 bg-gray-50 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Mail className="w-5 h-5 text-gray-600" />
-            Adresse email
+      <div className="mt-4 sm:mt-6 bg-gray-50 rounded-lg p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-1.5 sm:gap-2">
+            <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+            <span className="truncate">Adresse email</span>
           </h3>
           <button
             type="button"
             onClick={() => setIsEmailFormOpen(!isEmailFormOpen)}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200 whitespace-nowrap flex-shrink-0"
           >
             {isEmailFormOpen ? (
               <>
-                <ChevronUp className="w-4 h-4" />
-                Masquer
+                <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Masquer</span>
               </>
             ) : (
               <>
-                <ChevronDown className="w-4 h-4" />
-                Modifier l'email
+                <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Modifier</span>
+                <span className="sm:hidden">Modifier</span>
               </>
             )}
           </button>
         </div>
 
         {!isEmailFormOpen && (
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 text-xs sm:text-sm break-all">
             Email actuel :{" "}
             <span className="font-medium text-gray-900">{user?.email}</span>
           </p>
@@ -237,20 +239,20 @@ const AccountTab: React.FC = () => {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => {
                   setIsEmailFormOpen(false);
                   setEmailFormData({ email: user?.email || "" });
                 }}
-                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200 order-2 sm:order-1"
               >
                 Annuler
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md order-1 sm:order-2"
               >
                 <Mail className="w-4 h-4" />
                 Changer d'email
@@ -261,34 +263,35 @@ const AccountTab: React.FC = () => {
       </div>
 
       {/* Formulaire changement de mot de passe (séparé) */}
-      <div className="mt-6">
-        <div className="bg-gray-50 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Lock className="w-5 h-5 text-gray-600" />
-              Sécurité
+      <div className="mt-4 sm:mt-6">
+        <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-1.5 sm:gap-2">
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+              <span className="truncate">Sécurité</span>
             </h3>
             <button
               type="button"
               onClick={() => setIsPasswordFormOpen(!isPasswordFormOpen)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-[#7C3AED] hover:bg-[#7C3AED]/10 rounded-lg transition-colors duration-200 whitespace-nowrap flex-shrink-0"
             >
               {isPasswordFormOpen ? (
                 <>
-                  <ChevronUp className="w-4 h-4" />
-                  Masquer
+                  <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Masquer</span>
                 </>
               ) : (
                 <>
-                  <ChevronDown className="w-4 h-4" />
-                  Modifier le mot de passe
+                  <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Modifier</span>
+                  <span className="sm:hidden">Modifier</span>
                 </>
               )}
             </button>
           </div>
 
           {!isPasswordFormOpen && (
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs sm:text-sm">
               Changez votre mot de passe pour sécuriser votre compte
             </p>
           )}
@@ -339,7 +342,7 @@ const AccountTab: React.FC = () => {
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -350,13 +353,13 @@ const AccountTab: React.FC = () => {
                       confirmPassword: "",
                     });
                   }}
-                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200 order-2 sm:order-1"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md"
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#7C3AED] text-white rounded-lg hover:bg-[#6D28D9] transition-colors duration-200 shadow-sm hover:shadow-md order-1 sm:order-2"
                 >
                   <Save className="w-4 h-4" />
                   Enregistrer

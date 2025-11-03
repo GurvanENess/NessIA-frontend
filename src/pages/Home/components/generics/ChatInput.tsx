@@ -1,8 +1,6 @@
 import { Paperclip, Send } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import ImagePreview from "../../../../shared/components/ImagePreview";
-import { useApp } from "../../../../shared/contexts/AppContext";
-import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { Job } from "../../../../shared/entities/JobTypes";
 import { MediaWithUploadState } from "../../entities/media";
 import { useLocalImageUpload } from "../../hooks/useImageUpload";
@@ -16,7 +14,6 @@ interface ChatInputProps {
   isLoading: boolean;
   jobs?: Job[];
   children?: React.ReactNode;
-  sessionId?: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -27,19 +24,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
   isLoading,
   children,
   jobs = [],
-  sessionId,
 }) => {
-  const { user } = useAuth();
-  const { state } = useApp();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { images, addImages, removeImage, clearImages } = useLocalImageUpload();
-
-  useEffect(() => {
-    console.log("💡 Jobs received in ChatInput:", jobs);
-    console.log("💡 Jobs length in ChatInput:", jobs.length);
-  }, [jobs]);
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;

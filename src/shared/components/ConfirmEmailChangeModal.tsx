@@ -73,49 +73,49 @@ const ConfirmEmailChangeModal: React.FC<ConfirmEmailChangeModalProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <Mail className="w-4 h-4 text-blue-600" />
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                 Changer d'adresse email
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            <div className="flex items-start gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <AlertCircle className="w-5 h-5 text-blue-600" />
+          <div className="p-4 sm:p-6">
+            <div className="flex items-start gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <div>
-                <p className="text-gray-900 font-medium mb-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-900 font-medium mb-2 sm:mb-3 text-sm sm:text-base">
                   Confirmez-vous le changement d'adresse email ?
                 </p>
-                <div className="text-sm text-gray-600 mb-2 space-y-1">
-                  <p>
+                <div className="text-xs sm:text-sm text-gray-600 mb-2 space-y-1">
+                  <p className="break-all">
                     <span className="font-medium">Email actuel :</span>{" "}
                     <span className="text-gray-900">{currentEmail}</span>
                   </p>
-                  <p>
+                  <p className="break-all">
                     <span className="font-medium">Nouvel email :</span>{" "}
                     <span className="text-gray-900">{newEmail}</span>
                   </p>
                 </div>
-                <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                  <p className="text-sm text-amber-900">
+                <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <p className="text-xs sm:text-sm text-amber-900">
                     <span className="font-semibold">Important :</span> Un email
                     de confirmation sera envoyé à{" "}
-                    <span className="font-medium">{newEmail}</span>. Les
-                    changements ne prendront effet que lorsque vous aurez
+                    <span className="font-medium break-all">{newEmail}</span>.
+                    Les changements ne prendront effet que lorsque vous aurez
                     confirmé votre nouvelle adresse en cliquant sur le lien dans
                     l'email.
                   </p>
@@ -124,19 +124,19 @@ const ConfirmEmailChangeModal: React.FC<ConfirmEmailChangeModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isLoading}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm sm:text-base text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
               >
                 Annuler
               </button>
               <button
                 onClick={onConfirm}
                 disabled={isLoading}
-                className="px-4 py-2 bg-[#7C3AED] text-white hover:bg-[#6D28D9] rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 text-sm sm:text-base bg-[#7C3AED] text-white hover:bg-[#6D28D9] rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
               >
                 {isLoading ? (
                   <>
