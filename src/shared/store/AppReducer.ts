@@ -12,6 +12,7 @@ export interface Company {
   isActive?: boolean;
   icon?: React.ComponentType<{ className?: string }>;
   color?: string;
+  platforms?: { platform_name: string; account_name: string }[];
 }
 
 interface ChatState {
@@ -26,6 +27,7 @@ interface ChatState {
 interface PostPanelState {
   isOpen: boolean;
   postId: string | null;
+  lastRefresh: number; // Timestamp pour forcer le refresh du panel
 }
 
 export interface AppState {
@@ -69,7 +71,8 @@ export type CompanyAction =
 
 export type PostPanelAction =
   | { type: "OPEN_POST_PANEL"; payload: string }
-  | { type: "CLOSE_POST_PANEL" };
+  | { type: "CLOSE_POST_PANEL" }
+  | { type: "REFRESH_POST_PANEL" };
 
 export type ChatsAction =
   | { type: "FETCH_CHATS_START" }
@@ -114,6 +117,7 @@ export const initialState: AppState = {
   postPanel: {
     isOpen: false,
     postId: null,
+    lastRefresh: 0,
   },
   currentCompany: null,
   companies: [],
@@ -295,6 +299,7 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         postPanel: {
           isOpen: true,
           postId: action.payload,
+          lastRefresh: state.postPanel.lastRefresh,
         },
       };
 
@@ -304,6 +309,16 @@ export const appReducer = (state: AppState, action: AppAction): AppState => {
         postPanel: {
           isOpen: false,
           postId: null,
+          lastRefresh: state.postPanel.lastRefresh,
+        },
+      };
+
+    case "REFRESH_POST_PANEL":
+      return {
+        ...state,
+        postPanel: {
+          ...state.postPanel,
+          lastRefresh: Date.now(),
         },
       };
 

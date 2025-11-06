@@ -8,17 +8,50 @@ export interface SupabasePost {
   created_at: string;
   scheduled_at?: string | null;
   status: string;
-  platform: { name: string }[] | { name: string } | null;
+  platform_id?: number | null;
+  platform: { id?: number | null; name?: string | null }[] | { id?: number | null; name?: string | null } | null;
   session: {
     id: string;
     media: { id: string; url: string; created_at: string }[];
   };
 }
 
+export const normalizePlatformName = (
+  platformName?: string | null
+): Post["platform"] => {
+  switch (platformName?.toLowerCase()) {
+    case "facebook":
+      return "facebook";
+    case "tiktok":
+      return "tiktok";
+    case "twitter":
+      return "twitter";
+    case "instagram":
+    default:
+      return "instagram";
+  }
+};
+
 export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
-  const platformName = Array.isArray(supabasePost.platform)
-    ? supabasePost.platform[0]?.name
-    : supabasePost.platform?.name;
+  const platformRelation = Array.isArray(supabasePost.platform)
+    ? supabasePost.platform[0]
+    : supabasePost.platform;
+
+  const platformName = platformRelation?.name ?? null;
+  const platformIdRaw =
+    platformRelation?.id ??
+    supabasePost.platform_id ??
+    (Array.isArray(supabasePost.platform)
+      ? supabasePost.platform[0]?.id
+      : undefined);
+
+  const parsedPlatformId = Number(platformIdRaw);
+  const platformId =
+    typeof platformIdRaw === "number"
+      ? platformIdRaw
+      : Number.isFinite(parsedPlatformId)
+      ? parsedPlatformId
+      : null;
 
   const sessionId = Array.isArray(supabasePost.session)
     ? supabasePost.session[0]?.id
@@ -55,7 +88,8 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
     title: supabasePost.title,
     description: supabasePost.content_text,
     status: supabasePost.status as Post["status"],
-    platform: (platformName as Post["platform"]) || "instagram",
+    platform: normalizePlatformName(platformName),
+    platformId,
     createdAt: new Date(supabasePost.created_at),
     scheduledAt: supabasePost.scheduled_at
       ? new Date(supabasePost.scheduled_at)

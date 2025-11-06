@@ -49,18 +49,25 @@ export const useChatSession = (sessionIdParam?: string) => {
     loadChats();
   }, [sessionIdParam, state.currentCompany?.id]);
 
-  // Set session ID
+  // Set session ID and clear messages when changing sessions
   useEffect(() => {
     if (sessionIdParam && sessionId !== sessionIdParam) {
+      // Réinitialiser immédiatement les messages pour éviter l'affichage des anciens
+      dispatch({ type: "SET_MESSAGES", payload: [] });
       dispatch({ type: "SET_CHAT_SESSION_ID", payload: sessionIdParam });
     }
   }, [sessionIdParam, sessionId, dispatch]);
 
   // Open post panel if a post is created
+  // Optimisation : ouvrir immédiatement pour éviter le redimensionnement brutal
   useEffect(() => {
     if (associatedPostId) {
+      // Ouvrir le panel immédiatement, avant même de charger le post
+      // Cela permet au layout de se préparer et évite le "flash"
       dispatch({ type: "OPEN_POST_PANEL", payload: associatedPostId });
     }
+    // Note: On ne force pas la fermeture ici pour permettre à l'utilisateur
+    // de fermer manuellement le panel en mobile sans qu'il se rouvre
   }, [associatedPostId, dispatch]);
 
   // Fetch messages and start polling

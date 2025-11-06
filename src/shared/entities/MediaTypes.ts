@@ -10,6 +10,8 @@ export interface Media {
   id: string;
   url: string;
   position?: number; // Position pour l'ordre d'affichage
+  selected?: boolean; // Indique si le média est sélectionné pour le post
+  session_id?: string; // ID de la session associée
 }
 
 /** Média avec métadonnées optionnelles (alt text, etc.) */

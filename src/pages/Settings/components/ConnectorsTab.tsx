@@ -1,26 +1,33 @@
 import { ExternalLink, Facebook, Instagram } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useApp } from "../../../shared/contexts/AppContext";
 import { useAuth } from "../../../shared/contexts/AuthContext";
+import { logger } from "../../../shared/utils/logger";
 import { PlatformsService } from "../services/platformsService";
 
 const ConnectorsTab: React.FC = () => {
-  const { state } = useApp();
+  const { state, refreshCurrentCompany } = useApp();
   const { currentCompany } = state;
   const { user } = useAuth();
 
-  const [connectedPlatforms, setConnectedPlatforms] = useState<
-    { platform_name: string; account_name: string }[]
-  >([]);
+  const connectedPlatforms = currentCompany?.platforms ?? [];
 
+  // Recharger les plateformes au montage du composant
   useEffect(() => {
-    if (currentCompany) {
-      PlatformsService.getConnectedPlatforms(currentCompany.id).then((data) =>
-        setConnectedPlatforms(data)
-      );
-    }
-  }, [currentCompany]);
+    const loadPlatforms = async () => {
+      if (!user?.id) return;
+
+      try {
+        await refreshCurrentCompany(user.id);
+      } catch (error) {
+        logger.error("Failed to refresh platforms", error);
+        // On n'affiche pas d'erreur à l'utilisateur car ce n'est pas bloquant
+      }
+    };
+
+    loadPlatforms();
+  }, [user?.id]); // On recharge uniquement quand l'utilisateur change
 
   const handleConnect = async () => {
     const url = await PlatformsService.getConnectionUrl(
@@ -90,7 +97,7 @@ const ConnectorsTab: React.FC = () => {
                   onClick={handleConnect}
                   className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4" target="_blank" />
                   Connecter
                 </button>
               )}
@@ -136,7 +143,7 @@ const ConnectorsTab: React.FC = () => {
                   onClick={handleConnect}
                   className="px-4 py-2 border border-[#7C3AED] text-[#7C3AED] rounded-lg hover:bg-[#7C3AED] hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4" target="_blank" />
                   Connecter
                 </button>
               )}

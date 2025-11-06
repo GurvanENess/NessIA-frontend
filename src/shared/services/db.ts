@@ -55,10 +55,50 @@ export const db = {
     }
   },
 
+  async getMediasBySessionId(sessionId: string) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("media")
+        .select("id, url, position, selected, session_id, created_at")
+        .eq("session_id", sessionId)
+        .order("position", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error fetching medias by session id", err);
+      throw err;
+    }
+  },
+
+  async updateMediaSelection(mediaId: string, selected: boolean, position?: number) {
+    try {
+      const updateData: { selected: boolean; position?: number } = { selected };
+      if (position !== undefined) {
+        updateData.position = position;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("media")
+        .update(updateData)
+        .eq("id", mediaId)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      logger.error("Error updating media selection", err);
+      throw err;
+    }
+  },
+
   async getCompaniesByUserId(userId: string) {
     try {
       const { data, error } = await supabaseClient
-        .from("company")
+        .from("v_company_with_platforms")
         .select("*")
         .eq("user_id", userId);
 
@@ -97,11 +137,11 @@ export const db = {
         .from("post")
         .select(
           `
-                id, title, content_text, created_at, status, scheduled_at,
-                platform ( name ),
+                id, title, content_text, created_at, status, scheduled_at, platform_id,
+                platform ( id, name ),
                 session!post_session_id_fkey ( 
                 id,
-                media( id, url )
+                media( id, url, position, selected )
                 )
             `
         )
@@ -109,6 +149,22 @@ export const db = {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+
+      // Filtrer et trier les médias sélectionnés pour chaque post
+      if (data && Array.isArray(data)) {
+        data.forEach((post: any) => {
+          if (post.session) {
+            const session = post.session as any;
+            if (session.media && Array.isArray(session.media)) {
+              session.media = session.media
+                .filter((media: any) => media.selected === true)
+                .sort((a: any, b: any) => 
+                  (a.position ?? 0) - (b.position ?? 0)
+                );
+            }
+          }
+        });
+      }
 
       return data;
     } catch (err) {
@@ -123,10 +179,11 @@ export const db = {
         .from("post")
         .select(
           `title, content_text, hashtags, created_at, id, status, scheduled_at,
-            platform( name ),
+            platform_id,
+            platform( id, name ),
             session!post_session_id_fkey ( 
               id,
-              media( id, url, created_at )
+              media!inner( id, url, created_at, position, selected, session_id )
             )
             `
         )
@@ -135,6 +192,18 @@ export const db = {
         .maybeSingle();
 
       if (error) throw error;
+
+      // Filtrer et trier les médias sélectionnés côté client
+      if (data && data.session) {
+        const session = data.session as any;
+        if (session.media && Array.isArray(session.media)) {
+          session.media = session.media
+            .filter((media: any) => media.selected === true)
+            .sort((a: any, b: any) => 
+              (a.position ?? 0) - (b.position ?? 0)
+            );
+        }
+      }
 
       return data;
     } catch (err) {
@@ -166,18 +235,29 @@ export const db = {
       content,
       hashtags,
       imagePositions,
+      platformId,
     }: {
       content: string;
       hashtags: string;
       imagePositions?: { id: string; position: number }[];
+      platformId?: number;
     },
     companyId: string
   ) {
     try {
+      const updates: Record<string, unknown> = {
+        content_text: content,
+        hashtags: hashtags,
+      };
+
+      if (typeof platformId === "number") {
+        updates.platform_id = platformId;
+      }
+
       // Mettre à jour le post
       const { data, error } = await supabaseClient
         .from("post")
-        .update({ content_text: content, hashtags: hashtags })
+        .update(updates)
         .eq("id", id)
         .eq("company_id", companyId)
         .select();
@@ -237,6 +317,7 @@ export const db = {
           `
           *,
           message!message_session_id_fkey(count),
+          last_message:message!session_last_msg_id_fkey(created_at),
           post (
             id
           )

@@ -2,11 +2,13 @@ import { ChevronDown, ChevronUp, Lock, Mail, Save, User } from "lucide-react";
 import React, { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 import ConfirmEmailChangeModal from "../../../shared/components/ConfirmEmailChangeModal";
+import ConfirmPasswordChangeModal from "../../../shared/components/ConfirmPasswordChangeModal";
 import InputField from "../../../shared/components/InputField";
 import { useAuth } from "../../../shared/contexts/AuthContext";
 
 const AccountTab: React.FC = () => {
-  const { user, updateUserName, updateUserEmail } = useAuth();
+  const { user, updateUserName, updateUserEmail, updateUserPassword } =
+    useAuth();
 
   const [nameFormData, setNameFormData] = useState({
     name: user?.name || "",
@@ -17,7 +19,6 @@ const AccountTab: React.FC = () => {
   });
 
   const [passwordFormData, setPasswordFormData] = useState({
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -27,6 +28,8 @@ const AccountTab: React.FC = () => {
   const [isPasswordFormOpen, setIsPasswordFormOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
   const handleNameSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -73,7 +76,7 @@ const AccountTab: React.FC = () => {
     }
   };
 
-  const handlePasswordSubmit = async (e: FormEvent) => {
+  const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
@@ -88,20 +91,35 @@ const AccountTab: React.FC = () => {
       return;
     }
 
+    // Ouvrir la modale de confirmation au lieu de soumettre directement
+    setIsPasswordModalOpen(true);
+  };
+
+  const handlePasswordConfirm = async () => {
+    setIsPasswordLoading(true);
     try {
-      // TODO: Implémenter la logique de changement de mot de passe
+      await updateUserPassword(passwordFormData.newPassword);
       toast.success("Mot de passe mis à jour avec succès");
       setPasswordFormData({
-        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+      setIsPasswordModalOpen(false);
       setIsPasswordFormOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la mise à jour du mot de passe :", error);
-      toast.error(
-        "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayer."
-      );
+
+      if (error.status === 401) {
+        toast.error(
+          "Impossible de changer le mot de passe. Votre session a expiré, veuillez vous reconnecter."
+        );
+      } else {
+        toast.error(
+          "Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayer."
+        );
+      }
+    } finally {
+      setIsPasswordLoading(false);
     }
   };
 
@@ -300,20 +318,6 @@ const AccountTab: React.FC = () => {
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div className="space-y-4 pt-4 border-t border-gray-200">
                 <InputField
-                  label="Mot de passe actuel"
-                  type="password"
-                  value={passwordFormData.currentPassword}
-                  onChange={(e) =>
-                    setPasswordFormData((prev) => ({
-                      ...prev,
-                      currentPassword: e.target.value,
-                    }))
-                  }
-                  placeholder="••••••••"
-                  className="bg-white"
-                />
-
-                <InputField
                   label="Nouveau mot de passe"
                   type="password"
                   value={passwordFormData.newPassword}
@@ -327,19 +331,35 @@ const AccountTab: React.FC = () => {
                   className="bg-white"
                 />
 
-                <InputField
-                  label="Confirmer le nouveau mot de passe"
-                  type="password"
-                  value={passwordFormData.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordFormData((prev) => ({
-                      ...prev,
-                      confirmPassword: e.target.value,
-                    }))
-                  }
-                  placeholder="••••••••"
-                  className="bg-white"
-                />
+                <div>
+                  <InputField
+                    label="Confirmer le nouveau mot de passe"
+                    type="password"
+                    value={passwordFormData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordFormData((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="••••••••"
+                    className="bg-white"
+                  />
+                  {passwordFormData.confirmPassword &&
+                    passwordFormData.newPassword !==
+                      passwordFormData.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Les mots de passe ne correspondent pas
+                      </p>
+                    )}
+                  {passwordFormData.confirmPassword &&
+                    passwordFormData.newPassword ===
+                      passwordFormData.confirmPassword && (
+                      <p className="text-green-500 text-sm mt-1">
+                        Les mots de passe correspondent ✓
+                      </p>
+                    )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
@@ -348,7 +368,6 @@ const AccountTab: React.FC = () => {
                   onClick={() => {
                     setIsPasswordFormOpen(false);
                     setPasswordFormData({
-                      currentPassword: "",
                       newPassword: "",
                       confirmPassword: "",
                     });
@@ -378,6 +397,14 @@ const AccountTab: React.FC = () => {
         newEmail={emailFormData.email}
         onConfirm={handleEmailConfirm}
         isLoading={isEmailLoading}
+      />
+
+      {/* Modale de confirmation pour le changement de mot de passe */}
+      <ConfirmPasswordChangeModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onConfirm={handlePasswordConfirm}
+        isLoading={isPasswordLoading}
       />
     </div>
   );

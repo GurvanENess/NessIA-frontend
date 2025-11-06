@@ -72,6 +72,13 @@ export const useChatMessages = (
       if (startPolling) await startPolling(response.sessionId);
       if (fetchMessages) await fetchMessages(response.sessionId);
       if (refreshConversations) await refreshConversations();
+      
+      // Attendre un peu pour laisser le temps à la BD de se synchroniser
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Déclencher le refresh du PostViewPanel après avoir récupéré les messages
+      console.log('[useChatMessages] Déclenchement REFRESH_POST_PANEL après processAiResponse');
+      dispatch({ type: "REFRESH_POST_PANEL" });
 
       if (!sessionId) {
         dispatch({ type: "SET_CHAT_SESSION_ID", payload: response.sessionId });
@@ -153,6 +160,13 @@ export const useChatMessages = (
 
       if (startPolling) await startPolling(sessionIdParam);
       if (fetchMessages) await fetchMessages(sessionIdParam);
+      
+      // Attendre un peu pour laisser le temps à la BD de se synchroniser
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Déclencher le refresh du PostViewPanel après avoir récupéré les messages
+      console.log('[useChatMessages] Déclenchement REFRESH_POST_PANEL après handleSuggestionClick');
+      dispatch({ type: "REFRESH_POST_PANEL" });
     } catch (err) {
       logger.error("Error sending suggestion response", err);
       toast.error("Une erreur est survenue lors de l'envoi de la réponse", {

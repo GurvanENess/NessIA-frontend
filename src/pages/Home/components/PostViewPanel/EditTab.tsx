@@ -1,42 +1,135 @@
-﻿import { Hash, Pencil } from "lucide-react";
-import React, { useEffect, useState } from "react";
+﻿import { Pencil } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useApp } from "../../../../shared/contexts/AppContext";
 import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { PostData } from "../../../../shared/entities/PostTypes";
 import { Post } from "../../../Posts/entities/PostTypes";
 import { MediaWithUploadState } from "../../entities/media";
-import MediaSection from "./MediaSection";
+import MediaLibrary from "./MediaLibrary";
+import PlatformSelector, { PlatformOption } from "./PlatformSelector";
+import { normalizePlatformName } from "../../../../shared/utils/postUtils";
 
 interface EditTabProps {
   post: Post;
   images: MediaWithUploadState[];
-  onImagesChange: (images: MediaWithUploadState[]) => void;
+  allSessionMedias: MediaWithUploadState[];
+  onImagesChange: (images: MediaWithUploadState[], allMedias?: MediaWithUploadState[]) => void;
   onSave: (data: PostData) => Promise<void>;
-  onCancel: () => void;
   onDeleteImage: (imageId: string) => Promise<void>;
 }
 
 const EditTab: React.FC<EditTabProps> = ({
   post,
   images,
+  allSessionMedias,
   onImagesChange,
   onSave,
-  onCancel,
   onDeleteImage,
 }) => {
   const { state } = useApp();
   const { user } = useAuth();
 
   const [caption, setCaption] = useState(post.description);
-  const [hashtags, setHashtags] = useState((post.hashtags || []).join(" "));
+  const [originalCaption, setOriginalCaption] = useState(post.description);
+  const [selectedPlatformId, setSelectedPlatformId] = useState<number | null>(
+    post.platformId ?? null
+  );
+  const [selectedPlatformName, setSelectedPlatformName] = useState<
+    Post["platform"]
+  >(post.platform);
+  const [originalPlatformId, setOriginalPlatformId] = useState<number | null>(
+    post.platformId ?? null
+  );
+  const [originalPlatformName, setOriginalPlatformName] = useState<
+    Post["platform"]
+  >(post.platform);
   const [isSaving, setIsSaving] = useState(false);
 
   const isPublished = post.status === "published";
+  const hasChanges =
+    caption !== originalCaption || selectedPlatformId !== originalPlatformId;
+
+  const platformOptions = useMemo<PlatformOption[]>(() => {
+    const options: PlatformOption[] = [];
+    const seenIds = new Set<number>();
+
+    const connectedPlatforms = state.currentCompany?.platforms ?? [];
+
+    connectedPlatforms.forEach(
+      ({ platform_id, platform_name, account_name }) => {
+        if (platform_id === null || platform_id === undefined) {
+          return;
+        }
+
+        const parsedId =
+          typeof platform_id === "number" ? platform_id : Number(platform_id);
+
+        if (Number.isNaN(parsedId)) {
+          return;
+        }
+
+        const normalized = normalizePlatformName(platform_name);
+
+        if (!seenIds.has(parsedId)) {
+          seenIds.add(parsedId);
+          options.push({
+            id: parsedId,
+            value: normalized,
+            accountName: account_name ?? null,
+            isConnected: true,
+          });
+        }
+      }
+    );
+
+    if (
+      post.platformId !== null &&
+      post.platformId !== undefined &&
+      !seenIds.has(post.platformId)
+    ) {
+      options.push({
+        id: post.platformId,
+        value: post.platform,
+        accountName: null,
+        isConnected: false,
+      });
+    }
+
+    return options;
+  }, [state.currentCompany?.platforms, post.platformId, post.platform]);
 
   useEffect(() => {
     setCaption(post.description);
-    setHashtags((post.hashtags || []).join(" "));
+    setOriginalCaption(post.description);
+    setSelectedPlatformId(post.platformId ?? null);
+    setOriginalPlatformId(post.platformId ?? null);
+    setSelectedPlatformName(post.platform);
+    setOriginalPlatformName(post.platform);
   }, [post]);
+
+  useEffect(() => {
+    if (platformOptions.length === 0) {
+      return;
+    }
+
+    const isCurrentSelectionAvailable = platformOptions.some(
+      (option) => option.id === selectedPlatformId
+    );
+
+    if (isCurrentSelectionAvailable) {
+      const currentOption = platformOptions.find(
+        (option) => option.id === selectedPlatformId
+      );
+      if (currentOption) {
+        setSelectedPlatformName(currentOption.value);
+      }
+      return;
+    }
+
+    const defaultOption = platformOptions[0];
+    setSelectedPlatformId(defaultOption.id);
+    setSelectedPlatformName(defaultOption.value);
+  }, [platformOptions, selectedPlatformId]);
 
   const handleSave = async () => {
     if (isPublished) return;
@@ -48,7 +141,7 @@ const EditTab: React.FC<EditTabProps> = ({
       .map((image, index) => ({
         id: image.id,
         url: image.url,
-        position: image.position ?? index, // Utiliser la position ou l'index comme fallback
+        position: image.position ?? index,
       }));
 
     // Créer le tableau des positions pour la sauvegarde
@@ -60,18 +153,32 @@ const EditTab: React.FC<EditTabProps> = ({
     const formData: PostData = {
       images: uploadedImages,
       caption,
-      hashtags,
-      imagePositions, // Ajouter les positions
+      hashtags: "", // Les hashtags font maintenant partie de la légende
+      imagePositions,
+      platform: selectedPlatformName,
+      platformId: selectedPlatformId,
     };
 
-    await onSave(formData);
-    setIsSaving(false);
+    try {
+      await onSave(formData);
+      // Mettre à jour les valeurs originales après la sauvegarde
+      setOriginalCaption(caption);
+      setOriginalPlatformId(selectedPlatformId);
+      setOriginalPlatformName(selectedPlatformName);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setCaption(post.description);
-    setHashtags((post.hashtags || []).join(" "));
-    onCancel();
+    setCaption(originalCaption);
+    setSelectedPlatformId(originalPlatformId ?? null);
+    setSelectedPlatformName(originalPlatformName);
+  };
+
+  const handleMediasChange = (selectedMedias: MediaWithUploadState[], updatedAllMedias: MediaWithUploadState[]) => {
+    // Mettre à jour les médias sélectionnés ET tous les médias de la session
+    onImagesChange(selectedMedias, updatedAllMedias);
   };
 
   return (
@@ -88,63 +195,65 @@ const EditTab: React.FC<EditTabProps> = ({
           </div>
         </div>
       )}
+      <PlatformSelector
+        options={platformOptions}
+        selectedPlatformId={selectedPlatformId}
+        onSelectPlatform={(platformId) => {
+          setSelectedPlatformId(platformId);
+          const matchingOption = platformOptions.find(
+            (option) => option.id === platformId
+          );
+          if (matchingOption) {
+            setSelectedPlatformName(matchingOption.value);
+          }
+        }}
+        disabled={isPublished || platformOptions.length === 0}
+      />
       <div className="rounded-lg">
         <div className="flex items-center mb-4">
           <Pencil className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-800">Legende</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Légende</h3>
         </div>
         <textarea
           className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
-          placeholder="Decrivez votre post..."
+          placeholder="Décrivez votre post... (incluez vos #hashtags)"
           rows={4}
           value={caption}
           onChange={(event) => setCaption(event.target.value)}
           disabled={isPublished}
         />
-      </div>
-
-      <div className="rounded-lg">
-        <div className="flex items-center mb-4">
-          <Hash className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-800">Hashtags</h3>
-        </div>
-        <input
-          type="text"
-          className="w-full p-3 border-2 border-gray-200 rounded-md text-base bg-white disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
-          placeholder="marketing socialmedia"
-          value={hashtags}
-          onChange={(event) => setHashtags(event.target.value)}
-          disabled={isPublished}
-        />
         <p className="text-xs text-gray-500 mt-1">
-          Separez les hashtags par des espaces
+          Les hashtags font partie de la légende
         </p>
       </div>
 
-      <MediaSection
-        images={images}
-        onImagesChange={onImagesChange}
+      {hasChanges && !isPublished && (
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+          </button>
+        </div>
+      )}
+
+      <MediaLibrary
+        allMedias={allSessionMedias}
+        selectedMedias={images}
+        onMediasChange={handleMediasChange}
         onDeleteImage={onDeleteImage}
         sessionId={state.chat.sessionId || undefined}
         userToken={user?.token}
         companyId={state.currentCompany?.id}
       />
-
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={handleCancel}
-          className="px-4 py-2 rounded-lg bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-        >
-          Annuler
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={isSaving || isPublished}
-          className="px-4 py-2 rounded-lg bg-[#7C3AED] text-white hover:bg-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSaving ? "Sauvegarde..." : "Sauvegarder"}
-        </button>
-      </div>
     </div>
   );
 };

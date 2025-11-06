@@ -33,7 +33,8 @@ export const usePostViewPanel = () => {
 
   // === ÉTATS LOCAUX ===
   const [post, setPost] = useState<Post | null>(null);
-  const [images, setImages] = useState<MediaWithUploadState[]>([]);
+  const [images, setImages] = useState<MediaWithUploadState[]>([]); // Médias sélectionnés pour le post
+  const [allSessionMedias, setAllSessionMedias] = useState<MediaWithUploadState[]>([]); // Tous les médias de la session
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTabState] = useState<
@@ -106,10 +107,12 @@ export const usePostViewPanel = () => {
   // === RÉCUPÉRATION DES DONNÉES ===
   useEffect(() => {
     const fetchPost = async () => {
-      // Utiliser postId de l'URL ou celui du state en fallback
+      
       let targetPostId = state.postPanel.postId;
+      let sessionId = state.chat.sessionId;
 
-      if (!targetPostId && chatId && isPostRoute) {
+      // Toujours récupérer depuis la BD pour avoir les données les plus à jour
+      if (chatId) {
         try {
           const chatData = await db.getChatById(
             chatId,
@@ -117,6 +120,7 @@ export const usePostViewPanel = () => {
           );
           if (chatData) {
             targetPostId = chatData.post?.id;
+            sessionId = chatData.id;
           }
         } catch (e) {
           logger.error("Erreur lors de la récupération du post", e);
@@ -124,24 +128,38 @@ export const usePostViewPanel = () => {
         }
       }
 
-      if (!state.postPanel.isOpen && !shouldPanelBeOpen) {
+      // Ne pas recharger si on n'a pas de postId
+      if (!targetPostId) {
         return;
       }
+      
 
       setIsLoading(true);
       setError(null);
 
       try {
         const postData = (await db.getPostById(
-          targetPostId!,
+          targetPostId,
           state.currentCompany?.id as string
         )) as SupabasePost | null;
 
         if (postData) {
           const converted = convertSupabasePost(postData);
           setPost(converted);
-          // Initialiser l'état des images
+          // Initialiser l'état des images sélectionnées (depuis le post)
           setImages(convertToMediaWithUploadState(converted.images));
+
+          // Récupérer tous les médias de la session
+          if (sessionId) {
+            try {
+              const allMedias = await db.getMediasBySessionId(sessionId);
+              if (allMedias) {
+                setAllSessionMedias(convertToMediaWithUploadState(allMedias));
+              }
+            } catch (e) {
+              logger.error("Erreur lors de la récupération des médias de la session", e);
+            }
+          }
         } else {
           setError("Post non trouvé");
         }
@@ -157,8 +175,10 @@ export const usePostViewPanel = () => {
   }, [
     state.postPanel.postId,
     state.postPanel.isOpen,
+    state.postPanel.lastRefresh, // Écouter les changements de lastRefresh pour recharger le post
     shouldPanelBeOpen,
     state.currentCompany?.id,
+    state.chat.sessionId,
   ]);
 
   // === ACTIONS ===
@@ -182,14 +202,17 @@ export const usePostViewPanel = () => {
     }
 
     try {
+      const hashtagsArray = data.hashtags
+        .split(" ")
+        .filter((tag) => tag.length > 0);
+
       await db.updatePostById(
         post.id,
         {
           content: data.caption,
-          hashtags: JSON.stringify(
-            data.hashtags.split(" ").filter((tag) => tag.length > 0)
-          ),
+          hashtags: JSON.stringify(hashtagsArray),
           imagePositions: data.imagePositions, // Passer les positions
+          platformId: data.platformId ?? undefined,
         },
         state.currentCompany.id
       );
@@ -198,8 +221,10 @@ export const usePostViewPanel = () => {
       setPost((prevPost) => ({
         ...prevPost!,
         description: data.caption,
-        hashtags: data.hashtags.split(" ").filter((tag) => tag.length > 0),
+        hashtags: hashtagsArray,
         images: data.images, // Mettre à jour avec les nouvelles positions
+        platform: data.platform,
+        platformId: data.platformId ?? prevPost?.platformId ?? null,
       }));
 
       toast.success("Post mis à jour avec succès");
@@ -276,9 +301,14 @@ export const usePostViewPanel = () => {
         images: prevPost!.images?.filter((image) => image.id !== imageId),
       }));
 
-      // Mettre à jour aussi l'état des images dans l'éditeur
+      // Mettre à jour l'état des images sélectionnées
       setImages((prevImages) =>
         prevImages.filter((image) => image.id !== imageId)
+      );
+
+      // Mettre à jour l'état de tous les médias de la session
+      setAllSessionMedias((prevMedias) =>
+        prevMedias.filter((media) => media.id !== imageId)
       );
 
       toast.success("Image supprimée avec succès");
@@ -289,11 +319,20 @@ export const usePostViewPanel = () => {
   };
 
   // Handler pour les changements d'images
-  const handleImagesChange = (newImages: MediaWithUploadState[]) => {
-    setImages(newImages);
+  const handleImagesChange = (
+    newSelectedImages: MediaWithUploadState[],
+    newAllMedias?: MediaWithUploadState[]
+  ) => {
+    // Mettre à jour les images sélectionnées
+    setImages(newSelectedImages);
+
+    // Mettre à jour tous les médias de la session si fourni
+    if (newAllMedias) {
+      setAllSessionMedias(newAllMedias);
+    }
 
     // Synchroniser avec l'état du post en conservant les positions
-    const uploadedImages = newImages
+    const uploadedImages = newSelectedImages
       .filter((image) => image.uploadState === "uploaded")
       .map((image) => ({
         id: image.id,
@@ -392,6 +431,7 @@ export const usePostViewPanel = () => {
     // États en lecture seule
     post,
     images,
+    allSessionMedias,
     isLoading,
     error,
     activeTab,

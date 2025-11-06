@@ -1,18 +1,43 @@
 import { AnimatePresence } from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Outlet, useLocation } from "react-router-dom";
+import { useApp } from "../../contexts/AppContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useContainerDimensions } from "../../hooks/useContainerDimensions";
+import { logger } from "../../utils/logger";
 import BurgerMenu from "./BurgerMenu";
+import Header from "./Header";
 
 const AppLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hasNotifications, setHasNotifications] = useState(false);
   const appContainerRef = useRef<HTMLDivElement>(null);
   const dimensions = useContainerDimensions(appContainerRef);
   const location = useLocation();
+  const { refreshCurrentCompany } = useApp();
+  const { user } = useAuth();
+
+  // Recharger les données de la company (incluant les plateformes) au montage
+  useEffect(() => {
+    const refreshCompanyData = async () => {
+      if (!user?.id) return;
+
+      try {
+        await refreshCurrentCompany(user.id);
+      } catch (error) {
+        logger.error("Failed to refresh company data on mount", error);
+        // Erreur silencieuse, les données du localStorage sont toujours disponibles
+      }
+    };
+
+    refreshCompanyData();
+  }, [user?.id]); // Recharger uniquement quand l'utilisateur change
 
   const isSettingsPage = location.pathname.includes("/settings");
+  // Header ne s'affiche pas sur la page d'accueil (/) et sur les pages de chat avec un ID (/chats/:chatId)
+  const isChatPage =
+    location.pathname === "/" || /^\/chats\/[^/]+/.test(location.pathname); // Détecte /chats/{id}
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -36,6 +61,8 @@ const AppLayout: React.FC = () => {
           isSettingsPage && "overflow-x-auto"
         }`}
       >
+        {!isChatPage && <Header onToggleMenu={toggleMenu} />}
+
         <AnimatePresence mode="wait">
           <Outlet context={{ toggleMenu }} />
         </AnimatePresence>

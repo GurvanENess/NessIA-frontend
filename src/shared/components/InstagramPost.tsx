@@ -25,8 +25,9 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
   // S'assurer qu'on a au moins une image par défaut
   const imageList = images?.length
     ? images.map((image) => image.url)
-    : ["/assets/default.jpg"];
+    : [];
   const hasMultipleImages = imageList.length > 1;
+  const hasNoImages = imageList.length === 0;
 
   const goToPrevious = useCallback(() => {
     setCurrentImageIndex((prev) =>
@@ -94,22 +95,55 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
       </div>
 
       {/* Post Images Carousel */}
-      <div className="relative aspect-square overflow-hidden">
-        {/* Carousel Track */}
-        <div
-          className="flex w-full h-full transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-        >
-          {imageList.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Post content ${index + 1}`}
-              className="w-full h-full object-cover flex-shrink-0"
-              loading={index === 0 ? "eager" : "lazy"}
-            />
-          ))}
-        </div>
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50">
+        {hasNoImages ? (
+          /* Message d'aide quand pas d'image */
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-purple-100">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Ajoutez vos visuels
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Instagram adore les belles images ! 📸
+                <br />
+                Sélectionnez des médias depuis votre bibliothèque
+                <br />
+                dans l'onglet <span className="font-semibold text-purple-700">Éditer</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* Carousel Track */
+          <div
+            className="flex w-full h-full transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+          >
+            {imageList.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`Post content ${index + 1}`}
+                className="w-full h-full object-cover flex-shrink-0"
+                loading={index === 0 ? "eager" : "lazy"}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Flèches de navigation (seulement si plusieurs images) */}
         {hasMultipleImages && (
