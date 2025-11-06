@@ -23,6 +23,7 @@ interface AuthContextType {
   signup: (formData: FormDataType) => Promise<any>;
   updateUserName: (name: string) => Promise<any>;
   updateUserEmail: (email: string) => Promise<any>;
+  updateUserPassword: (password: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -116,6 +117,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return data;
   };
 
+  const updateUserPassword = async (password: string) => {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      password,
+    });
+    console.log("updateUserPassword - data", data);
+    if (error) throw error;
+    return data;
+  };
+
   const logout = async () => {
     const { error } = await supabaseClient.auth.signOut();
     if (error) throw error;
@@ -131,6 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signup,
     updateUserName,
     updateUserEmail,
+    updateUserPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

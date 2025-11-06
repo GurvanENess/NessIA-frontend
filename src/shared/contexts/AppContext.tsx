@@ -12,6 +12,7 @@ import {
   Company,
   initialState,
 } from "../store/AppReducer";
+import { db } from "../services/db";
 import { handleError } from "../utils/errorHandler";
 import { logger } from "../utils/logger";
 
@@ -26,6 +27,7 @@ interface AppContextType {
   changeCompanyAndReset: (company: Company) => void;
   updateCurrentCompany: (updates: Partial<Company>) => void;
   updateCompanyInList: (id: string, updates: Partial<Company>) => void;
+  refreshCurrentCompany: (userId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -95,6 +97,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "UPDATE_COMPANY_IN_LIST", payload: { id, updates } });
   };
 
+  const refreshCurrentCompany = async (userId: string) => {
+    if (!state.currentCompany) {
+      logger.warn("No current company to refresh");
+      return;
+    }
+
+    try {
+      // Recharger toutes les companies avec leurs plateformes
+      const companies = await db.getCompaniesByUserId(userId);
+      
+      // Trouver la company actuelle dans la liste rechargée
+      const refreshedCompany = companies.find(
+        (c) => c.id === state.currentCompany?.id
+      );
+
+      if (refreshedCompany) {
+        // Mettre à jour la company actuelle avec les nouvelles données
+        dispatch({ type: "SET_CURRENT_COMPANY", payload: refreshedCompany });
+        logger.info("Current company refreshed successfully");
+      } else {
+        logger.warn("Current company not found in refreshed data");
+      }
+    } catch (error) {
+      logger.error("Failed to refresh current company", error);
+      throw error;
+    }
+  };
+
   const value = {
     state,
     dispatch,
@@ -105,6 +135,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     changeCompanyAndReset,
     updateCurrentCompany,
     updateCompanyInList,
+    refreshCurrentCompany,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
