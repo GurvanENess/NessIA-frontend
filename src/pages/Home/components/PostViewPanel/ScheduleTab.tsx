@@ -6,16 +6,19 @@ import { DateTimePicker } from "./DateTimePicker";
 interface ScheduleTabProps {
   post: Post;
   onSchedule: (date: Date) => Promise<void>;
+  onUnschedule: () => Promise<void>;
   onCancel: () => void;
 }
 
 const ScheduleTab: React.FC<ScheduleTabProps> = ({
   post,
   onSchedule,
+  onUnschedule,
   onCancel,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [isUnscheduling, setIsUnscheduling] = useState(false);
 
   const isPublished = post.status === "published";
 
@@ -24,6 +27,13 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
     setIsScheduling(true);
     await onSchedule(selectedDate);
     setIsScheduling(false);
+  };
+
+  const handleUnschedule = async () => {
+    if (!post.scheduledAt || isPublished) return;
+    setIsUnscheduling(true);
+    await onUnschedule();
+    setIsUnscheduling(false);
   };
 
   const formatScheduledDate = (date: Date): string => {
@@ -116,6 +126,18 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({
         >
           Annuler
         </button>
+
+        {/* Bouton Déprogrammer - visible uniquement si le post est programmé */}
+        {post.scheduledAt && !isPublished && (
+          <button
+            onClick={handleUnschedule}
+            disabled={isUnscheduling}
+            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isUnscheduling ? "Déprogrammation..." : "Déprogrammer"}
+          </button>
+        )}
+
         <button
           onClick={handleSchedule}
           disabled={

@@ -34,7 +34,9 @@ export const usePostViewPanel = () => {
   // === ÉTATS LOCAUX ===
   const [post, setPost] = useState<Post | null>(null);
   const [images, setImages] = useState<MediaWithUploadState[]>([]); // Médias sélectionnés pour le post
-  const [allSessionMedias, setAllSessionMedias] = useState<MediaWithUploadState[]>([]); // Tous les médias de la session
+  const [allSessionMedias, setAllSessionMedias] = useState<
+    MediaWithUploadState[]
+  >([]); // Tous les médias de la session
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTabState] = useState<
@@ -107,7 +109,6 @@ export const usePostViewPanel = () => {
   // === RÉCUPÉRATION DES DONNÉES ===
   useEffect(() => {
     const fetchPost = async () => {
-      
       let targetPostId = state.postPanel.postId;
       let sessionId = state.chat.sessionId;
 
@@ -132,7 +133,6 @@ export const usePostViewPanel = () => {
       if (!targetPostId) {
         return;
       }
-      
 
       setIsLoading(true);
       setError(null);
@@ -157,7 +157,10 @@ export const usePostViewPanel = () => {
                 setAllSessionMedias(convertToMediaWithUploadState(allMedias));
               }
             } catch (e) {
-              logger.error("Erreur lors de la récupération des médias de la session", e);
+              logger.error(
+                "Erreur lors de la récupération des médias de la session",
+                e
+              );
             }
           }
         } else {
@@ -283,6 +286,39 @@ export const usePostViewPanel = () => {
     } catch (error) {
       logger.error("Erreur lors de la programmation du post", error);
       toast.error("Erreur lors de la programmation du post");
+    }
+  };
+
+  const handleUnschedule = async () => {
+    if (!post) {
+      toast.error("Aucun post sélectionné");
+      return;
+    }
+
+    if (!state.currentCompany?.id) {
+      toast.error("Aucune entreprise sélectionnée");
+      return;
+    }
+
+    try {
+      // Appel API pour déprogrammer le post
+      await db.updatePostScheduledAtById(
+        post.id,
+        null,
+        state.currentCompany.id
+      );
+
+      // Mise à jour optimiste de l'état local
+      setPost((prevPost) => ({
+        ...prevPost!,
+        status: "draft",
+        scheduledAt: undefined,
+      }));
+
+      toast.success("Post déprogrammé avec succès");
+    } catch (error) {
+      logger.error("Erreur lors de la déprogrammation du post", error);
+      toast.error("Erreur lors de la déprogrammation du post");
     }
   };
 
@@ -444,6 +480,7 @@ export const usePostViewPanel = () => {
     handleOverlayClick,
     handleSave,
     handleSchedule,
+    handleUnschedule,
     handleDeleteImage,
     handleImagesChange,
     handleDeletePost,

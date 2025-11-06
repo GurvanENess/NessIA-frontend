@@ -63,6 +63,7 @@ const PostViewPanel: React.FC = () => {
     handleOverlayClick,
     handleSave,
     handleSchedule,
+    handleUnschedule,
     handleDeleteImage,
     handleImagesChange,
     handleDeletePost,
@@ -242,6 +243,7 @@ const PostViewPanel: React.FC = () => {
                 <ScheduleTab
                   post={post}
                   onSchedule={handleSchedule}
+                  onUnschedule={handleUnschedule}
                   onCancel={() => setActiveTab("preview")}
                 />
               )}

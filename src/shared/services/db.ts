@@ -73,7 +73,11 @@ export const db = {
     }
   },
 
-  async updateMediaSelection(mediaId: string, selected: boolean, position?: number) {
+  async updateMediaSelection(
+    mediaId: string,
+    selected: boolean,
+    position?: number
+  ) {
     try {
       const updateData: { selected: boolean; position?: number } = { selected };
       if (position !== undefined) {
@@ -158,8 +162,8 @@ export const db = {
             if (session.media && Array.isArray(session.media)) {
               session.media = session.media
                 .filter((media: any) => media.selected === true)
-                .sort((a: any, b: any) => 
-                  (a.position ?? 0) - (b.position ?? 0)
+                .sort(
+                  (a: any, b: any) => (a.position ?? 0) - (b.position ?? 0)
                 );
             }
           }
@@ -199,9 +203,7 @@ export const db = {
         if (session.media && Array.isArray(session.media)) {
           session.media = session.media
             .filter((media: any) => media.selected === true)
-            .sort((a: any, b: any) => 
-              (a.position ?? 0) - (b.position ?? 0)
-            );
+            .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
         }
       }
 
@@ -290,13 +292,16 @@ export const db = {
 
   async updatePostScheduledAtById(
     id: string,
-    scheduledAt: Date,
+    scheduledAt: Date | null,
     companyId: string
   ) {
     try {
       const { data, error } = await supabaseClient
         .from("post")
-        .update({ scheduled_at: scheduledAt })
+        .update({
+          scheduled_at: scheduledAt,
+          status: scheduledAt ? "scheduled" : "draft",
+        })
         .eq("id", id)
         .eq("company_id", companyId);
 
