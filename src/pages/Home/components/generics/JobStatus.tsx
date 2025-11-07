@@ -27,6 +27,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
   onSuggestionClick,
 }) => {
   if (!jobs || jobs.length === 0) return null;
+  console.log("jobs", jobs);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -43,10 +44,10 @@ const JobStatus: React.FC<JobStatusProps> = ({
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
+  const getStatusText = (job: Job) => {
+    switch (job.status) {
       case "running":
-        return "NessIA travaille sur votre demande...";
+        return job.current_msg || "NessIA travaille sur votre demande...";
       case "waiting_user":
         return "En attente de votre réponse...";
       case "completed":
@@ -98,7 +99,7 @@ const JobStatus: React.FC<JobStatusProps> = ({
       return (
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-800">
-            {getStatusText(job.status)}
+            {getStatusText(job)}
           </p>
           {job.message && (
             <p className="text-xs text-gray-600 mt-1">{job.message}</p>

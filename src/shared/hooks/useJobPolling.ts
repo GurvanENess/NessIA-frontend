@@ -22,16 +22,20 @@ export default function useJobPolling() {
       const data = await db.getRunningJobs(sessionId);
       return data;
     } catch (err) {
-      throw err; // Relancer l'erreur au lieu de la masquer
+      throw err;
     }
   };
 
   const poll = async (sessionId: string) => {
     try {
       const runningJobs = await fetchRunningJobs(sessionId);
-      setJobs(runningJobs);
+      console.log("runningJobs", runningJobs);
+      setJobs(runningJobs as Job[]);
 
-      if (runningJobs.length > 0 && runningJobs[0].status === "error") {
+      if (
+        runningJobs.length > 0 &&
+        (runningJobs[0] as Job).status === "error"
+      ) {
         stopPolling();
         throw new Error("Job error");
       }
@@ -39,11 +43,11 @@ export default function useJobPolling() {
       if (
         runningJobs.length === 0 ||
         !resolveRef.current ||
-        runningJobs[0].status === "waiting_user"
+        (runningJobs[0] as Job).status === "waiting_user"
       ) {
         // un peu cracra mais ça marche
         stopPolling();
-        if (resolveRef.current) resolveRef.current(runningJobs);
+        if (resolveRef.current) resolveRef.current(runningJobs as Job[]);
         return;
       } else {
         intervalRef.current = setTimeout(() => {
