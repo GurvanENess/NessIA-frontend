@@ -1,5 +1,5 @@
+import { ArrowRight, Loader2, Lock, Mail, User } from "lucide-react";
 import React from "react";
-import { Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
 
 interface RegisterFormProps {
   email: string;
@@ -11,11 +11,11 @@ interface RegisterFormProps {
   username: string;
   setUsername: (username: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  errors: { 
-    email?: string; 
-    password?: string; 
-    confirmPassword?: string; 
-    username?: string; 
+  errors: {
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+    username?: string;
   };
   isLoading: boolean;
 }
@@ -152,34 +152,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             )}
           </button>
 
-          <div className="relative flex items-center justify-center gap-4 pt-10">
-            <div className="flex-grow h-[1px] bg-[#1A201B]"></div>
-            <span className="text-sm text-[#1A201B] font-normal whitespace-nowrap">
-              Ou continuer avec
-            </span>
-            <div className="flex-grow h-[1px] bg-[#1A201B]"></div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              disabled={isLoading}
-              className="flex flex-col items-center justify-center gap-1 py-2 border border-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <img src="/google.svg" alt="Google" className="w-6" />
-              <span className="text-[#1A201B]">Google</span>
-            </button>
-            <button
-              type="button"
-              disabled={isLoading}
-              className="flex flex-col items-center justify-center gap-1 py-2 border border-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <img src="/microsoft.svg" alt="Microsoft" className="w-6" />
-              <span className="text-[#1A201B]">Microsoft</span>
-            </button>
-          </div>
-
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-gray-500 mt-6">
             Vous avez déjà un compte ?{" "}
             <a
               href="/login"
