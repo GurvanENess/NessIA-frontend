@@ -7,7 +7,6 @@ import ChatPage from "./pages/Home/components/ChatPage";
 import Login from "./pages/Login";
 import PostsDisplay from "./pages/Posts";
 import PrivacyPolicy from "./pages/PrivacyPolicy/index";
-import Register from "./pages/Register";
 import SettingsPage from "./pages/Settings";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
@@ -30,7 +29,6 @@ const App: React.FC = () => {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
               </Route>
 
               {/* Protected routes */}

@@ -1,12 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabaseClient } from "../services/supabase";
 
-interface FormDataType {
-  email: string;
-  password: string;
-  username?: string;
-}
-
 interface User {
   id: string;
   email: string;
@@ -20,7 +14,6 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  signup: (formData: FormDataType) => Promise<any>;
   updateUserName: (name: string) => Promise<any>;
   updateUserEmail: (email: string) => Promise<any>;
   updateUserPassword: (password: string) => Promise<any>;
@@ -65,19 +58,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       subscription.unsubscribe();
     };
   }, []);
-
-  const signup = async ({ email, password, username }: FormDataType) => {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: username },
-      },
-    });
-
-    if (error) throw error;
-    return { success: true, data };
-  };
 
   const login = async (email: string, password: string) => {
     const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -138,7 +118,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoading,
     login,
     logout,
-    signup,
     updateUserName,
     updateUserEmail,
     updateUserPassword,
