@@ -22,7 +22,6 @@ export const db = {
   },
 
   async deleteMediaById(id: string) {
-    console.log("deleteMediaById", id);
     try {
       const { data, error } = await supabaseClient
         .from("media")
@@ -125,8 +124,6 @@ export const db = {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-
-      console.log("data", data);
 
       return data;
     } catch (err) {

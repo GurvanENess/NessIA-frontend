@@ -27,7 +27,6 @@ const JobStatus: React.FC<JobStatusProps> = ({
   onSuggestionClick,
 }) => {
   if (!jobs || jobs.length === 0) return null;
-  console.log("jobs", jobs);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
