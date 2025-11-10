@@ -8,6 +8,7 @@ export interface Job {
   status: "waiting_user" | "running" | "completed" | "error";
   type?: string;
   message?: string;
+  current_msg?: string;
   created_at?: string;
   session_id?: string;
   user_id?: string;

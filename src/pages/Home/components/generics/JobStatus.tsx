@@ -46,15 +46,25 @@ const JobStatus: React.FC<JobStatusProps> = ({
   const getStatusText = (job: Job) => {
     switch (job.status) {
       case "running":
-        return job.current_msg || "NessIA travaille sur votre demande...";
+        return (
+          job.current_msg ||
+          job.message ||
+          "NessIA travaille sur votre demande..."
+        );
       case "waiting_user":
-        return "En attente de votre réponse...";
+        return (
+          job.current_msg || job.message || "En attente de votre réponse..."
+        );
       case "completed":
-        return "Tâche terminée";
+        return job.current_msg || job.message || "Tâche terminée";
       case "error":
-        return "Erreur lors du traitement du message.";
+        return (
+          job.current_msg ||
+          job.message ||
+          "Erreur lors du traitement du message."
+        );
       default:
-        return "En cours...";
+        return job.current_msg || job.message || "En cours...";
     }
   };
 
@@ -70,6 +80,21 @@ const JobStatus: React.FC<JobStatusProps> = ({
         return "border-red-200 bg-red-50/90";
       default:
         return "border-gray-200 bg-gray-50/90";
+    }
+  };
+
+  const getStatusTextColor = (status: string) => {
+    switch (status) {
+      case "running":
+        return "text-blue-700 font-semibold";
+      case "waiting_user":
+        return "text-amber-700 font-semibold";
+      case "completed":
+        return "text-green-700 font-semibold";
+      case "error":
+        return "text-red-700 font-semibold";
+      default:
+        return "text-gray-800 font-semibold";
     }
   };
 
@@ -97,10 +122,10 @@ const JobStatus: React.FC<JobStatusProps> = ({
     if (!needUserInput) {
       return (
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-800">
+          <p className={`text-sm ${getStatusTextColor(job.status)}`}>
             {getStatusText(job)}
           </p>
-          {job.message && (
+          {job.message && job.message !== getStatusText(job) && (
             <p className="text-xs text-gray-600 mt-1">{job.message}</p>
           )}
         </div>
@@ -109,8 +134,8 @@ const JobStatus: React.FC<JobStatusProps> = ({
 
     return (
       <div className="flex-1">
-        <p className="text-sm font-medium text-gray-800">
-          {getStatusText(job.status)}
+        <p className={`text-sm ${getStatusTextColor(job.status)}`}>
+          {getStatusText(job)}
         </p>
         {/* Question */}
         {needUserInput.question && (
@@ -151,10 +176,10 @@ const JobStatus: React.FC<JobStatusProps> = ({
 
     return (
       <div className="flex-1">
-        <p className="text-sm font-medium text-gray-800">
-          {getStatusText(job.status)}
+        <p className={`text-sm ${getStatusTextColor(job.status)}`}>
+          {getStatusText(job)}
         </p>
-        {job.message && (
+        {job.message && job.message !== getStatusText(job) && (
           <p className="text-xs text-gray-600 mt-1">{job.message}</p>
         )}
         {job.type && (

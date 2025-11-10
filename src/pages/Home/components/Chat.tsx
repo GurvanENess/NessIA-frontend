@@ -1,5 +1,6 @@
 import React from "react";
 import { Message } from "../../../shared/entities/ChatTypes";
+import { Job } from "../../../shared/entities/JobTypes";
 import ChatFixedHeader from "./generics/ChatFixedHeader";
 import ChatInput from "./generics/ChatInput";
 import MessageList from "./generics/MessageList";
@@ -15,7 +16,7 @@ interface ChatProps {
   isLoading: boolean;
   showQuickActions: boolean;
   isFirstMessage: boolean;
-  jobs: any[];
+  jobs: Job[];
   onMessageInputChange: (value: string) => void;
   onSendMessage: (message: string, images?: any[]) => Promise<void>;
   onSuggestionClick: (job: any, answer: string) => Promise<void>;
@@ -75,7 +76,6 @@ const Chat: React.FC<ChatProps> = ({
             isLoading={isLoading}
             jobs={jobs}
             handleSuggestionClick={onSuggestionClick}
-            sessionId={sessionIdParam}
           >
             {/* TODO: Provoque un re-rendu et un rapide resize au chargement du chat */}
             {/* {isFirstMessage && showQuickActions && (
