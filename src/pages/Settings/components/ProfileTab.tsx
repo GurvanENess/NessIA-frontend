@@ -64,11 +64,7 @@ const ProfileTab: React.FC = () => {
           setFormData(data);
         }
       } catch (error) {
-        console.error(
-          "Erreur lors du chargement des données du profil :",
-          error
-        );
-      } finally {
+        } finally {
         setIsLoading(false);
       }
     };
@@ -79,7 +75,6 @@ const ProfileTab: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentCompany) {
-      console.error("Aucune entreprise sélectionnée");
       return;
     }
 
@@ -106,7 +101,6 @@ const ProfileTab: React.FC = () => {
         setSaveSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement du profil :", error);
       alert(
         "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
       );

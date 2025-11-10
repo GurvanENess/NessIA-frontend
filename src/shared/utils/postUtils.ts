@@ -9,7 +9,10 @@ export interface SupabasePost {
   scheduled_at?: string | null;
   status: string;
   platform_id?: number | null;
-  platform: { id?: number | null; name?: string | null }[] | { id?: number | null; name?: string | null } | null;
+  platform:
+    | { id?: number | null; name?: string | null }[]
+    | { id?: number | null; name?: string | null }
+    | null;
   session: {
     id: string;
     media: { id: string; url: string; created_at: string }[];
@@ -79,7 +82,6 @@ export const convertSupabasePost = (supabasePost: SupabasePost): Post => {
   try {
     hashtags = JSON.parse(supabasePost.hashtags || "[]");
   } catch (e) {
-    console.error(e);
     hashtags = [];
   }
 

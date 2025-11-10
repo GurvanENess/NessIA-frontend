@@ -83,8 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data, error } = await supabaseClient.auth.updateUser({
       data: { name: name },
     });
-    console.log("updateUserName - data", data);
-    if (error) throw error;
+if (error) throw error;
     return data;
   };
 
@@ -92,8 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data, error } = await supabaseClient.auth.updateUser({
       email,
     });
-    console.log("updateUserEmail - data", data);
-    if (error) throw error;
+if (error) throw error;
     return data;
   };
 
@@ -101,8 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const { data, error } = await supabaseClient.auth.updateUser({
       password,
     });
-    console.log("updateUserPassword - data", data);
-    if (error) throw error;
+if (error) throw error;
     return data;
   };
 

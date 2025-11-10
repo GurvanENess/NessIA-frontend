@@ -60,7 +60,6 @@ export const useChatMessages = (
     images?: MediaWithUploadState[]
   ) => {
     try {
-      console.log(message, images);
       const response = await AiClient.getResponse({
         message: message,
         sessionId: sessionId,
@@ -77,7 +76,6 @@ export const useChatMessages = (
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Déclencher le refresh du PostViewPanel après avoir récupéré les messages
-      console.log('[useChatMessages] Déclenchement REFRESH_POST_PANEL après processAiResponse');
       dispatch({ type: "REFRESH_POST_PANEL" });
 
       if (!sessionId) {
@@ -110,7 +108,6 @@ export const useChatMessages = (
     let userMessage: Message | null = null;
 
     try {
-      console.log(images);
       userMessage = await processUserMessage(message, images);
       await processAiResponse(message, images);
 
@@ -165,7 +162,6 @@ export const useChatMessages = (
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Déclencher le refresh du PostViewPanel après avoir récupéré les messages
-      console.log('[useChatMessages] Déclenchement REFRESH_POST_PANEL après handleSuggestionClick');
       dispatch({ type: "REFRESH_POST_PANEL" });
     } catch (err) {
       logger.error("Error sending suggestion response", err);

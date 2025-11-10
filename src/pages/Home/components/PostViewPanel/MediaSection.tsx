@@ -1,4 +1,4 @@
-ï»¿import { Images, Plus } from "lucide-react";
+import { Images, Plus } from "lucide-react";
 import React, { useRef, useState } from "react";
 import ImagePreview from "../../../../shared/components/ImagePreview";
 import { MediaWithUploadState } from "../../entities/media";
@@ -32,8 +32,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     companyId,
     onImagesChange,
     onError: (error) => {
-      console.error("Upload error in MediaSection:", error);
-    },
+      },
   });
 
   const handleFileSelect = async (files: FileList | null) => {
@@ -69,7 +68,6 @@ const MediaSection: React.FC<MediaSectionProps> = ({
 
   const handleRemoveImage = async (index: number) => {
     if (typeof onDeleteImage !== "function") {
-      console.error("onDeleteImage is not a function:", onDeleteImage);
       return;
     }
 
@@ -77,16 +75,15 @@ const MediaSection: React.FC<MediaSectionProps> = ({
       await onDeleteImage(images[index].id);
       const updatedImages = images.filter((_, position) => position !== index);
 
-      // Recalculer les positions aprÃ¨s suppression
+      // Recalculer les positions après suppression
       const imagesWithUpdatedPositions = updatedImages.map((image, idx) => ({
         ...image,
-        position: idx, // RÃ©assigner les positions aprÃ¨s suppression
+        position: idx, // Réassigner les positions après suppression
       }));
 
       onImagesChange(imagesWithUpdatedPositions);
     } catch (error) {
-      console.error("Error while deleting image:", error);
-    }
+      }
   };
 
   const handleImageDragStart = (event: React.DragEvent, index: number) => {
@@ -119,10 +116,10 @@ const MediaSection: React.FC<MediaSectionProps> = ({
     updatedImages.splice(draggedIndex, 1);
     updatedImages.splice(dropIndex, 0, draggedImage);
 
-    // Mettre Ã  jour les positions aprÃ¨s le rÃ©arrangement
+    // Mettre à jour les positions après le réarrangement
     const imagesWithUpdatedPositions = updatedImages.map((image, index) => ({
       ...image,
-      position: index, // Assigner la position basÃ©e sur l'index
+      position: index, // Assigner la position basée sur l'index
     }));
 
     onImagesChange(imagesWithUpdatedPositions);

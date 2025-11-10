@@ -67,7 +67,7 @@ const PublishPostModal: React.FC<PublishPostModalProps> = ({
       await onPublishConfirm();
       onClose();
     } catch (error) {
-      console.error("Error publishing post", error);
+      // Error handled by parent
     } finally {
       setIsLoading(false);
     }

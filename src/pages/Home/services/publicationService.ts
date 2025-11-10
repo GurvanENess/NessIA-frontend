@@ -12,16 +12,8 @@ export class PublicationService {
     sessionId: string
   ) {
     try {
-      console.log(
-        "Publication",
-        n8nPublishUrl,
-        postId,
-        companyId,
-        userToken,
-        sessionId
-      );
 
-      const response = await axios({
+const response = await axios({
         method: "POST",
         url: n8nPublishUrl,
         data: {

@@ -1,4 +1,4 @@
-﻿import { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { MediaWithUploadState } from "../entities/media";
 import {
   createMediaFromFiles,
@@ -150,7 +150,7 @@ export const useSimpleImageUpload = (
     userToken,
     companyId,
     onImagesChange: setImages,
-    onError: (error) => console.error("Upload error", error),
+    onError: (error) => { /* Upload error handled by parent */ },
   });
 
   const addImages = useCallback(
@@ -175,8 +175,8 @@ export const useSimpleImageUpload = (
 };
 
 /**
- * Hook pour gérer les images localement sans upload automatique
- * Utile pour le ChatInput où l'upload se fait au moment de l'envoi du message
+ * Hook pour g�rer les images localement sans upload automatique
+ * Utile pour le ChatInput o� l'upload se fait au moment de l'envoi du message
  */
 export const useLocalImageUpload = () => {
   const [images, setImages] = useState<MediaWithUploadState[]>([]);
@@ -191,8 +191,7 @@ export const useLocalImageUpload = () => {
       const newMediaItems = await createMediaFromFiles(fileArray);
       setImages((prev) => [...prev, ...newMediaItems]);
     } catch (error) {
-      console.error("Erreur lors de la préparation des images:", error);
-    }
+      }
   }, []);
 
   const removeImage = useCallback((imageId: string) => {

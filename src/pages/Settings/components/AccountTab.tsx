@@ -38,10 +38,6 @@ const AccountTab: React.FC = () => {
       toast.success("Nom d'utilisateur mis à jour avec succès");
       setIsNameFormOpen(false);
     } catch (error) {
-      console.error(
-        "Erreur lors de la mise à jour du nom d'utilisateur :",
-        error
-      );
       toast.error(
         "Une erreur est survenue lors de la mise à jour du nom d'utilisateur. Veuillez réessayer."
       );
@@ -64,10 +60,6 @@ const AccountTab: React.FC = () => {
       setIsEmailModalOpen(false);
       setIsEmailFormOpen(false);
     } catch (error) {
-      console.error(
-        "Erreur lors de la mise à jour de l'adresse email :",
-        error
-      );
       toast.error(
         "Une erreur est survenue lors de la mise à jour de l'adresse email. Veuillez réessayer."
       );
@@ -107,8 +99,6 @@ const AccountTab: React.FC = () => {
       setIsPasswordModalOpen(false);
       setIsPasswordFormOpen(false);
     } catch (error: any) {
-      console.error("Erreur lors de la mise à jour du mot de passe :", error);
-
       if (error.status === 401) {
         toast.error(
           "Impossible de changer le mot de passe. Votre session a expiré, veuillez vous reconnecter."
