@@ -29,6 +29,7 @@ export default function useJobPolling() {
   const poll = async (sessionId: string) => {
     try {
       const runningJobs = await fetchRunningJobs(sessionId);
+      console.log(runningJobs);
       setJobs(runningJobs as Job[]);
 
       if (

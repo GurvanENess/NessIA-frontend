@@ -224,11 +224,7 @@ const PostViewPanel: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
-              {activeTab === "preview" && (
-                <PreviewTab
-                  post={post}
-                />
-              )}
+              {activeTab === "preview" && <PreviewTab post={post} />}
               {activeTab === "edit" && (
                 <EditTab
                   post={post}
@@ -326,18 +322,18 @@ const PostViewPanel: React.FC = () => {
           <motion.div
             className="hidden xl:flex xl:flex-col h-full bg-white shadow-xl border-l border-gray-200 overflow-hidden"
             initial={{ width: 0, opacity: 0 }}
-            animate={{ 
+            animate={{
               width: panelWidth,
-              opacity: 1 
+              opacity: 1,
             }}
-            exit={{ 
+            exit={{
               width: 0,
-              opacity: 0 
+              opacity: 0,
             }}
-            transition={{ 
+            transition={{
               duration: 0.3,
               ease: [0.32, 0.72, 0, 1],
-              delay: 0.15
+              delay: 0.15,
             }}
           >
             {renderPanelContent("inline")}

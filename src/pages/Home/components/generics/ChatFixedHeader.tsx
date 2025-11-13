@@ -70,7 +70,7 @@ const ChatFixedHeader: React.FC<ChatFixedHeaderProps> = ({
   };
 
   return (
-    <div className="block xl:hidden sticky top-0 left-0 right-0 z-30 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
+    <div className="block xl:hidden sticky top-0 left-0 right-0 z-20 bg-[#E7E9F2] border-b border-[rgba(0,0,0,0.4)] py-[8px] pb-[7px]">
       <div className="px-4 flex items-center justify-between w-full">
         <div className="h-12 flex items-center justify-between w-full">
           <button

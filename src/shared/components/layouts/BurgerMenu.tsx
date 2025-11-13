@@ -188,6 +188,17 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     setShowActionsForChatId(null);
   };
 
+  const handleDeleteConfirm = () => {
+    // Rediriger vers l'accueil si le chat supprimé est le chat actuel
+    const isCurrentChat = modals.selectedChat?.id === currentChatId;
+    modals.handleDeleteConfirm(isCurrentChat);
+    
+    // Fermer le menu si on est en mobile
+    if (isMobile && isCurrentChat) {
+      onClose();
+    }
+  };
+
   // Handlers supprimés - maintenant gérés par le hook global useChatModals
 
   return (
@@ -432,7 +443,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
             onClose={modals.closeModals}
             chatId={modals.selectedChat.id}
             chatTitle={modals.selectedChat.title}
-            onDeleteConfirm={() => modals.handleDeleteConfirm(false)}
+            onDeleteConfirm={handleDeleteConfirm}
           />
         </>
       )}

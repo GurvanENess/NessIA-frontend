@@ -1,5 +1,6 @@
 import React from "react";
 import ChatInput from "./generics/ChatInput";
+import LoadingCreation from "./generics/LoadingCreation";
 import QuickActions from "./generics/QuickActions";
 
 interface LandingProps {
@@ -37,15 +38,7 @@ const Landing: React.FC<LandingProps> = ({
                 />
                 <div className="absolute inset-0 flex flex-col w-full items-center justify-center text-center p-4 sm:p-6 md:p-8">
                   {isLoading ? (
-                    <div className="transition-all duration-500 ease-in-out">
-                      <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-black mx-auto mb-6"></div>
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-coolvetica text-black mb-2">
-                        Création de votre conversation...
-                      </h2>
-                      <p className="font-coolvetica text-sm sm:text-base text-black opacity-80">
-                        Nous préparons votre espace de travail
-                      </p>
-                    </div>
+                    <LoadingCreation jobs={jobs} />
                   ) : (
                     <div className="transition-all duration-500 ease-in-out">
                       <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-coolvetica text-black mb-2">
@@ -69,7 +62,6 @@ const Landing: React.FC<LandingProps> = ({
           isLoading={isLoading}
           jobs={jobs}
           handleSuggestionClick={onSuggestionClick}
-          sessionId={undefined}
         >
           {showQuickActions && <QuickActions onSelect={onQuickAction} />}
         </ChatInput>

@@ -39,7 +39,10 @@ const ChatPage: React.FC = () => {
     <>
       {isHomePage ? (
         <Landing
-          {...commonLogic}
+          messageInput={commonLogic.messageInput}
+          isLoading={commonLogic.isLoading}
+          showQuickActions={commonLogic.showQuickActions}
+          jobs={chatLogic.jobs}
           onMessageInputChange={chatLogic.onMessageInputChange}
           onSendMessage={chatLogic.handleSendMessage}
           onSuggestionClick={chatLogic.handleSuggestionClick}

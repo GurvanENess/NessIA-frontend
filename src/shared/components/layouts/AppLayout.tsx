@@ -34,9 +34,8 @@ const AppLayout: React.FC = () => {
   }, [user?.id]); // Recharger uniquement quand l'utilisateur change
 
   const isSettingsPage = location.pathname.includes("/settings");
-  // Header ne s'affiche pas sur la page d'accueil (/) et sur les pages de chat avec un ID (/chats/:chatId)
-  const isChatPage =
-    location.pathname === "/" || /^\/chats\/[^/]+/.test(location.pathname); // Détecte /chats/{id}
+  // Header ne s'affiche pas sur les pages de chat avec un ID (/chats/:chatId)
+  const isChatPage = /^\/chats\/[^/]+/.test(location.pathname); // Détecte /chats/{id}
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
