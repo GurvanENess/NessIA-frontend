@@ -192,7 +192,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
     // Rediriger vers l'accueil si le chat supprimé est le chat actuel
     const isCurrentChat = modals.selectedChat?.id === currentChatId;
     modals.handleDeleteConfirm(isCurrentChat);
-    
+
     // Fermer le menu si on est en mobile
     if (isMobile && isCurrentChat) {
       onClose();
@@ -421,7 +421,10 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
 
             {/* Footer - Always at bottom */}
             <div className="mt-auto">
-              <UserAccountDropdown companies={companies} />
+              <UserAccountDropdown
+                companies={companies}
+                onClose={isMobile ? onClose : undefined}
+              />
             </div>
           </div>
         </motion.div>

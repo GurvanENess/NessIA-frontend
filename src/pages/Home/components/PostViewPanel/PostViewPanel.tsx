@@ -292,6 +292,10 @@ const PostViewPanel: React.FC = () => {
     </>
   );
 
+  if (postPanel.isOpen) {
+    console.log(postPanel.postId);
+  }
+
   return (
     <>
       <AnimatePresence>

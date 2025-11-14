@@ -16,10 +16,12 @@ import { Company } from "../store/AppReducer";
 
 interface UserAccountDropdownProps {
   companies?: Array<Company>;
+  onClose?: () => void;
 }
 
 const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
   companies,
+  onClose,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -135,7 +137,13 @@ const UserAccountDropdown: React.FC<UserAccountDropdownProps> = ({
             <div className="py-1">
               <Link
                 to="/settings"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+
+                  if (onClose) {
+                    onClose();
+                  }
+                }}
                 className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left"
               >
                 <Settings className="w-4 h-4 text-gray-500" />
