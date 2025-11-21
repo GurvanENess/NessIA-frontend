@@ -1,6 +1,22 @@
+export interface UserInputField {
+  name: string;
+  type: "text" | "boolean" | "number" | "select" | "textarea" | "media_selector";
+  value: string | boolean | number | null | Array<{ id: string; url: string }>;
+  required?: boolean;
+  placeholder?: string;
+  label?: string;
+  options?: Array<{ label: string; value: string | number }>;
+  labels?: Record<string, string>;
+}
+
 export interface NeedUserInput {
-  question: string;
-  suggested: string[];
+  key: string;
+  title: string;
+  fields: UserInputField[];
+  description?: string;
+  // Support de l'ancienne structure pour compatibilité
+  question?: string;
+  suggested?: string[];
 }
 
 export interface Job {

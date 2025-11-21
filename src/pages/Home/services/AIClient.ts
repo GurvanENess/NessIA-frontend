@@ -44,6 +44,7 @@ class AIClient {
     userToken,
     userInput,
     jobId,
+    key,
     agentIndex,
     companyId,
   }: {
@@ -51,6 +52,7 @@ class AIClient {
     userToken: string;
     userInput: string;
     jobId: string;
+    key: string;
     agentIndex: number;
     companyId: string;
   }): Promise<unknown> => {
@@ -66,6 +68,7 @@ class AIClient {
       data: {
         userInput,
         jobId,
+        key,
         agentIndex,
         companyId,
       },

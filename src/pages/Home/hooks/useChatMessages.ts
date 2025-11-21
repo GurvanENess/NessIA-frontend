@@ -142,17 +142,27 @@ export const useChatMessages = (
     }
   };
 
-  const handleSuggestionClick = async (job: any, answer: string) => {
+  const handleSuggestionClick = async (
+    job: any,
+    answer: string | Record<string, unknown> | Array<{ name: string; value: unknown }>
+  ) => {
     try {
       if (!sessionIdParam || !user?.token || !job) return;
+
+      // Si answer est un objet ou un tableau, le sérialiser en JSON, sinon utiliser la string directement
+      const userInput =
+        typeof answer === "object" ? JSON.stringify(answer) : answer;
+
+        console.log(job.need_user_input);
 
       await AiClient.sendAnswerToSuggestion({
         sessionId: sessionIdParam,
         userToken: user?.token,
-        userInput: answer,
+        userInput: userInput,
         jobId: job.id,
-        agentIndex: job.need_user_input?.agent_index,
-        companyId: state.currentCompany?.id || "1",
+        key: job.need_user_input?.key ?? "",
+        agentIndex: job.need_user_input?.agentIndex ?? 0,
+        companyId: state.currentCompany?.id ?? "",
       });
 
       if (startPolling) await startPolling(sessionIdParam);
@@ -164,8 +174,10 @@ export const useChatMessages = (
       // Déclencher le refresh du PostViewPanel après avoir récupéré les messages
       dispatch({ type: "REFRESH_POST_PANEL" });
     } catch (err) {
+        console.log((err as any).response?.data);
       logger.error("Error sending suggestion response", err);
-      toast.error("Une erreur est survenue lors de l'envoi de la réponse", {
+      const message = (err as any).response?.data?.message || "Une erreur est survenue lors de l'envoi de la réponse";
+      toast.error(message, {
         duration: 3000,
       });
     }

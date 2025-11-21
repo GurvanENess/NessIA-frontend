@@ -10,7 +10,10 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSend: (messageToSend: string, images?: MediaWithUploadState[]) => void;
-  handleSuggestionClick: (job: unknown, answer: string) => Promise<void>;
+  handleSuggestionClick: (
+    job: unknown,
+    answer: string | Record<string, unknown> | Array<{ name: string; value: unknown }>
+  ) => Promise<void>;
   isLoading: boolean;
   jobs?: Job[];
   children?: React.ReactNode;

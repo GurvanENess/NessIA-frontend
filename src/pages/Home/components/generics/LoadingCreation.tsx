@@ -15,8 +15,6 @@ const LoadingCreation: React.FC<LoadingCreationProps> = ({ jobs }) => {
     (job) => job.status === "running" || job.status === "waiting_user"
   );
 
-  console.log(jobs);
-
   const currentMessage =
     currentJob?.current_msg ||
     currentJob?.message ||
